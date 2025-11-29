@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Discover exquisite handcrafted jewellery - rings, necklaces, bracelets, and earrings. Shop our curated collection of fine jewelry.">
+    <title>Lumière Jewels - Exquisite Handcrafted Jewelry</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- 
+        JEWELLERY E-COMMERCE FRONTEND
+        ==============================
+        A complete frontend-only e-commerce site for jewellery.
+        
+        HOW TO RUN:
+        1. Open index.html in a modern browser (Chrome, Firefox, Safari)
+        2. All functionality is client-side - no server required
+        3. Data persists in localStorage (cart, wishlist, dark mode)
+        
+        FEATURES:
+        - Responsive design (mobile-first)
+        - Dark mode toggle
+        - Product search, filter, and sort
+        - Product detail modal with carousel
+        - Shopping cart with quantity controls
+        - Wishlist functionality
+        - Full keyboard accessibility
+    -->
+
+    <!-- Navigation -->
+    <header class="header" role="banner">
+        <nav class="nav container" aria-label="Main navigation">
+            <div class="nav__brand">
+                <h1 class="nav__logo">✨ Lumière</h1>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="nav__toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="nav__search">
+                <input type="search" id="searchInput" class="search__input" placeholder="Search jewellery..."
+                    aria-label="Search products">
+                <span class="search__icon">🔍</span>
+            </div>
+
+            <!-- Navigation Actions -->
+            <div class="nav__actions">
+                <button class="nav__action" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="icon">🌙</span>
+                </button>
+
+                <button class="nav__action" id="cartToggle" aria-label="Shopping cart" title="View cart">
+                    <span class="icon">🛍️</span>
+                    <span class="badge" id="cartBadge" aria-live="polite">0</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero" role="banner">
+        <div class="hero__content">
+            <h2 class="hero__title">Timeless Elegance</h2>
+            <p class="hero__subtitle">Discover handcrafted jewellery that tells your story</p>
+            <button class="hero__cta">Explore Collection</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main container" role="main">
+        <!-- Filters & Controls -->
+        <aside class="filters" role="search" aria-label="Product filters">
+            <div class="filters__group">
+                <label for="categoryFilter" class="filter__label">Category</label>
+                <select id="categoryFilter" class="filter__select">
+                    <option value="all">All Categories</option>
+                    <option value="rings">Rings</option>
+                    <option value="necklaces">Necklaces</option>
+                    <option value="bracelets">Bracelets</option>
+                    <option value="earrings">Earrings</option>
+                </select>
+            </div>
+
+            <div class="filters__group">
+                <label for="priceRange" class="filter__label">
+                    Price Range: <span id="priceValue">$0 - $5000</span>
+                </label>
+                <input type="range" id="priceRange" class="filter__range" min="0" max="5000" value="5000"
+                    aria-label="Maximum price filter">
+            </div>
+
+            <div class="filters__group">
+                <label for="sortBy" class="filter__label">Sort By</label>
+                <select id="sortBy" class="filter__select">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                </select>
+            </div>
+
+            <button class="filters__clear" id="clearFilters">Clear All Filters</button>
+        </aside>
+
+        <!-- Product Grid -->
+        <section class="products" aria-label="Product listing">
+            <div class="products__header">
+                <h2 class="products__title">Our Collection</h2>
+                <p class="products__count" id="productCount" aria-live="polite">12 products</p>
+            </div>
+
+            <div class="product-grid" id="productGrid" role="list">
+                <!-- Products will be dynamically inserted here by JavaScript -->
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <p>No products found matching your criteria.</p>
+                <button class="btn btn--secondary" id="resetFilters">Reset Filters</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
+        style="display: none;">
+        <div class="modal__overlay" aria-hidden="true"></div>
+        <div class="modal__content">
+            <button class="modal__close" aria-label="Close modal">&times;</button>
+
+            <div class="modal__body">
+                <!-- Image Carousel -->
+                <div class="modal__gallery">
+                    <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">‹</button>
+                    <img id="modalImage" class="modal__image" src="" alt="">
+                    <button class="carousel__btn carousel__btn--next" aria-label="Next image">›</button>
+                    <div class="carousel__dots" id="carouselDots"></div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="modal__info">
+                    <h3 id="modalTitle" class="modal__title"></h3>
+                    <div class="modal__rating" id="modalRating"></div>
+                    <p class="modal__price" id="modalPrice"></p>
+                    <p class="modal__description" id="modalDescription"></p>
+
+                    <!-- Options -->
+                    <div class="modal__options">
+                        <div class="option__group">
+                            <label for="sizeSelect" class="option__label">Size</label>
+                            <select id="sizeSelect" class="option__select">
+                                <option value="small">Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+
+                        <div class="option__group">
+                            <label for="metalSelect" class="option__label">Metal</label>
+                            <select id="metalSelect" class="option__select">
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="rose-gold">Rose Gold</option>
+                                <option value="platinum">Platinum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="modal__actions">
+                        <button class="btn btn--primary" id="addToCartBtn">
+                            Add to Cart
+                        </button>
+                        <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist">
+                            ♡
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <aside class="cart" id="cartPanel" aria-label="Shopping cart" style="display: none;">
+        <div class="cart__overlay"></div>
+        <div class="cart__content">
+            <div class="cart__header">
+                <h3 class="cart__title">Shopping Cart</h3>
+                <button class="cart__close" aria-label="Close cart">&times;</button>
+            </div>
+
+            <div class="cart__body" id="cartItems">
+                <!-- Cart items will be dynamically inserted here -->
+                <div class="cart__empty" id="emptyCart">
+                    <p>Your cart is empty</p>
+                    <p class="cart__empty-subtitle">Add some beautiful pieces to get started!</p>
+                </div>
+            </div>
+
+            <div class="cart__footer">
+                <div class="cart__subtotal">
+                    <span>Subtotal:</span>
+                    <span class="cart__total" id="cartTotal">$0.00</span>
+                </div>
+                <button class="btn btn--primary btn--block" id="checkoutBtn">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p class="footer__text">
+                &copy; 2025 Lumière Jewels. Handcrafted with ✨
+            </p>
+            <p class="footer__note">
+                Frontend-only demo • All data stored locally
+            </p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
