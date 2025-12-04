@@ -1,0 +1,42 @@
+/* ==================== PRODUCT CARD RESPONSIVE FIXES ==================== */
+
+/* Mobile: Stack footer vertically for better alignment */
+.product-card__footer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--spacing-sm) !important;
+    margin-top: var(--spacing-md) !important;
+}
+
+.product-card__price {
+    font-size: var(--font-size-lg) !important;
+}
+
+.product-card__quick-view {
+    width: 100% !important;
+    font-size: var(--font-size-xs) !important;
+    text-align: center !important;
+}
+
+.product-card__quick-view:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Tablet and up: Horizontal layout */
+@media (min-width: 640px) {
+    .product-card__footer {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .product-card__price {
+        font-size: var(--font-size-xl) !important;
+    }
+
+    .product-card__quick-view {
+        width: auto !important;
+        font-size: var(--font-size-sm) !important;
+    }
+}

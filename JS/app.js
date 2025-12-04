@@ -291,7 +291,7 @@ function setupEventListeners() {
     document.getElementById('cartToggle').addEventListener('click', toggleCart);
 
     // Wishlist toggle
-    document.getElementById('wishlistToggle').addEventListener('click', toggleWishlist);
+    document.getElementById('wishlistToggle').addEventListener('click', toggleWishlistPanel);
 
     // Cart close
     const cartPanel = document.getElementById('cartPanel');
@@ -325,6 +325,12 @@ function setupEventListeners() {
 
     // Event delegation for product cards
     document.getElementById('productGrid').addEventListener('click', handleProductCardClick);
+
+    // Event delegation for cart items
+    document.getElementById('cartItems').addEventListener('click', handleCartItemClick);
+
+    // Event delegation for wishlist items
+    document.getElementById('wishlistItems').addEventListener('click', handleWishlistItemClick);
 
     // Keyboard accessibility
     document.addEventListener('keydown', handleKeyboard);
@@ -479,7 +485,7 @@ function handleProductCardClick(e) {
     if (action === 'quick-view') {
         openProductModal(productId);
     } else if (action === 'wishlist') {
-        toggleWishlist(productId);
+        toggleWishlistItem(productId);
     }
 }
 
@@ -633,6 +639,22 @@ function updateCartQuantity(index, change) {
     }
 }
 
+function handleCartItemClick(e) {
+    const button = e.target.closest('[data-action]');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const index = parseInt(button.dataset.index);
+
+    if (action === 'increase') {
+        updateCartQuantity(index, 1);
+    } else if (action === 'decrease') {
+        updateCartQuantity(index, -1);
+    } else if (action === 'remove') {
+        removeFromCart(index);
+    }
+}
+
 function toggleCart() {
     const cartPanel = document.getElementById('cartPanel');
     const isVisible = cartPanel.style.display === 'block';
@@ -656,8 +678,15 @@ function renderCart() {
     const emptyCart = document.getElementById('emptyCart');
     const cartTotal = document.getElementById('cartTotal');
 
+    // Add null checks to prevent errors
+    if (!cartItems || !emptyCart || !cartTotal) {
+        console.error('Cart elements not found in DOM');
+        return;
+    }
+
     if (state.cart.length === 0) {
         emptyCart.style.display = 'block';
+        cartItems.innerHTML = '';
         cartTotal.textContent = '$0.00';
         return;
     }
@@ -671,10 +700,10 @@ function renderCart() {
                 <div class="cart-item__name">${item.title}</div>
                 <div class="cart-item__price">$${item.price.toLocaleString()}</div>
                 <div class="cart-item__controls">
-                    <button class="cart-item__btn" onclick="updateCartQuantity(${index}, -1)" aria-label="Decrease quantity">-</button>
+                    <button class="cart-item__btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">-</button>
                     <span class="cart-item__quantity">${item.quantity}</span>
-                    <button class="cart-item__btn" onclick="updateCartQuantity(${index}, 1)" aria-label="Increase quantity">+</button>
-                    <button class="cart-item__remove" onclick="removeFromCart(${index})" aria-label="Remove item">Remove</button>
+                    <button class="cart-item__btn" data-action="increase" data-index="${index}" aria-label="Increase quantity">+</button>
+                    <button class="cart-item__remove" data-action="remove" data-index="${index}" aria-label="Remove item">Remove</button>
                 </div>
             </div>
         </div>
@@ -698,7 +727,7 @@ function handleCheckout() {
 }
 
 // ==================== WISHLIST ====================
-function toggleWishlist(productId) {
+function toggleWishlistItem(productId) {
     const index = state.wishlist.indexOf(productId);
     const product = state.products.find(p => p.id === productId);
 
@@ -718,7 +747,7 @@ function toggleWishlist(productId) {
 function toggleWishlistFromModal() {
     if (!state.currentProduct) return;
 
-    toggleWishlist(state.currentProduct.id);
+    toggleWishlistItem(state.currentProduct.id);
 
     // Update modal button
     const wishlistBtn = document.getElementById('modalWishlistBtn');
@@ -730,7 +759,7 @@ function isInWishlist(productId) {
 }
 
 // ==================== WISHLIST PANEL ====================
-function toggleWishlist() {
+function toggleWishlistPanel() {
     const wishlistPanel = document.getElementById('wishlistPanel');
     const isVisible = wishlistPanel.style.display === 'block';
 
@@ -753,14 +782,18 @@ function renderWishlist() {
     const emptyWishlist = document.getElementById('emptyWishlist');
     const wishlistBadge = document.getElementById('wishlistBadge');
 
+    // Add null checks to prevent errors
+    if (!wishlistItems || !emptyWishlist || !wishlistBadge) {
+        console.error('Wishlist elements not found in DOM');
+        return;
+    }
+
     // Update badge
     wishlistBadge.textContent = state.wishlist.length;
 
     if (state.wishlist.length === 0) {
         emptyWishlist.style.display = 'block';
-        // Clear any existing items
-        const existingItems = wishlistItems.querySelectorAll('.cart-item');
-        existingItems.forEach(item => item.remove());
+        wishlistItems.innerHTML = '';
         return;
     }
 
@@ -777,8 +810,8 @@ function renderWishlist() {
                     <div class="cart-item__name">${product.title}</div>
                     <div class="cart-item__price">$${product.price.toLocaleString()}</div>
                     <div class="cart-item__controls">
-                        <button class="btn btn--primary" onclick="addToCartFromWishlist(${productId})" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Add to Cart</button>
-                        <button class="cart-item__remove" onclick="removeFromWishlist(${productId})" aria-label="Remove from wishlist">Remove</button>
+                        <button class="btn btn--primary" data-action="add-to-cart" data-product-id="${productId}" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Add to Cart</button>
+                        <button class="cart-item__remove" data-action="remove-from-wishlist" data-product-id="${productId}" aria-label="Remove from wishlist">Remove</button>
                     </div>
                 </div>
             </div>
@@ -796,6 +829,20 @@ function removeFromWishlist(productId) {
         renderWishlist();
         renderProducts(); // Update heart icons
         showToast('Removed from wishlist');
+    }
+}
+
+function handleWishlistItemClick(e) {
+    const button = e.target.closest('[data-action]');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const productId = parseInt(button.dataset.productId);
+
+    if (action === 'add-to-cart') {
+        addToCartFromWishlist(productId);
+    } else if (action === 'remove-from-wishlist') {
+        removeFromWishlist(productId);
     }
 }
 
