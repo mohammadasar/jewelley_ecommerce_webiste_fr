@@ -6,36 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Discover exquisite handcrafted jewellery - rings, necklaces, bracelets, and earrings. Shop our curated collection of fine jewelry.">
-    <title>Lumière Jewels - Exquisite Handcrafted Jewelry</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Guru Jewellery - Exquisite Handcrafted Jewelry</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
 </head>
 
 <body>
-    <!-- 
-        JEWELLERY E-COMMERCE FRONTEND
-        ==============================
-        A complete frontend-only e-commerce site for jewellery.
-        
-        HOW TO RUN:
-        1. Open index.html in a modern browser (Chrome, Firefox, Safari)
-        2. All functionality is client-side - no server required
-        3. Data persists in localStorage (cart, wishlist, dark mode)
-        
-        FEATURES:
-        - Responsive design (mobile-first)
-        - Dark mode toggle
-        - Product search, filter, and sort
-        - Product detail modal with carousel
-        - Shopping cart with quantity controls
-        - Wishlist functionality
-        - Full keyboard accessibility
-    -->
-
     <!-- Navigation -->
     <header class="header" role="banner">
         <nav class="nav container" aria-label="Main navigation">
             <div class="nav__brand">
-                <h1 class="nav__logo">✨ Lumière</h1>
+                <h1 class="nav__logo">💎 Guru Jewellery</h1>
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -56,6 +36,11 @@
                     <span class="icon">🌙</span>
                 </button>
 
+                <button class="nav__action" id="wishlistToggle" aria-label="Wishlist" title="View wishlist">
+                    <span class="icon">❤️</span>
+                    <span class="badge" id="wishlistBadge" aria-live="polite">0</span>
+                </button>
+
                 <button class="nav__action" id="cartToggle" aria-label="Shopping cart" title="View cart">
                     <span class="icon">🛍️</span>
                     <span class="badge" id="cartBadge" aria-live="polite">0</span>
@@ -64,12 +49,74 @@
         </nav>
     </header>
 
-    <!-- Hero Banner -->
-    <section class="hero" role="banner">
-        <div class="hero__content">
-            <h2 class="hero__title">Timeless Elegance</h2>
-            <p class="hero__subtitle">Discover handcrafted jewellery that tells your story</p>
-            <button class="hero__cta">Explore Collection</button>
+    <!-- Hero Carousel -->
+    <section class="hero" aria-label="Luxury jewellery carousel">
+        <div class="carousel" id="carousel">
+            <div class="slides" id="slides" aria-live="polite">
+                <!-- Slide 1 -->
+                <article class="slide" data-title="Aurora Diamond Ring" data-price="$3,200">
+                    <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=80"
+                        alt="Woman wearing Aurora Diamond Ring" />
+                    <span class="badge">New Arrival</span>
+                    <div class="info" aria-hidden="false">
+                        <span class="brand">Guru Jewellery</span>
+                        <h2 class="title">Aurora Diamond Ring</h2>
+                        <p class="desc">Hand-crafted 18k gold with ethically sourced brilliant-cut diamonds.
+                            Simple, timeless, perfect for everyday elegance.</p>
+                        <div class="price">
+                            <span class="amount">$3,200</span>
+                            <span class="old">$3,800</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Slide 2 -->
+                <article class="slide" data-title="Golden Halo Necklace" data-price="$1,450">
+                    <img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=1800&q=80"
+                        alt="Woman wearing Golden Halo Necklace" />
+                    <span class="badge">Bestseller</span>
+                    <div class="info">
+                        <span class="brand">Guru Jewellery</span>
+                        <h2 class="title">Golden Halo Necklace</h2>
+                        <p class="desc">Delicate chain with a hammered gold halo pendant. Compliments both
+                            formal wear and casual tailoring.</p>
+                        <div class="price">
+                            <span class="amount">$1,450</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Slide 3 -->
+                <article class="slide" data-title="Sapphire Elegance Bracelet" data-price="$2,890">
+                    <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=80"
+                        alt="Woman wearing Sapphire Elegance Bracelet" />
+                    <span class="badge">Limited</span>
+                    <div class="info">
+                        <span class="brand">Maison Lumière</span>
+                        <h2 class="title">Sapphire Elegance Bracelet</h2>
+                        <p class="desc">Stunning sapphire and diamond bracelet in platinum setting.
+                            A masterpiece of craftsmanship and luxury.</p>
+                        <div class="price">
+                            <span class="amount">$2,890</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Controls -->
+            <button class="nav-btn nav-prev" id="prevBtn" aria-label="Previous slide">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <button class="nav-btn nav-next" id="nextBtn" aria-label="Next slide">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="9 6 15 12 9 18"></polyline>
+                </svg>
+            </button>
+
+            <div class="dots" id="dots" role="tablist" aria-label="Slide dots"></div>
         </div>
     </section>
 
@@ -89,17 +136,9 @@
             </div>
 
             <div class="filters__group">
-                <label for="priceRange" class="filter__label">
-                    Price Range: <span id="priceValue">$0 - $5000</span>
-                </label>
-                <input type="range" id="priceRange" class="filter__range" min="0" max="5000" value="5000"
-                    aria-label="Maximum price filter">
-            </div>
-
-            <div class="filters__group">
                 <label for="sortBy" class="filter__label">Sort By</label>
                 <select id="sortBy" class="filter__select">
-                    <option value="newest">Newest First</option>
+                    <option value="newest">Newest Arrivals</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
                     <option value="rating">Highest Rated</option>
@@ -216,11 +255,30 @@
         </div>
     </aside>
 
+    <!-- Wishlist Sidebar -->
+    <aside class="cart" id="wishlistPanel" aria-label="Wishlist" style="display: none;">
+        <div class="cart__overlay"></div>
+        <div class="cart__content">
+            <div class="cart__header">
+                <h3 class="cart__title">My Wishlist</h3>
+                <button class="cart__close" aria-label="Close wishlist">&times;</button>
+            </div>
+
+            <div class="cart__body" id="wishlistItems">
+                <!-- Wishlist items will be dynamically inserted here -->
+                <div class="cart__empty" id="emptyWishlist">
+                    <p>Your wishlist is empty</p>
+                    <p class="cart__empty-subtitle">Add your favorite pieces to save them for later!</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div class="container">
             <p class="footer__text">
-                &copy; 2025 Lumière Jewels. Handcrafted with ✨
+                &copy; 2025 Guru Jewellery. Handcrafted with ✨
             </p>
             <p class="footer__note">
                 Frontend-only demo • All data stored locally
@@ -231,7 +289,8 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="app.js"></script>
+    <script src="./JS/app.js"></script>
+
 </body>
 
 </html>

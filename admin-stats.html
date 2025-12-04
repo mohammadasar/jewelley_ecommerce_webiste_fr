@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Stats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 300px;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            width: 350px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Admin Dashboard – Stats</h2>
+
+    <label>Enter Admin JWT Token:</label><br>
+    <input type="text" id="token" placeholder="Paste your admin token here">
+
+    <br>
+    <button onclick="loadStats()">Get Admin Stats</button>
+
+    <div id="output"></div>
+
+    <script>
+        async function loadStats() {
+            const token = document.getElementById("token").value.trim();
+
+            if (!token) {
+                alert("Please enter JWT Token");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:8080/api/admin/stats", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const output = document.getElementById("output");
+
+                if (response.status === 403) {
+                    output.innerHTML = "<b style='color:red'>403 Forbidden</b><br>You are not ADMIN!";
+                    return;
+                }
+
+                if (!response.ok) {
+                    output.innerHTML = "<b>Error:</b> " + response.status;
+                    return;
+                }
+
+                const data = await response.json();
+
+                output.innerHTML = "<b>Admin Stats:</b><br><br>" +
+                    "Total Products: " + data.products + "<br>" +
+                    "Total Categories: " + data.categories + "<br>";
+            } catch (err) {
+                document.getElementById("output").innerHTML = "Error: " + err;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

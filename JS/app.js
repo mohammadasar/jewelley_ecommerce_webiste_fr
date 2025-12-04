@@ -212,7 +212,7 @@ const state = {
     filters: {
         search: '',
         category: 'all',
-        maxPrice: 5000,
+
         sortBy: 'newest'
     },
     currentProduct: null,
@@ -242,6 +242,9 @@ function initializeApp() {
 
     // Update cart badge
     updateCartBadge();
+
+    // Update wishlist badge
+    updateWishlistBadge();
 }
 
 // ==================== LOCAL STORAGE ====================
@@ -277,7 +280,7 @@ function setupEventListeners() {
 
     // Filters
     document.getElementById('categoryFilter').addEventListener('change', handleCategoryFilter);
-    document.getElementById('priceRange').addEventListener('input', handlePriceFilter);
+
     document.getElementById('sortBy').addEventListener('change', handleSort);
     document.getElementById('clearFilters').addEventListener('click', clearFilters);
 
@@ -287,10 +290,18 @@ function setupEventListeners() {
     // Cart toggle
     document.getElementById('cartToggle').addEventListener('click', toggleCart);
 
+    // Wishlist toggle
+    document.getElementById('wishlistToggle').addEventListener('click', toggleWishlist);
+
     // Cart close
     const cartPanel = document.getElementById('cartPanel');
     cartPanel.querySelector('.cart__close').addEventListener('click', closeCart);
     cartPanel.querySelector('.cart__overlay').addEventListener('click', closeCart);
+
+    // Wishlist close
+    const wishlistPanel = document.getElementById('wishlistPanel');
+    wishlistPanel.querySelector('.cart__close').addEventListener('click', closeWishlist);
+    wishlistPanel.querySelector('.cart__overlay').addEventListener('click', closeWishlist);
 
     // Checkout button (demo only)
     document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
@@ -301,8 +312,8 @@ function setupEventListeners() {
     modal.querySelector('.modal__overlay').addEventListener('click', closeModal);
 
     // Carousel buttons
-    // modal.querySelector('.carousel__btn--prev').addEventListener('click', () => navigateCarousel(-1));
-    // modal.querySelector('.carousel__btn--next').addEventListener('click', () => navigateCarousel(1));
+    modal.querySelector('.carousel__btn--prev').addEventListener('click', () => navigateCarousel(-1));
+    modal.querySelector('.carousel__btn--next').addEventListener('click', () => navigateCarousel(1));
 
     // Modal add to cart
     document.getElementById('addToCartBtn').addEventListener('click', addToCartFromModal);
@@ -310,10 +321,7 @@ function setupEventListeners() {
     // Modal wishlist
     document.getElementById('modalWishlistBtn').addEventListener('click', toggleWishlistFromModal);
 
-    // Hero CTA
-    document.querySelector('.hero__cta').addEventListener('click', () => {
-        document.querySelector('.products').scrollIntoView({ behavior: 'smooth' });
-    });
+
 
     // Event delegation for product cards
     document.getElementById('productGrid').addEventListener('click', handleProductCardClick);
@@ -333,11 +341,7 @@ function handleCategoryFilter(e) {
     applyFilters();
 }
 
-function handlePriceFilter(e) {
-    state.filters.maxPrice = parseInt(e.target.value);
-    document.getElementById('priceValue').textContent = `$0 - $${state.filters.maxPrice}`;
-    applyFilters();
-}
+
 
 function handleSort(e) {
     state.filters.sortBy = e.target.value;
@@ -348,14 +352,13 @@ function clearFilters() {
     state.filters = {
         search: '',
         category: 'all',
-        maxPrice: 5000,
+
         sortBy: 'newest'
     };
 
     document.getElementById('searchInput').value = '';
     document.getElementById('categoryFilter').value = 'all';
-    document.getElementById('priceRange').value = 5000;
-    document.getElementById('priceValue').textContent = '$0 - $5000';
+
     document.getElementById('sortBy').value = 'newest';
 
     applyFilters();
@@ -377,8 +380,7 @@ function applyFilters() {
         filtered = filtered.filter(product => product.category === state.filters.category);
     }
 
-    // Price filter
-    filtered = filtered.filter(product => product.price <= state.filters.maxPrice);
+
 
     // Sort
     switch (state.filters.sortBy) {
@@ -610,10 +612,12 @@ function addToCart(productId, size = 'medium', metal = 'gold') {
 }
 
 function removeFromCart(index) {
+    const item = state.cart[index];
     state.cart.splice(index, 1);
     renderCart();
     updateCartBadge();
     saveToLocalStorage();
+    showToast(`${item.title} removed from cart`);
 }
 
 function updateCartQuantity(index, change) {
@@ -624,6 +628,7 @@ function updateCartQuantity(index, change) {
         removeFromCart(index);
     } else {
         renderCart();
+        updateCartBadge();
         saveToLocalStorage();
     }
 }
@@ -695,14 +700,18 @@ function handleCheckout() {
 // ==================== WISHLIST ====================
 function toggleWishlist(productId) {
     const index = state.wishlist.indexOf(productId);
+    const product = state.products.find(p => p.id === productId);
 
     if (index > -1) {
         state.wishlist.splice(index, 1);
+        showToast('Removed from wishlist');
     } else {
         state.wishlist.push(productId);
+        showToast(`${product ? product.title : 'Item'} added to wishlist!`);
     }
 
     saveToLocalStorage();
+    updateWishlistBadge();
     renderProducts(); // Re-render to update heart icons
 }
 
@@ -714,12 +723,88 @@ function toggleWishlistFromModal() {
     // Update modal button
     const wishlistBtn = document.getElementById('modalWishlistBtn');
     wishlistBtn.textContent = isInWishlist(state.currentProduct.id) ? '❤️' : '♡';
-
-    showToast(isInWishlist(state.currentProduct.id) ? 'Added to wishlist!' : 'Removed from wishlist');
 }
 
 function isInWishlist(productId) {
     return state.wishlist.includes(productId);
+}
+
+// ==================== WISHLIST PANEL ====================
+function toggleWishlist() {
+    const wishlistPanel = document.getElementById('wishlistPanel');
+    const isVisible = wishlistPanel.style.display === 'block';
+
+    if (isVisible) {
+        closeWishlist();
+    } else {
+        wishlistPanel.style.display = 'block';
+        renderWishlist();
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeWishlist() {
+    document.getElementById('wishlistPanel').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function renderWishlist() {
+    const wishlistItems = document.getElementById('wishlistItems');
+    const emptyWishlist = document.getElementById('emptyWishlist');
+    const wishlistBadge = document.getElementById('wishlistBadge');
+
+    // Update badge
+    wishlistBadge.textContent = state.wishlist.length;
+
+    if (state.wishlist.length === 0) {
+        emptyWishlist.style.display = 'block';
+        // Clear any existing items
+        const existingItems = wishlistItems.querySelectorAll('.cart-item');
+        existingItems.forEach(item => item.remove());
+        return;
+    }
+
+    emptyWishlist.style.display = 'none';
+
+    const itemsHTML = state.wishlist.map(productId => {
+        const product = state.products.find(p => p.id === productId);
+        if (!product) return '';
+
+        return `
+            <div class="cart-item">
+                <img src="${product.images[0]}" alt="${product.title}" class="cart-item__image">
+                <div class="cart-item__info">
+                    <div class="cart-item__name">${product.title}</div>
+                    <div class="cart-item__price">$${product.price.toLocaleString()}</div>
+                    <div class="cart-item__controls">
+                        <button class="btn btn--primary" onclick="addToCartFromWishlist(${productId})" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Add to Cart</button>
+                        <button class="cart-item__remove" onclick="removeFromWishlist(${productId})" aria-label="Remove from wishlist">Remove</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    wishlistItems.innerHTML = itemsHTML;
+}
+
+function removeFromWishlist(productId) {
+    const index = state.wishlist.indexOf(productId);
+    if (index > -1) {
+        state.wishlist.splice(index, 1);
+        saveToLocalStorage();
+        renderWishlist();
+        renderProducts(); // Update heart icons
+        showToast('Removed from wishlist');
+    }
+}
+
+function addToCartFromWishlist(productId) {
+    const product = state.products.find(p => p.id === productId);
+    if (!product) return;
+
+    addToCart(productId);
+    showToast(`${product.title} added to cart!`);
 }
 
 // ==================== DARK MODE ====================
@@ -741,19 +826,163 @@ function toggleDarkMode() {
 
 // ==================== KEYBOARD ACCESSIBILITY ====================
 function handleKeyboard(e) {
-    // ESC key closes modal and cart
+    // ESC key closes modal, cart, and wishlist
     if (e.key === 'Escape') {
         const modal = document.getElementById('productModal');
         const cart = document.getElementById('cartPanel');
+        const wishlist = document.getElementById('wishlistPanel');
 
         if (modal.style.display === 'flex') {
             closeModal();
         } else if (cart.style.display === 'block') {
             closeCart();
+        } else if (wishlist.style.display === 'block') {
+            closeWishlist();
         }
     }
 }
+// ==================== CAROUSEL PANEL =========================
+(function () {
+    const slidesEl = document.getElementById('slides');
+    const slides = Array.from(slidesEl.querySelectorAll('.slide'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsEl = document.getElementById('dots');
+    const carousel = document.getElementById('carousel');
 
+    let current = 0;
+    const total = slides.length;
+    let autoplayInterval = 2500;
+    let timer = null;
+    let isDragging = false;
+    let startX = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationID = 0;
+
+    // Create dots
+    slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot';
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(dot);
+    });
+
+    const dots = Array.from(dotsEl.children);
+
+    function updateUI() {
+        // Move slides
+        slidesEl.style.transform = `translateX(-${current * 100}%)`;
+        // Update dots
+        dots.forEach((d, i) => d.classList.toggle('active', i === current));
+        // Update live region or ARIA if needed (here slide articles already have content)
+    }
+
+    function goTo(index) {
+        current = (index + total) % total;
+        updateUI();
+        restartAutoplay();
+    }
+
+    function next() {
+        current = (current + 1) % total;
+        updateUI();
+    }
+
+    function prev() {
+        current = (current - 1 + total) % total;
+        updateUI();
+    }
+
+    // Autoplay
+    function startAutoplay() {
+        stopAutoplay();
+        timer = setInterval(() => {
+            next();
+        }, autoplayInterval);
+    }
+
+    function stopAutoplay() {
+        if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    function restartAutoplay() {
+        stopAutoplay();
+        startAutoplay();
+    }
+
+    // Pause on hover/focus
+    carousel.addEventListener('mouseenter', stopAutoplay);
+    carousel.addEventListener('mouseleave', startAutoplay);
+    carousel.addEventListener('focusin', stopAutoplay);
+    carousel.addEventListener('focusout', startAutoplay);
+
+    // Buttons
+    nextBtn.addEventListener('click', () => { next(); restartAutoplay(); });
+    prevBtn.addEventListener('click', () => { prev(); restartAutoplay(); });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { prev(); restartAutoplay(); }
+        if (e.key === 'ArrowRight') { next(); restartAutoplay(); }
+    });
+
+    // Touch / Drag support
+    slidesEl.addEventListener('pointerdown', pointerDown);
+    window.addEventListener('pointerup', pointerUp);
+    window.addEventListener('pointermove', pointerMove);
+
+    function pointerDown(e) {
+        isDragging = true;
+        startX = e.clientX;
+        slidesEl.style.transition = 'none';
+        stopAutoplay();
+    }
+    function pointerMove(e) {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        slidesEl.style.transform = `translateX(${-current * 100 + (dx / carousel.offsetWidth) * 100}%)`;
+    }
+    function pointerUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        slidesEl.style.transition = '';
+        const dx = e.clientX - startX;
+        const threshold = carousel.offsetWidth * 0.18;
+        if (dx > threshold) {
+            prev();
+        } else if (dx < -threshold) {
+            next();
+        } else {
+            updateUI(); // snap back
+        }
+        restartAutoplay();
+    }
+
+    // Initialize
+    updateUI();
+    startAutoplay();
+
+    // Make slide content easily moddable: clicking a slide logs details (example hook)
+    slides.forEach((s, idx) => {
+        s.addEventListener('click', () => {
+            const title = s.dataset.title || 'Product';
+            const price = s.dataset.price || '';
+            console.log('Selected:', title, price);
+        });
+    });
+
+    // Expose a small API on window for quick customization in console
+    window.LuxCarousel = {
+        goTo,
+        next,
+        prev,
+        start: startAutoplay,
+        stop: stopAutoplay,
+        getCurrent: () => current
+    };
+})();
 // ==================== TOAST NOTIFICATIONS ====================
 function showToast(message) {
     const toast = document.getElementById('toast');
@@ -765,7 +994,16 @@ function showToast(message) {
     }, 3000);
 }
 
+
 // ==================== UTILITY FUNCTIONS ====================
+// Helper function to update wishlist badge
+function updateWishlistBadge() {
+    const wishlistBadge = document.getElementById('wishlistBadge');
+    wishlistBadge.textContent = state.wishlist.length;
+}
+
 // Make functions globally available for inline event handlers
 window.updateCartQuantity = updateCartQuantity;
 window.removeFromCart = removeFromCart;
+window.removeFromWishlist = removeFromWishlist;
+window.addToCartFromWishlist = addToCartFromWishlist;
