@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Guru Jewellery</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
+    <link rel="stylesheet" href="./CSS/admin-panel.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <header class="header" role="banner">
+        <nav class="nav container" aria-label="Main navigation">
+            <div class="nav__brand">
+                <h1 class="nav__logo">💎 Guru Jewellery - Admin</h1>
+            </div>
+
+            <div class="nav__actions">
+                <button class="nav__action" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="icon">🌙</span>
+                </button>
+
+                <button class="nav__action" id="backToHome" aria-label="Back to Home" title="Back to Home">
+                    <span class="icon">🏠</span>
+                </button>
+
+                <div class="profile-menu-container">
+                    <button class="nav__action" id="profileMenuToggle" aria-label="Profile menu" title="Profile">
+                        <span class="icon">👤</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="#" class="profile-dropdown__item" id="myProfile">
+                            <span class="icon">👤</span> My Profile
+                        </a>
+                        <a href="#" class="profile-dropdown__item" id="myOrders">
+                            <span class="icon">📦</span> My Orders
+                        </a>
+                        <a href="admin.html" class="profile-dropdown__item admin-only" id="adminPanel">
+                            <span class="icon">⚙️</span> Admin Panel
+                        </a>
+                        <hr class="profile-dropdown__divider">
+                        <a href="#" class="profile-dropdown__item" id="logoutBtn">
+                            <span class="icon">🚪</span> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Admin Dashboard -->
+    <main class="admin-main container">
+        <div class="admin-header">
+            <h1 class="admin-title">Admin Dashboard</h1>
+            <p class="admin-subtitle">Manage your jewellery e-commerce store</p>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="admin-grid">
+            <!-- Reports Card -->
+            <div class="admin-card" data-section="reports">
+                <div class="admin-card__icon">📊</div>
+                <h3 class="admin-card__title">Reports</h3>
+                <p class="admin-card__description">View sales reports, analytics, and performance metrics</p>
+                <button class="admin-card__button" onclick="loadSection('reports')">View Reports</button>
+            </div>
+
+            <!-- Sales Card -->
+            <div class="admin-card" data-section="sales">
+                <div class="admin-card__icon">💰</div>
+                <h3 class="admin-card__title">Sales</h3>
+                <p class="admin-card__description">Track sales, revenue, and transaction history</p>
+                <button class="admin-card__button" onclick="loadSection('sales')">View Sales</button>
+            </div>
+
+            <!-- Stock Card -->
+            <div class="admin-card" data-section="stock">
+                <div class="admin-card__icon">📦</div>
+                <h3 class="admin-card__title">Stock Management</h3>
+                <p class="admin-card__description">Manage inventory, stock levels, and product availability</p>
+                <button class="admin-card__button" onclick="loadSection('stock')">Manage Stock</button>
+            </div>
+
+            <!-- User Details Card -->
+            <div class="admin-card" data-section="users">
+                <div class="admin-card__icon">👥</div>
+                <h3 class="admin-card__title">User Details</h3>
+                <p class="admin-card__description">View and manage customer accounts and information</p>
+                <button class="admin-card__button" onclick="loadSection('users')">View Users</button>
+            </div>
+
+            <!-- Invoice Card -->
+            <div class="admin-card" data-section="invoices">
+                <div class="admin-card__icon">🧾</div>
+                <h3 class="admin-card__title">Invoices</h3>
+                <p class="admin-card__description">Generate and manage customer invoices</p>
+                <button class="admin-card__button" onclick="loadSection('invoices')">View Invoices</button>
+            </div>
+
+            <!-- Product Management Card -->
+            <div class="admin-card" data-section="products">
+                <div class="admin-card__icon">💎</div>
+                <h3 class="admin-card__title">Product Management</h3>
+                <p class="admin-card__description">Create, update, and delete products (CRUD operations)</p>
+                <button class="admin-card__button" onclick="loadSection('products')">Manage Products</button>
+            </div>
+        </div>
+
+        <!-- Content Section (Placeholder for dynamic content) -->
+        <div class="admin-content" id="adminContent" style="display: none;">
+            <div class="admin-content__header">
+                <h2 id="contentTitle">Section Title</h2>
+                <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+            </div>
+            <div class="admin-content__body" id="contentBody">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p class="footer__text">
+                &copy; 2025 Guru Jewellery. Admin Panel
+            </p>
+        </div>
+    </footer>
+
+    <script src="./JS/admin-panel.js"></script>
+</body>
+
+</html>

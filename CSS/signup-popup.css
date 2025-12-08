@@ -1,0 +1,252 @@
+/* ============================================
+   SIGNUP/LOGIN POPUP STYLES
+   ============================================ */
+
+/* Overlay - covers entire screen */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.popup-overlay.show {
+    display: block;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* Popup Container */
+.signup-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: #ffffff;
+    width: 90%;
+    max-width: 450px;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.signup-popup.show {
+    display: block;
+    animation: popupSlideIn 0.4s ease forwards;
+}
+
+/* Close Button */
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: #999;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+    background: #f0f0f0;
+    color: #333;
+    transform: rotate(90deg);
+}
+
+/* Popup Icon */
+.popup-icon {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.popup-icon svg {
+    width: 60px;
+    height: 60px;
+    fill: #4f46e5;
+}
+
+/* Popup Content */
+.popup-content h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.popup-content p {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0 0 30px 0;
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* Buttons Container */
+.popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.popup-btn {
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.popup-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.popup-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.popup-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.popup-btn-secondary:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+/* Dismiss Link */
+.popup-dismiss {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.popup-dismiss button {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.popup-dismiss button:hover {
+    color: #6b7280;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popupSlideIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes popupSlideOut {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .signup-popup {
+        width: 95%;
+        padding: 30px 20px;
+    }
+
+    .popup-content h2 {
+        font-size: 24px;
+    }
+
+    .popup-content p {
+        font-size: 14px;
+    }
+
+    .popup-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .signup-popup {
+        background: #1f2937;
+    }
+
+    .popup-content h2 {
+        color: #f9fafb;
+    }
+
+    .popup-content p {
+        color: #d1d5db;
+    }
+
+    .popup-close {
+        color: #9ca3af;
+    }
+
+    .popup-close:hover {
+        background: #374151;
+        color: #f9fafb;
+    }
+
+    .popup-btn-secondary {
+        background: #374151;
+        color: #f9fafb;
+        border-color: #4b5563;
+    }
+
+    .popup-btn-secondary:hover {
+        background: #4b5563;
+    }
+}

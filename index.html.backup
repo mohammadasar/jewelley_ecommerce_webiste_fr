@@ -9,8 +9,6 @@
     <title>Guru Jewellery - Exquisite Handcrafted Jewelry</title>
     <link rel="stylesheet" href="./CSS/styles.css">
     <link rel="stylesheet" href="./CSS/signup-popup.css">
-    <link rel="stylesheet" href="./CSS/admin-panel.css">
-    <link rel="stylesheet" href="./CSS/mobile-nav.css">
 </head>
 
 <body>
@@ -48,36 +46,6 @@
                     <span class="icon">🛍️</span>
                     <span class="badge" id="cartBadge" aria-live="polite">0</span>
                 </button>
-
-                <!-- Profile Menu (Desktop) / Login Button -->
-                <div class="profile-menu-container" id="profileMenuContainer">
-                    <!-- Logged In: Profile Menu -->
-                    <button class="nav__action" id="profileMenuToggle" aria-label="Profile menu" title="Profile"
-                        style="display: none;">
-                        <span class="icon">👤</span>
-                    </button>
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <a href="#" class="profile-dropdown__item" id="myProfile">
-                            <span class="icon">👤</span> My Profile
-                        </a>
-                        <a href="#" class="profile-dropdown__item" id="myOrders">
-                            <span class="icon">📦</span> My Orders
-                        </a>
-                        <a href="admin.html" class="profile-dropdown__item admin-only" id="adminPanel"
-                            style="display: none;">
-                            <span class="icon">⚙️</span> Admin Panel
-                        </a>
-                        <hr class="profile-dropdown__divider">
-                        <a href="#" class="profile-dropdown__item" id="logoutBtn">
-                            <span class="icon">🚪</span> Logout
-                        </a>
-                    </div>
-
-                    <!-- Not Logged In: Login/Signup Button -->
-                    <a href="login.html" class="btn-login" id="loginSignupBtn" style="display: none;">
-                        Login / Signup
-                    </a>
-                </div>
             </div>
         </nav>
     </header>
@@ -183,15 +151,6 @@
 
         <!-- Product Grid -->
         <section class="products" aria-label="Product listing">
-            <!-- Mobile Search Bar (visible only on mobile) -->
-            <div class="mobile-search-container">
-                <div class="mobile-search">
-                    <input type="search" id="mobileSearchInput" class="mobile-search__input"
-                        placeholder="Search jewellery..." aria-label="Search products on mobile">
-                    <span class="mobile-search__icon">🔍</span>
-                </div>
-            </div>
-
             <div class="products__header">
                 <h2 class="products__title">Our Collection</h2>
                 <p class="products__count" id="productCount" aria-live="polite">12 products</p>
@@ -323,17 +282,211 @@
                 &copy; 2025 Guru Jewellery. Handcrafted with ✨
             </p>
             <p class="footer__note">
-                Frontend-only demo • All data stored locally
-            </p>
+                <!-- Slide 3 -->
+            <article class="slide" data-title="Sapphire Elegance Bracelet" data-price="$2,890">
+                <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=80"
+                    alt="Woman wearing Sapphire Elegance Bracelet" />
+                <span class="badge">Limited</span>
+                <div class="info">
+                    <span class="brand">Maison Lumière</span>
+                    <h2 class="title">Sapphire Elegance Bracelet</h2>
+                    <p class="desc">Stunning sapphire and diamond bracelet in platinum setting.
+                        A masterpiece of craftsmanship and luxury.</p>
+                    <div class="price">
+                        <span class="amount">$2,890</span>
+                    </div>
+                </div>
+            </article>
         </div>
-    </footer>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+        <!-- Controls -->
+        <button class="nav-btn nav-prev" id="prevBtn" aria-label="Previous slide">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
 
-    <script src="./JS/app.js"></script>
-    <script src="./JS/signup-popup.js"></script>
-    <script src="./JS/auth-state.js"></script>
+        <button class="nav-btn nav-next" id="nextBtn" aria-label="Next slide">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <polyline points="9 6 15 12 9 18"></polyline>
+            </svg>
+        </button>
+
+        <div class="dots" id="dots" role="tablist" aria-label="Slide dots"></div>
+        </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="main container" role="main">
+            <!-- Filters & Controls -->
+            <aside class="filters" role="search" aria-label="Product filters">
+                <div class="filters__group">
+                    <label for="categoryFilter" class="filter__label">Category</label>
+                    <select id="categoryFilter" class="filter__select">
+                        <option value="all">All Categories</option>
+                        <option value="rings">Rings</option>
+                        <option value="necklaces">Necklaces</option>
+                        <option value="bracelets">Bracelets</option>
+                        <option value="earrings">Earrings</option>
+                    </select>
+                </div>
+
+                <div class="filters__group">
+                    <label for="sortBy" class="filter__label">Sort By</label>
+                    <select id="sortBy" class="filter__select">
+                        <option value="newest">Newest Arrivals</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                </div>
+
+                <button class="filters__clear" id="clearFilters">Clear All Filters</button>
+            </aside>
+
+            <!-- Product Grid -->
+            <section class="products" aria-label="Product listing">
+                <div class="products__header">
+                    <h2 class="products__title">Our Collection</h2>
+                    <p class="products__count" id="productCount" aria-live="polite">12 products</p>
+                </div>
+
+                <div class="product-grid" id="productGrid" role="list">
+                    <!-- Products will be dynamically inserted here by JavaScript -->
+                </div>
+
+                <!-- No Results Message -->
+                <div class="no-results" id="noResults" style="display: none;">
+                    <p>No products found matching your criteria.</p>
+                    <button class="btn btn--secondary" id="resetFilters">Reset Filters</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Product Detail Modal -->
+        <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
+            style="display: none;">
+            <div class="modal__overlay" aria-hidden="true"></div>
+            <div class="modal__content">
+                <button class="modal__close" aria-label="Close modal">&times;</button>
+
+                <div class="modal__body">
+                    <!-- Image Carousel -->
+                    <div class="modal__gallery">
+                        <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">‹</button>
+                        <img id="modalImage" class="modal__image" src="" alt="">
+                        <button class="carousel__btn carousel__btn--next" aria-label="Next image">›</button>
+                        <div class="carousel__dots" id="carouselDots"></div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="modal__info">
+                        <h3 id="modalTitle" class="modal__title"></h3>
+                        <div class="modal__rating" id="modalRating"></div>
+                        <p class="modal__price" id="modalPrice"></p>
+                        <p class="modal__description" id="modalDescription"></p>
+
+                        <!-- Options -->
+                        <div class="modal__options">
+                            <div class="option__group">
+                                <label for="sizeSelect" class="option__label">Size</label>
+                                <select id="sizeSelect" class="option__select">
+                                    <option value="small">Small</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+
+                            <div class="option__group">
+                                <label for="metalSelect" class="option__label">Metal</label>
+                                <select id="metalSelect" class="option__select">
+                                    <option value="gold">Gold</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="rose-gold">Rose Gold</option>
+                                    <option value="platinum">Platinum</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="modal__actions">
+                            <button class="btn btn--primary" id="addToCartBtn">
+                                Add to Cart
+                            </button>
+                            <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist">
+                                ♡
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Sidebar -->
+        <aside class="cart" id="cartPanel" aria-label="Shopping cart" style="display: none;">
+            <div class="cart__overlay"></div>
+            <div class="cart__content">
+                <div class="cart__header">
+                    <h3 class="cart__title">Shopping Cart</h3>
+                    <button class="cart__close" aria-label="Close cart">&times;</button>
+                </div>
+
+                <div class="cart__body" id="cartItems">
+                    <!-- Cart items will be dynamically inserted here -->
+                    <div class="cart__empty" id="emptyCart">
+                        <p>Your cart is empty</p>
+                        <p class="cart__empty-subtitle">Add some beautiful pieces to get started!</p>
+                    </div>
+                </div>
+
+                <div class="cart__footer">
+                    <div class="cart__subtotal">
+                        <span>Subtotal:</span>
+                        <span class="cart__total" id="cartTotal">$0.00</span>
+                    </div>
+                    <button class="btn btn--primary btn--block" id="checkoutBtn">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Wishlist Sidebar -->
+        <aside class="cart" id="wishlistPanel" aria-label="Wishlist" style="display: none;">
+            <div class="cart__overlay"></div>
+            <div class="cart__content">
+                <div class="cart__header">
+                    <h3 class="cart__title">My Wishlist</h3>
+                    <button class="cart__close" aria-label="Close wishlist">&times;</button>
+                </div>
+
+                <div class="cart__body" id="wishlistItems">
+                    <!-- Wishlist items will be dynamically inserted here -->
+                    <div class="cart__empty" id="emptyWishlist">
+                        <p>Your wishlist is empty</p>
+                        <p class="cart__empty-subtitle">Add your favorite pieces to save them for later!</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Footer -->
+        <footer class="footer" role="contentinfo">
+            <div class="container">
+                <p class="footer__text">
+                    &copy; 2025 Guru Jewellery. Handcrafted with ✨
+                </p>
+                <p class="footer__note">
+                    Frontend-only demo • All data stored locally
+                </p>
+            </div>
+        </footer>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+        <script src="./JS/app.js"></script>
+        <script src="./JS/signup-popup.js"></script>
 
 </body>
 

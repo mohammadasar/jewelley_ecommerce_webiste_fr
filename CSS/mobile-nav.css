@@ -1,0 +1,231 @@
+/* ==================== MOBILE NAVIGATION FIXES ==================== */
+
+/* ==================== MOBILE SEARCH BAR (Above Products) ==================== */
+
+/* Mobile search container - only visible on mobile */
+.mobile-search-container {
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
+.mobile-search {
+    position: relative;
+    width: 100%;
+}
+
+.mobile-search__input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem;
+    border: 2px solid var(--color-border);
+    border-radius: 25px;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-search__input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+    outline: none;
+}
+
+.mobile-search__input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.mobile-search__icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1.1rem;
+}
+
+/* Hide mobile search on tablet and desktop */
+@media (min-width: 768px) {
+    .mobile-search-container {
+        display: none;
+    }
+}
+
+/* Mobile-First: Hide search and adjust layout for small screens */
+@media (max-width: 767px) {
+
+    /* Hide search bar on mobile */
+    .nav__search {
+        display: none;
+    }
+
+    /* Adjust navbar layout */
+    .nav {
+        padding: 0.75rem 0.5rem;
+        gap: 0.5rem;
+    }
+
+    /* Make logo smaller on mobile */
+    .nav__logo {
+        font-size: 1.1rem;
+    }
+
+    /* Reduce icon sizes and spacing */
+    .nav__actions {
+        gap: 0.25rem;
+    }
+
+    .nav__action {
+        padding: 0.4rem;
+        font-size: 1.25rem;
+    }
+
+    .nav__action .icon {
+        font-size: 1.25rem;
+    }
+
+    /* Make badges smaller */
+    .nav__action .badge {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+        min-width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Profile menu container adjustments */
+    .profile-menu-container {
+        position: relative;
+    }
+
+    /* Profile dropdown - position better on mobile */
+    .profile-dropdown {
+        right: 0;
+        left: auto;
+        min-width: 180px;
+        top: calc(100% + 0.75rem);
+    }
+
+    /* Login button - make smaller on mobile */
+    .btn-login {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.7rem;
+        white-space: nowrap;
+    }
+
+    /* Adjust profile dropdown items for mobile */
+    .profile-dropdown__item {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.8rem;
+    }
+
+    .profile-dropdown__item .icon {
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablet: Show search bar but keep compact layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .nav {
+        padding: 0.875rem 1rem;
+    }
+
+    .nav__search {
+        max-width: 300px;
+    }
+
+    .nav__logo {
+        font-size: 1.15rem;
+    }
+
+    .nav__actions {
+        gap: 0.35rem;
+    }
+
+    .nav__action {
+        padding: 0.45rem;
+        font-size: 1.35rem;
+    }
+
+    .btn-login {
+        font-size: 0.8rem;
+        padding: 0.45rem 0.85rem;
+    }
+
+    .profile-dropdown {
+        min-width: 200px;
+    }
+}
+
+/* Desktop: Full layout */
+@media (min-width: 1024px) {
+    .nav {
+        padding: 1rem;
+    }
+
+    .nav__search {
+        max-width: 500px;
+    }
+
+    .nav__logo {
+        font-size: 1.25rem;
+    }
+
+    .nav__actions {
+        gap: 0.5rem;
+    }
+
+    .nav__action {
+        padding: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .btn-login {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .profile-dropdown {
+        min-width: 220px;
+    }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 480px) {
+
+    /* Extra small screens - even more compact */
+    .nav {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .nav__logo {
+        font-size: 1rem;
+    }
+
+    .nav__actions {
+        gap: 0.15rem;
+    }
+
+    .nav__action {
+        padding: 0.35rem;
+        font-size: 1.15rem;
+    }
+
+    .btn-login {
+        font-size: 0.65rem;
+        padding: 0.35rem 0.6rem;
+    }
+
+    .profile-dropdown {
+        min-width: 160px;
+        font-size: 0.75rem;
+    }
+
+    .profile-dropdown__item {
+        padding: 0.55rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}

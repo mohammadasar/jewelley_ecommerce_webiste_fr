@@ -1,0 +1,110 @@
+<!-- ============================================
+     CODE SNIPPETS FOR INDEX.HTML
+     ============================================
+     Copy and paste these exact code blocks into your index.html
+     ============================================ -->
+
+<!-- ============================================
+     SNIPPET 1: ADD TO <head> SECTION
+     ============================================
+     Location: Inside <head>, after signup-popup.css
+     ============================================ -->
+
+<link rel="stylesheet" href="./CSS/admin-panel.css">
+
+
+<!-- ============================================
+     SNIPPET 2: REPLACE nav__actions DIV
+     ============================================
+     Location: Around line 34-49
+     Find: <div class="nav__actions">
+     Replace entire div with this code:
+     ============================================ -->
+
+<!-- Navigation Actions -->
+<div class="nav__actions">
+    <button class="nav__action" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon">🌙</span>
+    </button>
+
+    <button class="nav__action" id="wishlistToggle" aria-label="Wishlist" title="View wishlist">
+        <span class="icon">❤️</span>
+        <span class="badge" id="wishlistBadge" aria-live="polite">0</span>
+    </button>
+
+    <button class="nav__action" id="cartToggle" aria-label="Shopping cart" title="View cart">
+        <span class="icon">🛍️</span>
+        <span class="badge" id="cartBadge" aria-live="polite">0</span>
+    </button>
+
+    <!-- Profile Menu (Desktop) / Login Button -->
+    <div class="profile-menu-container" id="profileMenuContainer">
+        <!-- Logged In: Profile Menu -->
+        <button class="nav__action" id="profileMenuToggle" aria-label="Profile menu" title="Profile"
+            style="display: none;">
+            <span class="icon">👤</span>
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+            <a href="#" class="profile-dropdown__item" id="myProfile">
+                <span class="icon">👤</span> My Profile
+            </a>
+            <a href="#" class="profile-dropdown__item" id="myOrders">
+                <span class="icon">📦</span> My Orders
+            </a>
+            <a href="admin.html" class="profile-dropdown__item admin-only" id="adminPanel" style="display: none;">
+                <span class="icon">⚙️</span> Admin Panel
+            </a>
+            <hr class="profile-dropdown__divider">
+            <a href="#" class="profile-dropdown__item" id="logoutBtn">
+                <span class="icon">🚪</span> Logout
+            </a>
+        </div>
+
+        <!-- Not Logged In: Login/Signup Button -->
+        <a href="login.html" class="btn-login" id="loginSignupBtn" style="display: none;">
+            Login / Signup
+        </a>
+    </div>
+</div>
+
+
+<!-- ============================================
+     SNIPPET 3: ADD BEFORE </body>
+     ============================================
+     Location: Before closing </body> tag
+     Add this line after signup-popup.js
+     ============================================ -->
+
+<script src="./JS/auth-state.js"></script>
+
+
+<!-- ============================================
+     SNIPPET 4: ADD TO CSS/styles.css OR CSS/admin-panel.css
+     ============================================
+     Add this CSS for the Login/Signup button
+     ============================================ -->
+
+/* Login/Signup Button */
+.btn-login {
+padding: 0.5rem 1rem;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+text-decoration: none;
+border-radius: 0.5rem;
+font-size: 0.875rem;
+font-weight: 600;
+transition: all 0.3s ease;
+white-space: nowrap;
+}
+
+.btn-login:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+.btn-login {
+font-size: 0.75rem;
+padding: 0.4rem 0.8rem;
+}
+}

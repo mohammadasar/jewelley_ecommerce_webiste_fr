@@ -278,6 +278,12 @@ function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', handleSearch);
 
+    // Mobile Search (sync with desktop search)
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', handleSearch);
+    }
+
     // Filters
     document.getElementById('categoryFilter').addEventListener('change', handleCategoryFilter);
 

@@ -57,10 +57,21 @@ async function handleLogin(e) {
             throw new Error(data.message || 'Login failed');
         }
 
-        // Save token/user if available
+        // Save token if available
         if (data.token) {
             localStorage.setItem('jewel_token', data.token);
-            localStorage.setItem('jewel_user', JSON.stringify(data.user));
+
+            // Save user data if available
+            if (data.user && typeof data.user === 'object') {
+                localStorage.setItem('jewel_user', JSON.stringify(data.user));
+            } else {
+                // If backend doesn't return user object, try to extract from token or create a basic one
+                const userInfo = extractUserFromToken(data.token) || {
+                    username: username,
+                    role: 'USER'
+                };
+                localStorage.setItem('jewel_user', JSON.stringify(userInfo));
+            }
         }
 
         // Redirect to home
@@ -129,7 +140,19 @@ async function handleSignup(e) {
         // Check if we received a token (auto-login) or just a success message
         if (data.token) {
             localStorage.setItem('jewel_token', data.token);
-            localStorage.setItem('jewel_user', JSON.stringify(data.user));
+
+            // Save user data if available
+            if (data.user && typeof data.user === 'object') {
+                localStorage.setItem('jewel_user', JSON.stringify(data.user));
+            } else {
+                // If backend doesn't return user object, create a basic one
+                const userInfo = extractUserFromToken(data.token) || {
+                    username: username,
+                    email: email,
+                    role: 'USER'
+                };
+                localStorage.setItem('jewel_user', JSON.stringify(userInfo));
+            }
             window.location.href = 'index.html';
         } else {
             // Redirect to login page if no token returned
@@ -143,6 +166,28 @@ async function handleSignup(e) {
         errorDiv.style.display = 'block';
         submitBtn.textContent = originalBtnText;
         submitBtn.disabled = false;
+    }
+}
+
+// Helper function to extract user info from JWT token
+function extractUserFromToken(token) {
+    try {
+        // JWT tokens have 3 parts separated by dots
+        const parts = token.split('.');
+        if (parts.length !== 3) return null;
+
+        // Decode the payload (second part)
+        const payload = JSON.parse(atob(parts[1]));
+
+        // Extract user information from payload
+        return {
+            username: payload.sub || payload.username || 'User',
+            role: (payload.roles && payload.roles.includes('ROLE_ADMIN')) ? 'ADMIN' : 'USER',
+            email: payload.email || null
+        };
+    } catch (error) {
+        console.error('Error extracting user from token:', error);
+        return null;
     }
 }
 

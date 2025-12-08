@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Popup Demo - Complete Working Example</title>
+
+    <!-- POPUP CSS -->
+    <link rel="stylesheet" href="./CSS/signup-popup.css">
+
+    <style>
+        /* Demo Page Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box h2 {
+            color: #374151;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #6b7280;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .demo-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .demo-btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .demo-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .demo-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .demo-btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .demo-btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container">
+        <h1>🎉 Signup Popup - Complete Working Demo</h1>
+
+        <div class="info-box">
+            <h2>✨ Features</h2>
+            <ul>
+                <li>✅ Popup appears after <strong>2 minutes</strong> (120 seconds)</li>
+                <li>✅ Never shows again if user signs up or logs in</li>
+                <li>✅ Never shows again if user closes it</li>
+                <li>✅ Uses <code>localStorage</code> to remember choices permanently</li>
+                <li>✅ Smooth fade-in animation</li>
+                <li>✅ Fully responsive design</li>
+                <li>✅ Keyboard accessible (ESC to close)</li>
+                <li>✅ Click overlay to close</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h2>🎮 Demo Controls</h2>
+            <div class="demo-buttons">
+                <button class="demo-btn demo-btn-primary" onclick="SignupPopup.show()">
+                    Show Popup Now
+                </button>
+                <button class="demo-btn demo-btn-secondary" onclick="checkStatus()">
+                    Check Status
+                </button>
+                <button class="demo-btn demo-btn-danger" onclick="SignupPopup.reset(); location.reload();">
+                    Reset & Reload
+                </button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h2>📝 How It Works</h2>
+            <ul>
+                <li><strong>Wait 2 minutes:</strong> The popup will automatically appear</li>
+                <li><strong>Sign Up/Login:</strong> Marks you as signed up, popup never shows again</li>
+                <li><strong>Close/Maybe Later:</strong> Popup never shows again</li>
+                <li><strong>localStorage Keys:</strong>
+                    <ul>
+                        <li><code>user_signed_up</code> - Tracks if user signed up</li>
+                        <li><code>popup_closed</code> - Tracks if user closed popup</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <h2>🔧 Integration Instructions</h2>
+            <p style="color: #6b7280; margin-bottom: 15px;">
+                To add this to your website, include these files in your HTML:
+            </p>
+            <pre style="background: #1f2937; color: #10b981; padding: 15px; border-radius: 8px; overflow-x: auto;"><code>&lt;!-- In your &lt;head&gt; section --&gt;
+&lt;link rel="stylesheet" href="./CSS/signup-popup.css"&gt;
+
+&lt;!-- Before closing &lt;/body&gt; tag --&gt;
+&lt;script src="./JS/signup-popup.js"&gt;&lt;/script&gt;</code></pre>
+
+            <p style="color: #6b7280; margin-top: 15px;">
+                <strong>That's it!</strong> The popup will automatically work. No additional code needed.
+            </p>
+        </div>
+    </div>
+
+    <!-- POPUP JAVASCRIPT -->
+    <script src="./JS/signup-popup.js"></script>
+
+    <!-- Demo Page JavaScript -->
+    <script>
+        function checkStatus() {
+            const hasSignedUp = localStorage.getItem('user_signed_up') === 'true';
+            const hasClosed = localStorage.getItem('popup_closed') === 'true';
+            const statusDiv = document.getElementById('status');
+
+            let statusHTML = '<strong>Current Status:</strong><br>';
+            statusHTML += `User Signed Up: <code>${hasSignedUp ? 'YES' : 'NO'}</code><br>`;
+            statusHTML += `Popup Closed: <code>${hasClosed ? 'YES' : 'NO'}</code><br>`;
+            statusHTML += `Will Show Popup: <code>${!hasSignedUp && !hasClosed ? 'YES' : 'NO'}</code>`;
+
+            statusDiv.innerHTML = statusHTML;
+            statusDiv.style.display = 'block';
+        }
+
+        // Show initial status
+        setTimeout(checkStatus, 500);
+
+        // Update status every 5 seconds
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+
+</html>

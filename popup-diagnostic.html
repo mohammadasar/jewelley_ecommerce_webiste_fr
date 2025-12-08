@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Diagnostic Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .diagnostic-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .status.good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.bad {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Signup Popup Diagnostic Tool</h1>
+
+    <div class="diagnostic-box">
+        <h2>Current Status</h2>
+        <div id="diagnosticResults"></div>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>Actions</h2>
+        <button onclick="resetPopup()">🔄 Reset Popup (Clear All Flags)</button>
+        <button onclick="forceShowPopup()">👁️ Force Show Popup Now</button>
+        <button onclick="checkStatus()">🔍 Refresh Status</button>
+        <button class="btn-danger" onclick="clearAllStorage()">⚠️ Clear All localStorage</button>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>localStorage Contents</h2>
+        <pre id="storageContents"></pre>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Check the "Current Status" above to see why the popup isn't showing</li>
+            <li>Click "Reset Popup" to clear all popup-related flags</li>
+            <li>Close this page and go back to <a href="index.html">index.html</a></li>
+            <li>Wait 40 seconds - the popup should appear</li>
+            <li>If you want to test immediately, click "Force Show Popup Now"</li>
+        </ol>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const results = document.getElementById('diagnosticResults');
+            const storage = document.getElementById('storageContents');
+
+            // Check localStorage values
+            const hasToken = localStorage.getItem('jewel_token');
+            const hasSignedUp = localStorage.getItem('user_signed_up') === 'true';
+            const hasClosed = localStorage.getItem('popup_closed') === 'true';
+            const hasUser = localStorage.getItem('jewel_user');
+
+            // Determine if popup should show
+            const shouldShow = !hasToken && !hasSignedUp && !hasClosed;
+
+            let html = '';
+
+            // Overall status
+            if (shouldShow) {
+                html += '<div class="status good">✅ Popup SHOULD show after 40 seconds</div>';
+            } else {
+                html += '<div class="status bad">❌ Popup will NOT show - see reasons below</div>';
+            }
+
+            // Individual checks
+            html += '<h3>Detailed Checks:</h3>';
+
+            if (hasToken) {
+                html += '<div class="status bad">❌ User is logged in (<code>jewel_token</code> exists)</div>';
+            } else {
+                html += '<div class="status good">✅ User is NOT logged in</div>';
+            }
+
+            if (hasSignedUp) {
+                html += '<div class="status bad">❌ User has signed up (<code>user_signed_up = true</code>)</div>';
+            } else {
+                html += '<div class="status good">✅ User has NOT signed up</div>';
+            }
+
+            if (hasClosed) {
+                html += '<div class="status bad">❌ User closed popup before (<code>popup_closed = true</code>)</div>';
+            } else {
+                html += '<div class="status good">✅ Popup has NOT been closed</div>';
+            }
+
+            html += '<h3>Configuration:</h3>';
+            html += '<div class="status warning">⏱️ Popup delay: <strong>40 seconds</strong></div>';
+
+            results.innerHTML = html;
+
+            // Show all localStorage
+            const allStorage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allStorage[key] = localStorage.getItem(key);
+            }
+            storage.textContent = JSON.stringify(allStorage, null, 2);
+        }
+
+        function resetPopup() {
+            localStorage.removeItem('user_signed_up');
+            localStorage.removeItem('popup_closed');
+            alert('✅ Popup flags cleared! Go to index.html and wait 40 seconds.');
+            checkStatus();
+        }
+
+        function forceShowPopup() {
+            if (window.SignupPopup) {
+                window.SignupPopup.show();
+            } else {
+                alert('⚠️ Please run this on index.html page where the popup script is loaded.');
+            }
+        }
+
+        function clearAllStorage() {
+            if (confirm('⚠️ This will clear ALL localStorage data including cart, wishlist, etc. Continue?')) {
+                localStorage.clear();
+                alert('✅ All localStorage cleared!');
+                checkStatus();
+            }
+        }
+
+        // Run on load
+        checkStatus();
+    </script>
+</body>
+
+</html>
