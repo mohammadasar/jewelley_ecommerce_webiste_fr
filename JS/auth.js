@@ -74,6 +74,15 @@ async function handleLogin(e) {
             }
         }
 
+        // Sync wishlist with backend if WishlistService is available
+        if (typeof WishlistService !== 'undefined') {
+            try {
+                await WishlistService.syncWishlistOnLogin();
+            } catch (error) {
+                console.error('Error syncing wishlist:', error);
+            }
+        }
+
         // Redirect to home
         window.location.href = 'index.html';
 
@@ -153,6 +162,16 @@ async function handleSignup(e) {
                 };
                 localStorage.setItem('jewel_user', JSON.stringify(userInfo));
             }
+
+            // Sync wishlist with backend if WishlistService is available
+            if (typeof WishlistService !== 'undefined') {
+                try {
+                    await WishlistService.syncWishlistOnLogin();
+                } catch (error) {
+                    console.error('Error syncing wishlist:', error);
+                }
+            }
+
             window.location.href = 'index.html';
         } else {
             // Redirect to login page if no token returned

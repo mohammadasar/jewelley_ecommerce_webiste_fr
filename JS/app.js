@@ -229,6 +229,9 @@ function initializeApp() {
     // Load saved data from localStorage
     loadFromLocalStorage();
 
+    // Load wishlist from backend if user is logged in
+    loadWishlistFromBackend();
+
     // Apply dark mode if saved
     if (state.darkMode) {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -251,21 +254,38 @@ function initializeApp() {
 function loadFromLocalStorage() {
     try {
         const savedCart = localStorage.getItem('jewel_cart');
-        const savedWishlist = localStorage.getItem('jewel_wishlist');
         const savedDarkMode = localStorage.getItem('jewel_darkMode');
 
         if (savedCart) state.cart = JSON.parse(savedCart);
-        if (savedWishlist) state.wishlist = JSON.parse(savedWishlist);
         if (savedDarkMode) state.darkMode = JSON.parse(savedDarkMode);
+
+        // Wishlist is loaded separately from backend or localStorage
+        const savedWishlist = localStorage.getItem('jewel_wishlist');
+        if (savedWishlist) state.wishlist = JSON.parse(savedWishlist);
     } catch (error) {
         console.error('Error loading from localStorage:', error);
+    }
+}
+
+// Load wishlist from backend API
+async function loadWishlistFromBackend() {
+    if (typeof WishlistService !== 'undefined') {
+        try {
+            const wishlist = await WishlistService.fetchWishlist();
+            state.wishlist = wishlist;
+            updateWishlistBadge();
+            renderProducts(); // Re-render to update heart icons
+        } catch (error) {
+            console.error('Error loading wishlist from backend:', error);
+        }
     }
 }
 
 function saveToLocalStorage() {
     try {
         localStorage.setItem('jewel_cart', JSON.stringify(state.cart));
-        localStorage.setItem('jewel_wishlist', JSON.stringify(state.wishlist));
+        // Wishlist is saved via WishlistService API calls
+        // localStorage.setItem('jewel_wishlist', JSON.stringify(state.wishlist));
         localStorage.setItem('jewel_darkMode', JSON.stringify(state.darkMode));
     } catch (error) {
         console.error('Error saving to localStorage:', error);
@@ -733,19 +753,38 @@ function handleCheckout() {
 }
 
 // ==================== WISHLIST ====================
-function toggleWishlistItem(productId) {
+async function toggleWishlistItem(productId) {
     const index = state.wishlist.indexOf(productId);
     const product = state.products.find(p => p.id === productId);
 
     if (index > -1) {
-        state.wishlist.splice(index, 1);
-        showToast('Removed from wishlist');
+        // Remove from wishlist
+        if (typeof WishlistService !== 'undefined') {
+            const success = await WishlistService.removeFromWishlist(productId);
+            if (success) {
+                state.wishlist.splice(index, 1);
+                showToast('Removed from wishlist');
+            }
+        } else {
+            state.wishlist.splice(index, 1);
+            showToast('Removed from wishlist');
+            saveToLocalStorage();
+        }
     } else {
-        state.wishlist.push(productId);
-        showToast(`${product ? product.title : 'Item'} added to wishlist!`);
+        // Add to wishlist
+        if (typeof WishlistService !== 'undefined') {
+            const success = await WishlistService.addToWishlist(productId);
+            if (success) {
+                state.wishlist.push(productId);
+                showToast(`${product ? product.title : 'Item'} added to wishlist!`);
+            }
+        } else {
+            state.wishlist.push(productId);
+            showToast(`${product ? product.title : 'Item'} added to wishlist!`);
+            saveToLocalStorage();
+        }
     }
 
-    saveToLocalStorage();
     updateWishlistBadge();
     renderProducts(); // Re-render to update heart icons
 }
@@ -827,14 +866,24 @@ function renderWishlist() {
     wishlistItems.innerHTML = itemsHTML;
 }
 
-function removeFromWishlist(productId) {
+async function removeFromWishlist(productId) {
     const index = state.wishlist.indexOf(productId);
     if (index > -1) {
-        state.wishlist.splice(index, 1);
-        saveToLocalStorage();
-        renderWishlist();
-        renderProducts(); // Update heart icons
-        showToast('Removed from wishlist');
+        if (typeof WishlistService !== 'undefined') {
+            const success = await WishlistService.removeFromWishlist(productId);
+            if (success) {
+                state.wishlist.splice(index, 1);
+                renderWishlist();
+                renderProducts(); // Update heart icons
+                showToast('Removed from wishlist');
+            }
+        } else {
+            state.wishlist.splice(index, 1);
+            saveToLocalStorage();
+            renderWishlist();
+            renderProducts(); // Update heart icons
+            showToast('Removed from wishlist');
+        }
     }
 }
 

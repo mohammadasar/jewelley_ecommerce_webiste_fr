@@ -155,6 +155,12 @@
 
     // Load Section (Placeholder for API calls)
     window.loadSection = function (section) {
+        // Redirect to product management page for products section
+        if (section === 'products') {
+            window.location.href = 'product-management.html';
+            return;
+        }
+
         const adminContent = document.getElementById('adminContent');
         const contentTitle = document.getElementById('contentTitle');
         const contentBody = document.getElementById('contentBody');
