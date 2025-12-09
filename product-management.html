@@ -26,6 +26,79 @@
 
     <main class="product-management">
         <div class="container">
+            <!-- Category Management Section -->
+            <section class="product-form-section" style="border-left: 4px solid #667eea;">
+                <div class="section-header">
+                    <h2 class="section-title">Category Management</h2>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+                    <!-- Category Form -->
+                    <div style="flex: 1; min-width: 300px;">
+                        <form id="categoryForm">
+                            <h3 class="form-section__title">Add / Edit Category</h3>
+                            <div class="form-group">
+                                <label for="categoryName" class="form-label">Category Name *</label>
+                                <input type="text" id="categoryName" class="form-input modern-input" required
+                                    placeholder="e.g. Earrings">
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="parentCategoryId" class="form-label">Parent Category</label>
+                                <select id="parentCategoryId" class="form-select modern-select">
+                                    <option value="">-- No Parent (Top Level) --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="categoryDescription" class="form-label">Description</label>
+                                <textarea id="categoryDescription" class="form-textarea" rows="2"
+                                    placeholder="Short description..."></textarea>
+                            </div>
+
+                            <div class="form-actions" style="margin-top: 1.5rem; padding-top: 1rem;">
+                                <button type="submit" class="btn btn--primary" id="btnSubmitCategory">
+                                    <span id="btnSubmitCategoryText">Add Category</span>
+                                </button>
+                                <button type="button" class="btn btn--secondary" id="btnResetCategory">Reset</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Category List -->
+                    <div style="flex: 1.5; min-width: 300px; border-left: 1px solid #f0f0f0; padding-left: 2rem;">
+                        <h3 class="form-section__title">Existing Categories</h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; color: #4a5568;">
+                                        <th
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            Name</th>
+                                        <th
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            Parent</th>
+                                        <th
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            Description</th>
+                                        <th
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryTableBody">
+                                    <!-- Populated by JS -->
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding: 2rem; color: #718096;">
+                                            Loading categories...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Product Upload Form -->
             <section class="product-form-section">
                 <div class="section-header">
@@ -67,10 +140,12 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="categoryId" class="form-label">Category *</label>
-                                <input type="text" id="categoryId" class="form-input modern-input" required
-                                    placeholder="e.g., Necklaces, Earrings, Rings, Bracelets">
-                                <small class="form-help">Enter the category name manually</small>
+                                <select id="categoryId" class="form-input modern-input" required>
+                                    <option value="">-- Select Category --</option>
+                                </select>
+                                <small class="form-help">Select the category (ID will be saved automatically)</small>
                             </div>
+
 
                             <div class="form-group">
                                 <label for="subCategory" class="form-label">Sub Category</label>
@@ -274,6 +349,7 @@
     <!-- Scripts -->
     <script src="./JS/product-service.js"></script>
     <script src="./JS/product-management.js"></script>
+    <script src="./JS/category-management.js"></script>
 </body>
 
 </html>

@@ -107,12 +107,26 @@
 
         // Logout
         logoutBtn.addEventListener('click', handleLogout);
+
+        // Listen for category updates from category-management.js
+        document.addEventListener('categoriesUpdated', () => {
+            console.log('Categories updated event received, reloading dropdowns...');
+            loadCategories();
+        });
     }
 
     // ==================== CATEGORY MANAGEMENT ====================
     async function loadCategories() {
         try {
+            console.log('Fetching categories...');
             categories = await ProductService.getAllCategories();
+            console.log('Categories loaded:', categories);
+
+            if (!Array.isArray(categories)) {
+                console.error('Categories is not an array:', categories);
+                return;
+            }
+
             populateCategoryDropdowns();
         } catch (error) {
             console.error('Error loading categories:', error);
@@ -124,22 +138,39 @@
         const categorySelect = document.getElementById('categoryId');
         const filterSelect = document.getElementById('categoryFilter');
 
+        if (!categorySelect || !filterSelect) {
+            console.error('Dropdown elements not found');
+            return;
+        }
+
         // Clear existing options (except first)
         categorySelect.innerHTML = '<option value="">Select Category</option>';
         filterSelect.innerHTML = '<option value="">All Categories</option>';
 
         categories.forEach(category => {
+            // Check for id or _id field
+            const catId = category.id || category._id;
+
+            if (!catId) {
+                console.warn('Category missing ID:', category);
+                return;
+            }
+
             const option1 = document.createElement('option');
-            option1.value = category.id;
+            option1.value = catId;
             option1.textContent = category.name;
             categorySelect.appendChild(option1);
 
             const option2 = document.createElement('option');
-            option2.value = category.id;
+            option2.value = catId;
             option2.textContent = category.name;
             filterSelect.appendChild(option2);
         });
+
+        console.log('Dropdowns populated with', categories.length, 'categories');
     }
+
+
 
     // ==================== PRODUCT MANAGEMENT ====================
     async function loadProducts() {
@@ -181,17 +212,21 @@
         card.className = 'product-card';
         card.dataset.productId = product.id;
 
-        const category = categories.find(c => c.id === product.categoryId);
+        // Ensure we compare strings for IDs
+        const category = categories.find(c => String(c.id) === String(product.categoryId));
         const categoryName = category ? category.name : 'Uncategorized';
+        console.log("categories=====", categories);
+        console.log("product.categoryId=====", product.categoryId);
+
 
         const mainImage = product.images && product.images.length > 0
-            ? product.images[0]
-            : 'https://via.placeholder.com/300x200?text=No+Image';
+            ? getFullImageUrl(product.images[0])
+            : 'assets/images/placeholder.svg';
         console.log("image url==", mainImage);
 
         card.innerHTML = `
             <img src="${mainImage}" alt="${product.productName}" class="product-card__image" 
-                 onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                 onerror="this.src='assets/images/placeholder.svg'">
             <div class="product-card__content">
                 <div class="product-card__header">
                     <h3 class="product-card__title">${product.productName}</h3>
@@ -552,6 +587,18 @@
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
+    }
+
+    function getFullImageUrl(imagePath) {
+        if (!imagePath) return 'assets/images/placeholder.svg';
+        if (imagePath.startsWith('http') || imagePath.startsWith('https')) return imagePath;
+        if (imagePath.startsWith('data:')) return imagePath;
+
+        // Handle potential incorrect backslashes
+        imagePath = imagePath.replace(/\\/g, '/');
+
+        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+        return `http://localhost:8080/${cleanPath}`;
     }
 
 })();
