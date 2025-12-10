@@ -19,200 +19,16 @@
     - No backend required - fully functional frontend demo
 */
 
-// ==================== PRODUCT DATA ====================
-const PRODUCTS = [
-    {
-        id: 1,
-        title: "Eternal Diamond Ring",
-        description: "18K white gold ring with brilliant-cut diamond",
-        price: 2499,
-        category: "rings",
-        images: [
-            "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: true,
-        isOnSale: false,
-        dateAdded: "2025-11-20"
-    },
-    {
-        id: 2,
-        title: "Sapphire Elegance Necklace",
-        description: "Sterling silver necklace with blue sapphire pendant",
-        price: 1899,
-        category: "necklaces",
-        images: [
-            "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: true,
-        isOnSale: false,
-        dateAdded: "2025-11-22"
-    },
-    {
-        id: 3,
-        title: "Rose Gold Charm Bracelet",
-        description: "Delicate rose gold bracelet with heart charms",
-        price: 899,
-        category: "bracelets",
-        images: [
-            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&h=600&fit=crop"
-        ],
-        rating: 4,
-        isNew: false,
-        isOnSale: true,
-        dateAdded: "2025-10-15"
-    },
-    {
-        id: 4,
-        title: "Pearl Drop Earrings",
-        description: "Classic freshwater pearl earrings in gold",
-        price: 599,
-        category: "earrings",
-        images: [
-            "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: false,
-        isOnSale: true,
-        dateAdded: "2025-09-10"
-    },
-    {
-        id: 5,
-        title: "Vintage Emerald Ring",
-        description: "Art deco inspired emerald and diamond ring",
-        price: 3299,
-        category: "rings",
-        images: [
-            "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: true,
-        isOnSale: false,
-        dateAdded: "2025-11-25"
-    },
-    {
-        id: 6,
-        title: "Gold Chain Necklace",
-        description: "14K yellow gold chain with adjustable length",
-        price: 1299,
-        category: "necklaces",
-        images: [
-            "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop"
-        ],
-        rating: 4,
-        isNew: false,
-        isOnSale: false,
-        dateAdded: "2025-08-20"
-    },
-    {
-        id: 7,
-        title: "Tennis Bracelet",
-        description: "Classic diamond tennis bracelet in platinum",
-        price: 4599,
-        category: "bracelets",
-        images: [
-            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: false,
-        isOnSale: true,
-        dateAdded: "2025-07-12"
-    },
-    {
-        id: 8,
-        title: "Crystal Stud Earrings",
-        description: "Sparkling crystal studs in sterling silver",
-        price: 399,
-        category: "earrings",
-        images: [
-            "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&h=600&fit=crop"
-        ],
-        rating: 4,
-        isNew: false,
-        isOnSale: false,
-        dateAdded: "2025-06-05"
-    },
-    {
-        id: 9,
-        title: "Infinity Band Ring",
-        description: "Modern infinity symbol ring in white gold",
-        price: 799,
-        category: "rings",
-        images: [
-            "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: true,
-        isOnSale: false,
-        dateAdded: "2025-11-18"
-    },
-    {
-        id: 10,
-        title: "Moonstone Pendant",
-        description: "Mystical moonstone pendant on silver chain",
-        price: 699,
-        category: "necklaces",
-        images: [
-            "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&h=600&fit=crop"
-        ],
-        rating: 4,
-        isNew: false,
-        isOnSale: true,
-        dateAdded: "2025-05-22"
-    },
-    {
-        id: 11,
-        title: "Bangle Set",
-        description: "Set of three gold-plated bangles",
-        price: 499,
-        category: "bracelets",
-        images: [
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop"
-        ],
-        rating: 4,
-        isNew: false,
-        isOnSale: false,
-        dateAdded: "2025-04-10"
-    },
-    {
-        id: 12,
-        title: "Hoop Earrings",
-        description: "Large gold hoop earrings with diamond accents",
-        price: 1199,
-        category: "earrings",
-        images: [
-            "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop"
-        ],
-        rating: 5,
-        isNew: true,
-        isOnSale: false,
-        dateAdded: "2025-11-15"
-    }
-];
-
 // ==================== STATE MANAGEMENT ====================
 const state = {
-    products: [...PRODUCTS],
-    filteredProducts: [...PRODUCTS],
+    products: [],
+    filteredProducts: [],
+    categories: [],
     cart: [],
     wishlist: [],
     filters: {
         search: '',
         category: 'all',
-
         sortBy: 'newest'
     },
     currentProduct: null,
@@ -225,29 +41,125 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
-function initializeApp() {
-    // Load saved data from localStorage
+async function initializeApp() {
+    // Load saved data from localStorage (Cart, Theme)
     loadFromLocalStorage();
-
-    // Load wishlist from backend if user is logged in
-    loadWishlistFromBackend();
 
     // Apply dark mode if saved
     if (state.darkMode) {
         document.documentElement.setAttribute('data-theme', 'dark');
     }
 
-    // Render initial products
-    renderProducts();
+    // Load data from API
+    await loadDataFromApi();
+
+    // Load wishlist from backend if user is logged in
+    loadWishlistFromBackend();
 
     // Setup event listeners
     setupEventListeners();
 
     // Update cart badge
     updateCartBadge();
+}
 
-    // Update wishlist badge
-    updateWishlistBadge();
+// ==================== API INTEGRATION ====================
+async function loadDataFromApi() {
+    try {
+        const productGrid = document.getElementById('productGrid');
+        if (productGrid) {
+            productGrid.innerHTML = '<div class="loading">Loading products...</div>';
+        }
+
+        // 1. Fetch Categories
+        const categories = await ProductService.getAllCategories();
+        state.categories = categories;
+        populateCategoryFilter();
+
+        // 2. Fetch Products
+        const apiProducts = await ProductService.getAllProducts();
+
+        // 3. Map API data to frontend model
+        state.products = apiProducts.map(mapApiProductToFrontend);
+        state.filteredProducts = [...state.products];
+
+        // 4. Render
+        applyFilters();
+
+    } catch (error) {
+        console.error('Error initializing data from API:', error);
+        const productGrid = document.getElementById('productGrid');
+        if (productGrid) {
+            productGrid.innerHTML = '<div class="error">Failed to load products. Please try again later.</div>';
+        }
+    }
+}
+
+function mapApiProductToFrontend(apiProduct) {
+    // Find category name
+    const categoryObj = state.categories.find(c => c.id === apiProduct.categoryId || c._id === apiProduct.categoryId);
+    const categoryName = categoryObj ? categoryObj.name.toLowerCase() : 'uncategorized';
+
+    // Handle images
+    let images = [];
+    if (apiProduct.images && apiProduct.images.length > 0) {
+        images = apiProduct.images.map(getFullImageUrl);
+    } else {
+        images = ['assets/images/placeholder.svg'];
+    }
+
+    return {
+        id: apiProduct.id, // Keep original ID
+        title: apiProduct.productName,
+        description: apiProduct.description || 'No description available',
+        price: apiProduct.price,
+        category: categoryObj ? categoryObj.id : 'others', // Use ID for filtering
+        categoryName: categoryName, // Keep name for display if needed
+        images: images,
+        // ... existing properties
+        rating: 4.5, // Default
+        isNew: true, // Default
+        isOnSale: apiProduct.discountPercent > 0,
+        discountPercent: apiProduct.discountPercent,
+        mrp: apiProduct.mrp,
+
+        // New Specification Fields
+        material: apiProduct.material || 'N/A',
+        plating: apiProduct.plating || 'N/A',
+        occasion: apiProduct.occasion || 'Everyday',
+        color: apiProduct.color || 'N/A',
+        size: apiProduct.size || 'Free Size',
+
+        dateAdded: new Date().toISOString()
+    };
+}
+
+function getFullImageUrl(imagePath) {
+    if (!imagePath) return 'assets/images/placeholder.svg';
+    if (imagePath.startsWith('http') || imagePath.startsWith('https')) return imagePath;
+    if (imagePath.startsWith('data:')) return imagePath;
+
+    // Handle potential incorrect backslashes
+    imagePath = imagePath.replace(/\\/g, '/');
+
+    const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    return `http://localhost:8080/${cleanPath}`;
+}
+
+function populateCategoryFilter() {
+    const filterSelect = document.getElementById('categoryFilter');
+    if (!filterSelect) return;
+
+    // Keep "All Categories"
+    filterSelect.innerHTML = '<option value="all">All Categories</option>';
+
+    state.categories.forEach(category => {
+        const option = document.createElement('option');
+        // Use ID as value for robust filtering
+        option.value = category.id || category._id;
+        option.textContent = category.name;
+        filterSelect.appendChild(option);
+    });
 }
 
 // ==================== LOCAL STORAGE ====================
@@ -478,15 +390,22 @@ function renderProducts() {
                     ${renderStars(product.rating)}
                 </div>
                 <div class="product-card__footer">
-                    <span class="product-card__price">$${product.price.toLocaleString()}</span>
-                    <button 
+                    <div class="product-card__pricing">
+                        <span class="product-card__price">₹${product.price ? product.price.toLocaleString() : '0'}</span>
+                        ${product.mrp && product.mrp > product.price ? `
+                            <span class="product-card__mrp">₹${product.mrp.toLocaleString()}</span>
+                            <span class="product-card__discount">${product.discountPercent}% OFF</span>
+                        ` : ''}
+                    </div>
+    
+                </div>
+                 <button 
                         class="product-card__quick-view" 
                         data-action="quick-view"
                         aria-label="Quick view ${product.title}"
                     >
-                        Quick View
+                        View
                     </button>
-                </div>
             </div>
         </article>
     `).join('');
@@ -505,7 +424,11 @@ function handleProductCardClick(e) {
     const card = e.target.closest('.product-card');
     if (!card) return;
 
-    const productId = parseInt(card.dataset.productId);
+    // Get ID as string first to handle both GUIDs/ObjectIds and numbers
+    const productIdRaw = card.dataset.productId;
+    // Try to parse as int, but keep as string if NaN (for UUID/ObjectId)
+    const productId = isNaN(productIdRaw) ? productIdRaw : parseInt(productIdRaw);
+
     const action = e.target.closest('[data-action]')?.dataset.action;
 
     if (action === 'quick-view') {
@@ -517,7 +440,8 @@ function handleProductCardClick(e) {
 
 // ==================== MODAL ====================
 function openProductModal(productId) {
-    const product = state.products.find(p => p.id === productId);
+    // Loose equality to handle string vs number ID mismatch
+    const product = state.products.find(p => p.id == productId);
     if (!product) return;
 
     state.currentProduct = product;
@@ -526,10 +450,46 @@ function openProductModal(productId) {
     const modal = document.getElementById('productModal');
 
     // Update modal content
-    document.getElementById('modalTitle').textContent = product.title;
-    document.getElementById('modalPrice').textContent = `$${product.price.toLocaleString()}`;
-    document.getElementById('modalDescription').textContent = product.description;
-    document.getElementById('modalRating').innerHTML = renderStars(product.rating);
+    // Update modal content
+    const modalTitle = document.getElementById('modalTitle');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalMrp = document.getElementById('modalMrp');
+    const modalDiscount = document.getElementById('modalDiscount');
+    const modalDesc = document.getElementById('modalDescription');
+    const modalRating = document.getElementById('modalRating');
+
+    if (modalTitle) modalTitle.textContent = product.title;
+    if (modalPrice) modalPrice.textContent = `₹${product.price.toLocaleString()}`;
+
+    // Update MRP and Discount
+    if (product.mrp && product.mrp > product.price) {
+        if (modalMrp) {
+            modalMrp.textContent = `₹${product.mrp.toLocaleString()}`;
+            modalMrp.style.display = 'inline';
+        }
+        if (modalDiscount) {
+            modalDiscount.textContent = `${product.discountPercent}% OFF`;
+            modalDiscount.style.display = 'inline-block';
+        }
+    } else {
+        if (modalMrp) modalMrp.style.display = 'none';
+        if (modalDiscount) modalDiscount.style.display = 'none';
+    }
+
+    if (modalDesc) modalDesc.textContent = product.description;
+    if (modalRating) modalRating.innerHTML = renderStars(product.rating);
+
+    // Update Specifications
+    document.getElementById('modalMaterial').textContent = product.material;
+    document.getElementById('modalPlating').textContent = product.plating;
+    document.getElementById('modalOccasion').textContent = product.occasion;
+    document.getElementById('modalColor').textContent = product.color;
+
+    // Update Size Options
+    const sizeSelect = document.getElementById('sizeSelect');
+    if (sizeSelect && product.size) {
+        sizeSelect.innerHTML = `<option value="${product.size}">${product.size}</option>`;
+    }
 
     // Update image
     updateModalImage();
@@ -617,7 +577,8 @@ function addToCartFromModal() {
 }
 
 function addToCart(productId, size = 'medium', metal = 'gold') {
-    const product = state.products.find(p => p.id === productId);
+    // Loose equality to handle string vs number ID mismatch
+    const product = state.products.find(p => p.id == productId);
     if (!product) return;
 
     // Check if item already in cart
@@ -724,7 +685,7 @@ function renderCart() {
             <img src="${item.image}" alt="${item.title}" class="cart-item__image">
             <div class="cart-item__info">
                 <div class="cart-item__name">${item.title}</div>
-                <div class="cart-item__price">$${item.price.toLocaleString()}</div>
+                <div class="cart-item__price">₹${item.price.toLocaleString()}</div>
                 <div class="cart-item__controls">
                     <button class="cart-item__btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">-</button>
                     <span class="cart-item__quantity">${item.quantity}</span>
@@ -739,7 +700,7 @@ function renderCart() {
 
     // Calculate total
     const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    cartTotal.textContent = `$${total.toLocaleString()}`;
+    cartTotal.textContent = `₹${total.toLocaleString()}`;
 }
 
 function updateCartBadge() {
@@ -754,17 +715,17 @@ function handleCheckout() {
 
 // ==================== WISHLIST ====================
 async function toggleWishlistItem(productId) {
-    const index = state.wishlist.indexOf(productId);
-    const product = state.products.find(p => p.id === productId);
+    // Use findIndex for loose equality check
+    const index = state.wishlist.findIndex(id => id == productId);
+    const product = state.products.find(p => p.id == productId);
 
     if (index > -1) {
         // Remove from wishlist
         if (typeof WishlistService !== 'undefined') {
             const success = await WishlistService.removeFromWishlist(productId);
-            if (success) {
-                state.wishlist.splice(index, 1);
-                showToast('Removed from wishlist');
-            }
+            // Always update UI for responsiveness, revert if failed (optimistic UI)
+            state.wishlist.splice(index, 1);
+            showToast('Removed from wishlist');
         } else {
             state.wishlist.splice(index, 1);
             showToast('Removed from wishlist');
@@ -774,10 +735,8 @@ async function toggleWishlistItem(productId) {
         // Add to wishlist
         if (typeof WishlistService !== 'undefined') {
             const success = await WishlistService.addToWishlist(productId);
-            if (success) {
-                state.wishlist.push(productId);
-                showToast(`${product ? product.title : 'Item'} added to wishlist!`);
-            }
+            state.wishlist.push(productId);
+            showToast(`${product ? product.title : 'Item'} added to wishlist!`);
         } else {
             state.wishlist.push(productId);
             showToast(`${product ? product.title : 'Item'} added to wishlist!`);
@@ -800,7 +759,7 @@ function toggleWishlistFromModal() {
 }
 
 function isInWishlist(productId) {
-    return state.wishlist.includes(productId);
+    return state.wishlist.some(id => id == productId);
 }
 
 // ==================== WISHLIST PANEL ====================

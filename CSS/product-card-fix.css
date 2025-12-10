@@ -23,12 +23,12 @@
     box-shadow: var(--shadow-md) !important;
 }
 
-/* Tablet and up: Horizontal layout */
+/* Tablet and up: Keep vertical stack for new layout design */
 @media (min-width: 640px) {
     .product-card__footer {
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
     }
 
     .product-card__price {
@@ -36,7 +36,7 @@
     }
 
     .product-card__quick-view {
-        width: auto !important;
+        width: 100% !important;
         font-size: var(--font-size-sm) !important;
     }
 }

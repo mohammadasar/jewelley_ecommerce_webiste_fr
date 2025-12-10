@@ -214,49 +214,71 @@
         style="display: none;">
         <div class="modal__overlay" aria-hidden="true"></div>
         <div class="modal__content">
-            <button class="modal__close" aria-label="Close modal">&times;</button>
+            <button class="modal__close" onclick="closeModal()" aria-label="Close modal">&times;</button>
 
             <div class="modal__body">
                 <!-- Image Carousel -->
                 <div class="modal__gallery">
-                    <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">‹</button>
-                    <img id="modalImage" class="modal__image" src="" alt="">
-                    <button class="carousel__btn carousel__btn--next" aria-label="Next image">›</button>
+                    <button class="carousel__btn carousel__btn--prev" onclick="navigateCarousel(-1)"
+                        aria-label="Previous image">‹</button>
+                    <img id="modalImage" class="modal__image" src="" alt="Product Image">
+                    <button class="carousel__btn carousel__btn--next" onclick="navigateCarousel(1)"
+                        aria-label="Next image">›</button>
                     <div class="carousel__dots" id="carouselDots"></div>
                 </div>
 
                 <!-- Product Info -->
                 <div class="modal__info">
-                    <h3 id="modalTitle" class="modal__title"></h3>
-                    <div class="modal__rating" id="modalRating"></div>
-                    <p class="modal__price" id="modalPrice"></p>
-                    <p class="modal__description" id="modalDescription"></p>
+                    <div class="modal__header">
+                        <h3 id="modalTitle" class="modal__title">Product Title</h3>
+                        <div class="modal__rating" id="modalRating">
+                            <!-- Stars rendered via JS -->
+                        </div>
+                    </div>
+
+                    <div class="modal__price-box">
+                        <span class="modal__price" id="modalPrice">₹0</span>
+                        <span class="modal__mrp" id="modalMrp"></span>
+                        <span class="modal__discount" id="modalDiscount"></span>
+                    </div>
+
+                    <div class="modal__description-box">
+                        <p class="modal__description" id="modalDescription">Description goes here...</p>
+                    </div>
+
+                    <!-- Product Specifications -->
+                    <div class="modal__specs">
+                        <div class="spec-row">
+                            <span class="spec-label">Material:</span>
+                            <span class="spec-value" id="modalMaterial">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Plating:</span>
+                            <span class="spec-value" id="modalPlating">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Occasion:</span>
+                            <span class="spec-value" id="modalOccasion">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Color:</span>
+                            <span class="spec-value" id="modalColor">-</span>
+                        </div>
+                    </div>
 
                     <!-- Options -->
                     <div class="modal__options">
                         <div class="option__group">
                             <label for="sizeSelect" class="option__label">Size</label>
                             <select id="sizeSelect" class="option__select">
-                                <option value="small">Small</option>
-                                <option value="medium">Medium</option>
-                                <option value="large">Large</option>
-                            </select>
-                        </div>
-
-                        <div class="option__group">
-                            <label for="metalSelect" class="option__label">Metal</label>
-                            <select id="metalSelect" class="option__select">
-                                <option value="gold">Gold</option>
-                                <option value="silver">Silver</option>
-                                <option value="rose-gold">Rose Gold</option>
-                                <option value="platinum">Platinum</option>
+                                <option value="free">Free Size</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="modal__actions">
-                        <button class="btn btn--primary" id="addToCartBtn">
+                        <button class="btn btn--primary btn--block" id="addToCartBtn" onclick="addToCartFromModal()">
                             Add to Cart
                         </button>
                         <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist">
@@ -331,6 +353,7 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+    <script src="./JS/product-service.js"></script>
     <script src="./JS/wishlist-service.js"></script>
     <script src="./JS/app.js"></script>
     <script src="./JS/signup-popup.js"></script>
