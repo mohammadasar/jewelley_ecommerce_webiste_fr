@@ -864,6 +864,26 @@ select {
     z-index: 2;
 }
 
+.carousel__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-base);
+    padding: 0;
+}
+
+.carousel__dot:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.carousel__dot.active {
+    background-color: var(--color-primary);
+    transform: scale(1.2);
+}
+
 /* Modal Info */
 .modal__info {
     display: flex;

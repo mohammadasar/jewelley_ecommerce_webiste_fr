@@ -75,6 +75,7 @@ async function loadDataFromApi() {
         const categories = await ProductService.getAllCategories();
         state.categories = categories;
         populateCategoryFilter();
+        renderCategoryBar();
 
         // 2. Fetch Products
         const apiProducts = await ProductService.getAllProducts();
@@ -146,6 +147,17 @@ function getFullImageUrl(imagePath) {
     return `http://localhost:8080/${cleanPath}`;
 }
 
+const CATEGORY_ICONS = {
+    'rings': 'https://images.unsplash.com/photo-1605100804763-ebea2407aabd?auto=format&fit=crop&w=100&q=80',
+    'necklaces': 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&w=100&q=80',
+    'bracelets': 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=100&q=80',
+    'earrings': 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=100&q=80',
+    'default': 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=100&q=80',
+    'all': 'https://images.unsplash.com/photo-1576158676285-b473796412f4?auto=format&fit=crop&w=100&q=80'
+};
+
+
+
 function populateCategoryFilter() {
     const filterSelect = document.getElementById('categoryFilter');
     if (!filterSelect) return;
@@ -160,6 +172,54 @@ function populateCategoryFilter() {
         option.textContent = category.name;
         filterSelect.appendChild(option);
     });
+}
+
+function renderCategoryBar() {
+    const categoryBar = document.getElementById('categoryBar');
+    if (!categoryBar) return;
+
+    // Add "All" category at start
+    const allCategoryHtml = `
+        <button class="category-item ${state.filters.category === 'all' ? 'active' : ''}" 
+                onclick="setCategoryFilter('all')">
+            <img src="${CATEGORY_ICONS['all']}" alt="All" class="category-item__image" loading="lazy">
+            <span class="category-item__text">All</span>
+        </button>
+    `;
+
+    const categoriesHtml = state.categories.map(category => {
+        const normalizedName = category.name.toLowerCase();
+        // Check for specific icon map, fallback to default
+        let iconSrc = CATEGORY_ICONS[normalizedName] || CATEGORY_ICONS['default'];
+
+        const isActive = state.filters.category === (category.id || category._id);
+        const categoryId = category.id || category._id;
+
+        return `
+            <button class="category-item ${isActive ? 'active' : ''}" 
+                    onclick="setCategoryFilter('${categoryId}')">
+                <img src="${iconSrc}" alt="${category.name}" class="category-item__image" loading="lazy">
+                <span class="category-item__text">${category.name}</span>
+            </button>
+        `;
+    }).join('');
+
+    categoryBar.innerHTML = allCategoryHtml + categoriesHtml;
+}
+
+function setCategoryFilter(categoryId) {
+    // Update state
+    state.filters.category = categoryId;
+
+    // Update UI controls to match
+    const dropdown = document.getElementById('categoryFilter');
+    if (dropdown) dropdown.value = categoryId;
+
+    // Re-render bar to highlight active
+    renderCategoryBar();
+
+    // Apply filters
+    applyFilters();
 }
 
 // ==================== LOCAL STORAGE ====================
@@ -282,6 +342,7 @@ function handleSearch(e) {
 
 function handleCategoryFilter(e) {
     state.filters.category = e.target.value;
+    renderCategoryBar(); // Sync bar highlight
     applyFilters();
 }
 
@@ -494,8 +555,9 @@ function openProductModal(productId) {
     // Update image
     updateModalImage();
 
-    // Update carousel dots
+    // Update carousel dots and controls visibility
     renderCarouselDots();
+    updateCarouselControls();
 
     // Update wishlist button
     const wishlistBtn = document.getElementById('modalWishlistBtn');
@@ -509,6 +571,20 @@ function openProductModal(productId) {
 
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
+}
+
+function updateCarouselControls() {
+    if (!state.currentProduct) return;
+
+    const hasMultipleImages = state.currentProduct.images.length > 1;
+    const modal = document.getElementById('productModal');
+    const prevBtn = modal.querySelector('.carousel__btn--prev');
+    const nextBtn = modal.querySelector('.carousel__btn--next');
+    const dotsContainer = document.getElementById('carouselDots');
+
+    if (prevBtn) prevBtn.style.display = hasMultipleImages ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = hasMultipleImages ? 'flex' : 'none';
+    if (dotsContainer) dotsContainer.style.display = hasMultipleImages ? 'flex' : 'none';
 }
 
 function closeModal() {

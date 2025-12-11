@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./CSS/signup-popup.css">
     <link rel="stylesheet" href="./CSS/admin-panel.css">
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
+    <link rel="stylesheet" href="./CSS/category-bar.css">
 </head>
 
 <body>
@@ -81,6 +82,35 @@
             </div>
         </nav>
     </header>
+
+    <!-- Category Bar (Flipkart Style) -->
+    <section class="category-bar-section" aria-label="Product categories">
+        <div class="container">
+            <div class="category-bar" id="categoryBar">
+                <!-- Categories will be dynamically inserted here -->
+                <div class="category-item loading-skeleton">
+                    <div class="category-item__image-skeleton"></div>
+                    <div class="category-item__text-skeleton"></div>
+                </div>
+                <div class="category-item loading-skeleton">
+                    <div class="category-item__image-skeleton"></div>
+                    <div class="category-item__text-skeleton"></div>
+                </div>
+                <div class="category-item loading-skeleton">
+                    <div class="category-item__image-skeleton"></div>
+                    <div class="category-item__text-skeleton"></div>
+                </div>
+                <div class="category-item loading-skeleton">
+                    <div class="category-item__image-skeleton"></div>
+                    <div class="category-item__text-skeleton"></div>
+                </div>
+                <div class="category-item loading-skeleton">
+                    <div class="category-item__image-skeleton"></div>
+                    <div class="category-item__text-skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Hero Carousel -->
     <section class="hero" aria-label="Luxury jewellery carousel">
@@ -214,16 +244,14 @@
         style="display: none;">
         <div class="modal__overlay" aria-hidden="true"></div>
         <div class="modal__content">
-            <button class="modal__close" onclick="closeModal()" aria-label="Close modal">&times;</button>
+            <button class="modal__close" aria-label="Close modal">&times;</button>
 
             <div class="modal__body">
                 <!-- Image Carousel -->
                 <div class="modal__gallery">
-                    <button class="carousel__btn carousel__btn--prev" onclick="navigateCarousel(-1)"
-                        aria-label="Previous image">‹</button>
+                    <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">‹</button>
                     <img id="modalImage" class="modal__image" src="" alt="Product Image">
-                    <button class="carousel__btn carousel__btn--next" onclick="navigateCarousel(1)"
-                        aria-label="Next image">›</button>
+                    <button class="carousel__btn carousel__btn--next" aria-label="Next image">›</button>
                     <div class="carousel__dots" id="carouselDots"></div>
                 </div>
 
@@ -278,7 +306,7 @@
 
                     <!-- Actions -->
                     <div class="modal__actions">
-                        <button class="btn btn--primary btn--block" id="addToCartBtn" onclick="addToCartFromModal()">
+                        <button class="btn btn--primary btn--block" id="addToCartBtn">
                             Add to Cart
                         </button>
                         <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist">
