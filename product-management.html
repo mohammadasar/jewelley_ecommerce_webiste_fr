@@ -8,6 +8,31 @@
     <link rel="stylesheet" href="./CSS/styles.css">
     <link rel="stylesheet" href="./CSS/admin-panel.css">
     <link rel="stylesheet" href="./CSS/product-management.css">
+    <style>
+        .btn-modern-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: #ffffff;
+            /* White background */
+            border: 1px solid var(--color-border);
+            border-radius: 9999px !important;
+            color: var(--color-text);
+            text-decoration: none !important;
+            font-weight: var(--font-weight-medium);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-modern-back:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(212, 175, 55, 0.05);
+            /* Slight gold tint */
+            transform: translateX(-4px);
+        }
+    </style>
 </head>
 
 <body>
@@ -17,7 +42,14 @@
             <div class="admin-header__content">
                 <h1 class="admin-header__title">💎 Product Management</h1>
                 <div class="admin-header__actions">
-                    <a href="admin.html" class="btn btn--secondary">← Back to Dashboard</a>
+                    <a href="admin.html" class="btn-modern-back">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5" />
+                            <path d="M12 19l-7-7 7-7" />
+                        </svg>
+                        Back to Dashboard
+                    </a>
                     <button id="logoutBtn" class="btn btn--outline">Logout</button>
                 </div>
             </div>

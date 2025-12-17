@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - Guru Jewellery Admin</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
+    <link rel="stylesheet" href="./CSS/admin-panel.css">
+    <style>
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .metric-card {
+            background: var(--color-surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .metric-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-weight: var(--font-weight-bold);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .metric-subtext {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+        }
+
+        .status-breakdown {
+            margin-top: var(--spacing-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--color-bg);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-muted);
+            margin-top: var(--spacing-md);
+        }
+
+        /* Navbar Tweaks for Spacing */
+        .admin-nav {
+            padding-top: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--color-surface);
+            box-shadow: none;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .btn-modern-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: #ffffff;
+            /* White background */
+            border: 1px solid var(--color-border);
+            border-radius: 9999px !important;
+            color: var(--color-text);
+            text-decoration: none !important;
+            font-weight: var(--font-weight-medium);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-modern-back:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(212, 175, 55, 0.05);
+            /* Slight gold tint */
+            transform: translateX(-4px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <header class="header">
+        <nav class="nav container admin-nav">
+            <div class="nav__brand">
+                <a href="admin.html" style="text-decoration: none;">
+                    <h1 class="nav__logo">📊 Admin Reports</h1>
+                </a>
+            </div>
+            <a href="admin.html" class="btn-modern-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5" />
+                    <path d="M12 19l-7-7 7-7" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <main class="container main" style="display: block;">
+        <div class="sales-header">
+            <div>
+                <h2 class="section-title">Performance Analytics</h2>
+                <p style="color: var(--color-text-muted);">Overview of store performance and order metrics</p>
+            </div>
+            <button class="btn btn--secondary" onclick="loadReportsData()">Refresh Data</button>
+        </div>
+
+        <div class="reports-grid">
+            <!-- Total Revenue -->
+            <div class="metric-card">
+                <span class="metric-label">Total Revenue</span>
+                <span class="metric-value" id="totalRevenue">₹0</span>
+                <span class="metric-subtext">Confirmed Orders Only</span>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="metric-card">
+                <span class="metric-label">Total Orders</span>
+                <span class="metric-value" id="totalOrders">0</span>
+                <span class="metric-subtext">All time</span>
+            </div>
+
+            <!-- Pending Orders -->
+            <div class="metric-card">
+                <span class="metric-label">Pending Orders</span>
+                <span class="metric-value" id="pendingOrders" style="color: #f39c12;">0</span>
+                <span class="metric-subtext">Requires Attention</span>
+            </div>
+
+            <!-- Avg Order Value -->
+            <div class="metric-card">
+                <span class="metric-label">Avg. Order Value</span>
+                <span class="metric-value" id="avgOrderValue">₹0</span>
+                <span class="metric-subtext">Per confirmed order</span>
+            </div>
+        </div>
+
+        <div class="reports-grid">
+            <!-- Status Breakdown -->
+            <div class="metric-card">
+                <h3 class="metric-label" style="font-size: var(--font-size-base); margin-bottom: 1rem;">Order Status
+                    Breakdown</h3>
+                <div class="status-breakdown" id="statusBreakdown">
+                    <div class="status-row"><span>Loading...</span></div>
+                </div>
+            </div>
+
+            <!-- Recent Activity (Placeholder) -->
+            <div class="metric-card">
+                <h3 class="metric-label" style="font-size: var(--font-size-base); margin-bottom: 1rem;">Sales Trend</h3>
+                <div class="chart-placeholder">
+                    (Chart Visualization Placeholder)
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./JS/order-service.js"></script>
+    <script src="./JS/admin-reports.js"></script>
+</body>
+
+</html>

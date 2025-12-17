@@ -223,26 +223,61 @@
                     </div>
                 </div>
             `,
-            sales: `
-                <div class="section-placeholder">
-                    <h3>💰 Sales Management</h3>
-                    <p>API Endpoint: <code>GET ${API_BASE_URL}/sales</code></p>
-                    <p>Track sales, revenue, and transaction history.</p>
-                    <div class="api-info">
-                        <strong>Expected Response:</strong>
-                        <pre>{
-  "sales": [
-    {
-      "id": 1,
-      "date": "2025-12-08",
-      "amount": 2500,
-      "status": "completed"
-    }
-  ]
-}</pre>
-                    </div>
-                </div>
-            `,
+            sales: async (container) => {
+                container.innerHTML = '<div class="loading">Loading Sales...</div>';
+                try {
+                    const orders = await OrderService.getAllOrders();
+
+                    if (!orders || orders.length === 0) {
+                        container.innerHTML = '<p>No orders found.</p>';
+                        return;
+                    }
+
+                    const tableHtml = `
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                                <thead>
+                                    <tr style="background: var(--color-bg); text-align: left;">
+                                        <th style="padding: 1rem;">Order ID</th>
+                                        <th style="padding: 1rem;">Date</th>
+                                        <th style="padding: 1rem;">Customer</th>
+                                        <th style="padding: 1rem;">Items</th>
+                                        <th style="padding: 1rem;">Amount</th>
+                                        <th style="padding: 1rem;">Status</th>
+                                        <th style="padding: 1rem;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${orders.map(order => `
+                                        <tr style="border-bottom: 1px solid var(--color-border);">
+                                            <td style="padding: 1rem;">${order.orderId || order.id}</td>
+                                            <td style="padding: 1rem;">${new Date(order.createdAt).toLocaleDateString()}</td>
+                                            <td style="padding: 1rem;">
+                                                <div>${order.whatsappNumber}</div>
+                                                <div style="font-size: 0.8em; color: gray;">${order.district}, ${order.state}</div>
+                                            </td>
+                                            <td style="padding: 1rem;">
+                                                ${order.items.map(i => `<div>${i.quantity}x ${i.title || i.productName}</div>`).join('')}
+                                            </td>
+                                            <td style="padding: 1rem; font-weight: bold;">₹${order.totalAmount}</td>
+                                            <td style="padding: 1rem;">
+                                                <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                                            </td>
+                                            <td style="padding: 1rem;">
+                                                <button onclick="window.location.href='https://wa.me/${order.whatsappNumber}'" class="btn-icon">💬</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    container.innerHTML = tableHtml;
+                } catch (error) {
+                    console.error(error);
+                    container.innerHTML = '<p style="color: red;">Error loading orders: ' + error.message + '</p>';
+                }
+            },
             stock: `
                 <div class="section-placeholder">
                     <h3>📦 Stock Management</h3>
@@ -329,7 +364,11 @@
             `
         };
 
-        container.innerHTML = placeholders[section] || '<p>Section content not found</p>';
+        if (typeof placeholders[section] === 'function') {
+            placeholders[section](container);
+        } else {
+            container.innerHTML = placeholders[section] || '<p>Section content not found</p>';
+        }
 
         // Add some basic styling for placeholders
         const style = `

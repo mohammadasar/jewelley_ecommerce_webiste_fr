@@ -306,14 +306,18 @@
 
                     <!-- Actions -->
                     <div class="modal__actions">
-                        <button class="btn btn--primary btn--block" id="addToCartBtn">
-                            Add to Cart
-                        </button>
-                        <button class="btn btn--primary btn--block" id="modalBuyNowBtn"
-                            style="margin-top: 0.5rem; background-color: #ff9f00; border-color: #ff9f00;">
-                            Buy Now
-                        </button>
-                        <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist">
+                        <div style="flex: 1; display: flex; gap: 0.5rem;">
+                            <button class="btn btn--primary" id="addToCartBtn"
+                                style="flex: 1; padding: 0.5rem; font-size: 1rem; white-space: nowrap;">
+                                Add to Cart
+                            </button>
+                            <button class="btn btn--primary" id="modalBuyNowBtn"
+                                style="flex: 1; padding: 0.5rem; font-size: 1rem; background-color: #ff9f00; border-color: #ff9f00; white-space: nowrap;">
+                                Buy Now
+                            </button>
+                        </div>
+                        <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist"
+                            style="width: auto; padding: 0.5rem 1rem;">
                             ♡
                         </button>
                     </div>

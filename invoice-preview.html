@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Preview - Guru Jewellery</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #D4AF37;
+            --color-text: #2d3748;
+            --color-text-muted: #718096;
+            --color-border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f7fafc;
+            color: var(--color-text);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-print {
+            background: var(--color-text);
+            color: white;
+        }
+
+        .btn-download {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--color-text-muted);
+            color: var(--color-text);
+        }
+
+        .invoice-container {
+            background: white;
+            width: 210mm;
+            /* A4 width */
+            min-height: 297mm;
+            /* A4 height */
+            padding: 20mm;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .company-info h1 {
+            color: var(--color-primary);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-details h2 {
+            margin: 0 0 0.5rem 0;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bill-to {
+            margin-bottom: 2rem;
+        }
+
+        .bill-to h3 {
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-table th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .invoice-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .invoice-summary {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .summary-table {
+            width: 300px;
+        }
+
+        .summary-table td {
+            padding: 0.5rem 0;
+        }
+
+        .summary-table .total-row {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--color-primary);
+            border-top: 2px solid var(--color-border);
+            padding-top: 1rem;
+        }
+
+        .footer {
+            margin-top: 4rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            border-top: 1px solid var(--color-border);
+            padding-top: 1rem;
+        }
+
+        .status-stamp {
+            position: absolute;
+            top: 20mm;
+            right: 20mm;
+            border: 3px solid #e53e3e;
+            color: #e53e3e;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transform: rotate(-10deg);
+            opacity: 0.5;
+            display: none;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                display: block;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <button class="btn btn-back" onclick="history.back()">Back</button>
+        <button class="btn btn-print" onclick="window.print()">Print</button>
+        <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
+    </div>
+
+    <div id="loadingMessage">Loading Invoice...</div>
+    <div id="creationControls" style="display: none; text-align: center; margin-top: 2rem;">
+        <h3>Invoice not generated yet.</h3>
+        <button class="btn btn-download" onclick="generateInvoice()">Generate Invoice Now</button>
+    </div>
+
+    <div class="invoice-container" id="invoice">
+        <header class="invoice-header">
+            <div class="company-info">
+                <h1>💎 Guru Jewellery</h1>
+                <div>123 Jewelry Lane, Gold City</div>
+                <div>support@gurujewellery.com</div>
+                <div>+91 98765 43210</div>
+            </div>
+            <div class="invoice-details">
+                <h2>Invoice</h2>
+                <div><strong>Invoice #:</strong> <span id="invNumber">...</span></div>
+                <div><strong>Date:</strong> <span id="invDate">...</span></div>
+                <div><strong>Status:</strong> <span style="color: green;">PAID</span></div>
+            </div>
+        </header>
+
+        <section class="bill-to">
+            <h3>Bill To:</h3>
+            <div id="custName" style="font-weight: bold;">Loading...</div>
+            <div id="custAddress">...</div>
+            <div id="custPhone">...</div>
+        </section>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Item Description</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Price</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceItems">
+                <!-- Items -->
+            </tbody>
+        </table>
+
+        <div class="invoice-summary">
+            <table class="summary-table">
+                <tr>
+                    <td>Subtotal:</td>
+                    <td style="text-align: right;" id="subTotal">₹0.00</td>
+                </tr>
+                <tr>
+                    <td>Tax (0%):</td>
+                    <td style="text-align: right;">₹0.00</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total:</td>
+                    <td style="text-align: right;" id="grandTotal">₹0.00</td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 4px; font-size: 0.9em;">
+            <strong>Payment Info:</strong><br>
+            Mode: <span id="paymentMode">UPI</span><br>
+            Ref ID: <span id="paymentRef">...</span>
+        </div>
+
+        <footer class="footer">
+            <p>Thank you for your business!</p>
+            <p>This is a computer-generated invoice and does not require a signature.</p>
+        </footer>
+    </div>
+
+    <script src="./JS/invoice-service.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+
+        async function init() {
+            if (!orderId) {
+                alert('No order ID specified');
+                return;
+            }
+
+            try {
+                // Try to get existing invoice
+                let invoice = await InvoiceService.getInvoiceByOrderId(orderId);
+
+                if (!invoice) {
+                    // Show generate button
+                    document.getElementById('loadingMessage').style.display = 'none';
+                    document.getElementById('invoice').style.display = 'none';
+                    document.getElementById('creationControls').style.display = 'block';
+                    document.querySelector('.controls').style.display = 'none'; // Hide print controls
+                    return;
+                }
+
+                renderInvoice(invoice);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loadingMessage').textContent = 'Error loading invoice.';
+            }
+        }
+
+        async function generateInvoice() {
+            try {
+                document.getElementById('creationControls').innerHTML = 'Generating...';
+                const invoice = await InvoiceService.generateInvoice(orderId);
+                location.reload(); // Reload to show invoice
+            } catch (error) {
+                alert('Error generating invoice: ' + error.message);
+                document.getElementById('creationControls').innerHTML = `
+                    <h3>Error</h3>
+                    <button class="btn btn-download" onclick="generateInvoice()">Try Again</button>
+                `;
+            }
+        }
+
+        function renderInvoice(invoice) {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('creationControls').style.display = 'none';
+            document.getElementById('invoice').style.display = 'block';
+            document.querySelector('.controls').style.display = 'flex';
+
+            document.getElementById('invNumber').textContent = invoice.invoiceNumber || 'INV-' + invoice.id;
+            // Assuming invoice has createdAt or we use current date if new
+            const date = invoice.createdAt ? new Date(invoice.createdAt) : new Date();
+            document.getElementById('invDate').textContent = date.toLocaleDateString();
+
+            document.getElementById('custName').textContent = 'Valued Customer'; // Backend might not send name on Invoice object directly if not mapped
+            document.getElementById('custAddress').textContent = invoice.customerAddress;
+            document.getElementById('custPhone').textContent = invoice.customerWhatsapp;
+
+            // Items
+            const tbody = document.getElementById('invoiceItems');
+            tbody.innerHTML = invoice.items.map(item => `
+                <tr>
+                    <td>
+                        <div style="font-weight: bold;">${item.title || item.productName || 'Product'}</div>
+                        <div style="font-size: 0.8em; color: gray;">${item.sku || ''}</div>
+                    </td>
+                    <td style="text-align: center;">${item.quantity}</td>
+                    <td style="text-align: right;">₹${item.price}</td>
+                    <td style="text-align: right;">₹${item.price * item.quantity}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('subTotal').textContent = `₹${invoice.subTotal}`;
+            document.getElementById('grandTotal').textContent = `₹${invoice.totalAmount}`;
+
+            document.getElementById('paymentMode').textContent = invoice.paymentMode;
+            document.getElementById('paymentRef').textContent = invoice.paymentRefId || 'N/A';
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('invoice');
+            const opt = {
+                margin: 0,
+                filename: `Invoice_${document.getElementById('invNumber').textContent}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporary Adjustments for PDF generation
+            const originalShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.boxShadow = originalShadow;
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

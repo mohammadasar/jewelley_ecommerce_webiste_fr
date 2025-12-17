@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Guru Jewellery</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
+    <style>
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-2xl);
+            width: 100%;
+            /* Inherit constraints from .main.container */
+            padding-bottom: var(--spacing-xl);
+        }
+
+        @media (max-width: 900px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-xl);
+            }
+        }
+
+        .checkout-form {
+            background: var(--color-surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .checkout-summary {
+            background: var(--color-surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Override global auth input styles if necessary */
+        .checkout-form .form-input {
+            padding-right: var(--spacing-md);
+        }
+
+        .summary-item {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .summary-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .summary-details h4 {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: 4px;
+        }
+
+        .summary-details p {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+        }
+
+        .summary-total {
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+            border-top: 2px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-lg);
+        }
+    </style>
+    <style>
+        /* ... existing styles ... */
+
+        /* Navbar Tweaks */
+        .header {
+            background: var(--color-surface);
+            box-shadow: none;
+            /* Cleaner look for checkout */
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .checkout-nav {
+            padding-top: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            max-width: 1400px;
+            /* Ensure strictly matches content */
+            margin: 0 auto;
+        }
+
+        .btn-modern-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 9999px !important;
+            color: var(--color-text);
+            text-decoration: none !important;
+            font-weight: var(--font-weight-medium);
+            transition: all 0.2s ease;
+        }
+
+        .btn-modern-back:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(212, 175, 55, 0.05);
+            /* Slight gold tint */
+            transform: translateX(-4px);
+        }
+
+        /* Adjust logo spacing */
+        .nav__logo {
+            margin: 0;
+            line-height: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation (Simplified) -->
+    <header class="header">
+        <nav class="nav container checkout-nav">
+            <div class="nav__brand">
+                <a href="index.html" style="text-decoration: none;">
+                    <h1 class="nav__logo">💎 Guru Jewellery</h1>
+                </a>
+            </div>
+            <a href="index.html" class="btn-modern-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5" />
+                    <path d="M12 19l-7-7 7-7" />
+                </svg>
+                Back to Shop
+            </a>
+        </nav>
+    </header>
+
+    <main class="main container" style="display: block; max-width: 1400px;">
+        <div class="checkout-container">
+            <!-- Shipping Form -->
+            <section class="checkout-form">
+                <h2 class="section-title">Shipping Details</h2>
+                <form id="checkoutForm">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label" for="whatsappNumber">WhatsApp Number *</label>
+                            <input type="tel" id="whatsappNumber" class="form-input" required pattern="^[6-9]\d{9}$"
+                                placeholder="Enter 10-digit WhatsApp number"
+                                title="Please enter a valid 10-digit Indian mobile number starting with 6-9">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="alternateNumber">Alternate Number</label>
+                            <input type="tel" id="alternateNumber" class="form-input" pattern="^[6-9]\d{9}$"
+                                placeholder="Optional">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="address">Full Address *</label>
+                            <textarea id="address" class="form-input" rows="3" required
+                                placeholder="House No, Street, Landmark"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="state">State *</label>
+                            <input type="text" id="state" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="district">District *</label>
+                            <input type="text" id="district" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="pincode">Pincode *</label>
+                            <input type="text" id="pincode" class="form-input" required pattern="^\d{6}$"
+                                placeholder="6 digits" title="Please enter a valid 6-digit Pincode">
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Order Summary -->
+            <section class="checkout-summary">
+                <h2 class="section-title">Order Summary</h2>
+                <div id="orderItems">
+                    <!-- Dynamic Items -->
+                </div>
+
+                <div class="summary-total">
+                    <span>Total Amount</span>
+                    <span id="orderTotal">₹0</span>
+                </div>
+
+                <button type="submit" form="checkoutForm" class="btn btn--primary btn--block" style="margin-top: 2rem;">
+                    Place Order & Pay
+                </button>
+            </section>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="./JS/order-service.js"></script>
+    <script src="./JS/checkout.js"></script>
+</body>
+
+</html>

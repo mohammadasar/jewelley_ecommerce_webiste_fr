@@ -302,6 +302,12 @@ function setupEventListeners() {
 
 
 
+    // Modal Buy Now
+    const modalBuyNowBtn = document.getElementById('modalBuyNowBtn');
+    if (modalBuyNowBtn) {
+        modalBuyNowBtn.addEventListener('click', handleBuyNow);
+    }
+
     // Event delegation for product cards
     document.getElementById('productGrid').addEventListener('click', handleProductCardClick);
 
@@ -488,6 +494,8 @@ function handleProductCardClick(e) {
         openProductModal(productId);
     } else if (action === 'wishlist') {
         toggleWishlistItem(productId);
+    } else if (action === 'buy-now') {
+        handleBuyNow(e);
     }
 }
 
@@ -631,6 +639,41 @@ function navigateCarousel(direction) {
     if (state.currentImageIndex > maxIndex) state.currentImageIndex = 0;
 
     updateModalImage();
+}
+
+function handleBuyNow(e) {
+    let productId;
+
+    // Check if triggered from card or modal
+    if (e.target.id === 'modalBuyNowBtn') {
+        if (!state.currentProduct) return;
+        productId = state.currentProduct.id;
+    } else {
+        const card = e.target.closest('.product-card');
+        if (!card) return;
+        productId = card.dataset.productId;
+    }
+
+    const product = state.products.find(p => p.id == productId);
+    if (!product) return;
+
+    // Prepare single item for checkout
+    const checkoutItem = {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.images[0],
+        quantity: 1,
+        // Default values for direct buy
+        size: 'Free Size',
+        metal: 'Gold'
+    };
+
+    // Store in specialized key to differentiate from Cart checkout
+    localStorage.setItem('jewel_buyNowItem', JSON.stringify(checkoutItem));
+
+    // Redirect
+    window.location.href = 'checkout.html';
 }
 
 // ==================== CART ====================
@@ -778,7 +821,8 @@ function updateCartBadge() {
 }
 
 function handleCheckout() {
-    showToast('Checkout is a demo feature. In production, this would redirect to payment processing.');
+    // Redirect to checkout page
+    window.location.href = 'checkout.html';
 }
 
 // ==================== WISHLIST ====================
