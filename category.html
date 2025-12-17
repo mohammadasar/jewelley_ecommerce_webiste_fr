@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category - Guru Jewellery</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
+    <link rel="stylesheet" href="./CSS/mobile-nav.css">
+    <link rel="stylesheet" href="./CSS/category-bar.css">
+    <style>
+        .category-header {
+            text-align: center;
+            padding: 2rem 0;
+            background: #f8f9fa;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Sub-category bar variations for this page */
+        .sub-category-bar {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            justify-content: center;
+            scrollbar-width: none;
+        }
+
+        .sub-category-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sub-category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 80px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none;
+            background: none;
+        }
+
+        .sub-category-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .sub-category-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-category-text {
+            font-size: 0.9rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .category-search-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+        }
+
+        .category-search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            padding-right: 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .category-search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .category-search-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header (Simplified reuse) -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="nav__brand">
+                <a href="index.html" style="text-decoration: none;">
+                    <h1 class="nav__logo">💎 Guru Jewellery</h1>
+                </a>
+            </div>
+            <div class="nav__actions">
+                <a href="index.html" class="nav__action">🏠 Home</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Category Header -->
+        <section class="category-header">
+            <div class="container">
+                <h1 class="category-title" id="pageTitle">Loading...</h1>
+            </div>
+        </section>
+
+        <!-- Level 2: Sub Categories -->
+        <section class="container" id="subCategorySection" style="display: none;">
+            <div class="sub-category-bar" id="subCategoryBar">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- Search -->
+        <div class="category-search-container">
+            <input type="text" id="categorySearchInput" class="category-search-input"
+                placeholder="Search within this category...">
+            <span class="category-search-icon">🔍</span>
+        </div>
+
+        <!-- Products -->
+        <section class="products container" style="margin-top: 2rem; margin-bottom: 4rem;">
+            <div class="products__header">
+                <h2 class="products__title">Products</h2>
+                <p class="products__count" id="productCount">0 products</p>
+            </div>
+
+            <div class="product-grid" id="productGrid">
+                <!-- Products populated by JS -->
+            </div>
+
+            <div id="noResults" class="no-results" style="display: none; text-align: center; padding: 2rem;">
+                <p>No products found.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="./JS/product-service.js"></script>
+    <script src="./JS/category-page.js"></script>
+</body>
+
+</html>

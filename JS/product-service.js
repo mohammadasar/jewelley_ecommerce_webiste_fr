@@ -246,11 +246,37 @@
      * @param {object} formData - Form data
      * @returns {object}
      */
+    // function formatProductData(formData) {
+    //     return {
+    //         productName: formData.productName,
+    //         description: formData.description,
+    //         categoryId: formData.categoryId,
+    //         subCategory: formData.subCategory || '',
+    //         price: parseFloat(formData.price) || 0,
+    //         mrp: parseFloat(formData.mrp) || 0,
+    //         discountPercent: parseInt(formData.discountPercent) || 0,
+    //         images: parseImageUrls(formData.images),
+    //         material: formData.material || '',
+    //         color: formData.color || '',
+    //         plating: formData.plating || '',
+    //         size: formData.size || '',
+    //         occasion: formData.occasion || '',
+    //         inStock: formData.inStock,
+    //         quantity: parseInt(formData.quantity) || 0,
+    //         sku: formData.sku || '',
+    //         brand: formData.brand || ''
+    //     };
+    // }
     function formatProductData(formData) {
         return {
             productName: formData.productName,
             description: formData.description,
-            categoryId: formData.categoryId,
+
+            // 🔥 UPDATED: Now supports MULTIPLE CATEGORIES
+            categoryIds: Array.isArray(formData.categoryIds)
+                ? formData.categoryIds
+                : (formData.categoryIds || '').split(',').map(c => c.trim()).filter(c => c !== ''),
+
             subCategory: formData.subCategory || '',
             price: parseFloat(formData.price) || 0,
             mrp: parseFloat(formData.mrp) || 0,
@@ -268,6 +294,30 @@
         };
     }
 
+    /**
+     * Get category image URL
+     * @param {object} category - Category object
+     * @returns {string}
+     */
+    function getCategoryImageUrl(category) {
+        if (!category) return 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=100&q=80';
+
+        let imagePath = category.imageUrl;
+        if (!imagePath) return 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=100&q=80';
+
+        if (imagePath.startsWith('http') || imagePath.startsWith('https')) return imagePath;
+        if (imagePath.startsWith('data:')) return imagePath;
+
+        // Normalize slashes
+        imagePath = imagePath.replace(/\\/g, '/');
+        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+
+        // Encode path to handle spaces and special characters
+        // Extract just the filename in case the DB contains a full path (e.g. api/categories/...)
+        const filename = cleanPath.split('/').pop();
+        return `http://localhost:8080/api/categories/image-file/${encodeURI(filename)}`;
+    }
+
     // Expose API globally
     window.ProductService = {
         getAllProducts,
@@ -280,7 +330,8 @@
         getAllCategories,
         calculateDiscount,
         parseImageUrls,
-        formatProductData
+        formatProductData,
+        getCategoryImageUrl
     };
 
 })();

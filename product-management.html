@@ -56,6 +56,12 @@
                                     placeholder="Short description..."></textarea>
                             </div>
 
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="categoryImage" class="form-label">Category Image</label>
+                                <input type="file" id="categoryImage" class="form-input" accept="image/*">
+                                <small class="form-help">Optional. Upload an image for this category.</small>
+                            </div>
+
                             <div class="form-actions" style="margin-top: 1.5rem; padding-top: 1rem;">
                                 <button type="submit" class="btn btn--primary" id="btnSubmitCategory">
                                     <span id="btnSubmitCategoryText">Add Category</span>
@@ -68,21 +74,22 @@
                     <!-- Category List -->
                     <div style="flex: 1.5; min-width: 300px; border-left: 1px solid #f0f0f0; padding-left: 2rem;">
                         <h3 class="form-section__title">Existing Categories</h3>
-                        <div style="overflow-x: auto;">
+                        <div
+                            style="overflow-x: auto; max-height: 500px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
                             <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
                                 <thead>
                                     <tr style="background: #f8f9fa; color: #4a5568;">
                                         <th
-                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
                                             Name</th>
                                         <th
-                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
                                             Parent</th>
                                         <th
-                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
                                             Description</th>
                                         <th
-                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                            style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
                                             Actions</th>
                                     </tr>
                                 </thead>
@@ -138,20 +145,38 @@
                     <div class="form-section">
                         <h3 class="form-section__title">Category & Classification</h3>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label for="categoryId" class="form-label">Category *</label>
-                                <select id="categoryId" class="form-input modern-input" required>
-                                    <option value="">-- Select Category --</option>
-                                </select>
-                                <small class="form-help">Select the category (ID will be saved automatically)</small>
+                            <div class="form-group form-group--full">
+                                <label class="form-label">Product Category Structure *</label>
+                                <div class="category-hierarchy-container"
+                                    style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="categoryLevel1" class="form-label"
+                                            style="font-size: 0.85em; color: #666;">Level 1 (Main Category)</label>
+                                        <select id="categoryLevel1" class="form-select modern-select" required>
+                                            <option value="">-- Select Main Category --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="categoryLevel2" class="form-label"
+                                            style="font-size: 0.85em; color: #666;">Level 2 (Sub Category)</label>
+                                        <select id="categoryLevel2" class="form-select modern-select" disabled>
+                                            <option value="">-- Select Sub Category --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="categoryLevel3" class="form-label"
+                                            style="font-size: 0.85em; color: #666;">Level 3 (Child Category)</label>
+                                        <select id="categoryLevel3" class="form-select modern-select" disabled>
+                                            <option value="">-- Select Child Category --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="categoryPath">
+                                <small class="form-help">Select categories in order: Main > Sub > Child</small>
                             </div>
 
 
-                            <div class="form-group">
-                                <label for="subCategory" class="form-label">Sub Category</label>
-                                <input type="text" id="subCategory" class="form-input modern-input"
-                                    placeholder="e.g., Statement Necklace">
-                            </div>
+
                         </div>
                     </div>
 
@@ -184,59 +209,33 @@
                         <h3 class="form-section__title">Product Attributes</h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="material" class="form-label">Material</label>
-                                <select id="material" class="form-select modern-select">
-                                    <option value="">Select Material</option>
-                                    <option value="Alloy">Alloy</option>
-                                    <option value="Brass">Brass</option>
-                                    <option value="Copper">Copper</option>
-                                    <option value="Stainless Steel">Stainless Steel</option>
-                                    <option value="Gold">Gold</option>
-                                    <option value="Silver">Silver</option>
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label for="material" class="form-label">Material</label>
+                                    <input type="text" id="material" class="form-input"
+                                        placeholder="e.g. Brass, Copper">
+                                </div>
 
-                            <div class="form-group">
-                                <label for="color" class="form-label">Color</label>
-                                <select id="color" class="form-select modern-select">
-                                    <option value="">Select Color</option>
-                                    <option value="Gold">Gold</option>
-                                    <option value="Rose Gold">Rose Gold</option>
-                                    <option value="Silver">Silver</option>
-                                    <option value="Multicolor">Multicolor</option>
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label for="color" class="form-label">Color</label>
+                                    <input type="text" id="color" class="form-input" placeholder="e.g. Gold, Rose Gold">
+                                </div>
 
-                            <div class="form-group">
-                                <label for="plating" class="form-label">Plating</label>
-                                <select id="plating" class="form-select modern-select">
-                                    <option value="">Select Plating</option>
-                                    <option value="1g gold plated">1g Gold Plated</option>
-                                    <option value="antique">Antique</option>
-                                    <option value="matte">Matte</option>
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label for="plating" class="form-label">Plating</label>
+                                    <input type="text" id="plating" class="form-input"
+                                        placeholder="e.g. 1g Gold Plated">
+                                </div>
 
-                            <div class="form-group">
-                                <label for="size" class="form-label">Size</label>
-                                <select id="size" class="form-select modern-select">
-                                    <option value="">Select Size</option>
-                                    <option value="Free size">Free Size</option>
-                                    <option value="S">Small</option>
-                                    <option value="M">Medium</option>
-                                    <option value="L">Large</option>
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label for="size" class="form-label">Size</label>
+                                    <input type="text" id="size" class="form-input" placeholder="e.g. Free Size, S, M">
+                                </div>
 
-                            <div class="form-group">
-                                <label for="occasion" class="form-label">Occasion</label>
-                                <select id="occasion" class="form-select modern-select">
-                                    <option value="">Select Occasion</option>
-                                    <option value="Bridal">Bridal</option>
-                                    <option value="Party">Party</option>
-                                    <option value="Daily">Daily</option>
-                                    <option value="Festival">Festival</option>
-                                </select>
+                                <div class="form-group">
+                                    <label for="occasion" class="form-label">Occasion</label>
+                                    <input type="text" id="occasion" class="form-input"
+                                        placeholder="e.g. Party, Bridal">
+                                </div>
                             </div>
                         </div>
                     </div>

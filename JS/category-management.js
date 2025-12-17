@@ -58,24 +58,39 @@
         }
     }
 
-    async function addCategory(data) {
+    async function addCategory(formData) {
+        const token = localStorage.getItem('jewel_token');
         const res = await fetch(`${API_BASE_URL}/add`, {
             method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(data)
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+                // Content-Type is set automatically for FormData
+            },
+            body: formData
         });
-        if (!res.ok) throw new Error('Failed to add category');
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Failed to add category: ${errorText}`);
+        }
         return await res.json();
     }
 
-    async function updateCategory(id, data) {
+    async function updateCategory(id, formData) {
+        const token = localStorage.getItem('jewel_token');
         const res = await fetch(`${API_BASE_URL}/update/${id}`, {
             method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(data)
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: formData
         });
-        if (!res.ok) throw new Error('Failed to update category');
-        return await res.json();
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Failed to update category: ${errorText}`);
+        }
+        return await res.json(); // Backend might return string or object, verify later
     }
 
     async function deleteCategory(id) {
@@ -91,19 +106,34 @@
     async function handleFormSubmit(e) {
         e.preventDefault();
 
-        const formData = {
-            name: document.getElementById('categoryName').value.trim(),
-            description: document.getElementById('categoryDescription').value.trim(),
-            parentId: document.getElementById('parentCategoryId').value || null
-        };
-
-        if (!formData.name) {
+        if (!document.getElementById('categoryName').value.trim()) {
             showToast('Category name is required', 'error');
             return;
         }
 
         try {
             setLoading(true);
+
+            // Construct FormData with JSON Blob + File
+            const formData = new FormData();
+
+            const categoryData = {
+                name: document.getElementById('categoryName').value.trim(),
+                description: document.getElementById('categoryDescription').value.trim(),
+                parentId: document.getElementById('parentCategoryId').value || null
+            };
+
+            // Append JSON part as Blob
+            formData.append(
+                "category",
+                new Blob([JSON.stringify(categoryData)], { type: "application/json" })
+            );
+
+            // Append Image if selected
+            const imageInput = document.getElementById('categoryImage');
+            if (imageInput && imageInput.files.length > 0) {
+                formData.append("image", imageInput.files[0]);
+            }
 
             if (currentEditId) {
                 await updateCategory(currentEditId, formData);
@@ -117,11 +147,7 @@
             await loadCategories();
 
             // Dispatch event to notify product-management.js to reload its dropdowns
-            // (Optional bonus feature for better UX)
-            if (window.ProductService) {
-                // Ideally product management would listen for this, but for now
-                // a manual reload of the page or just re-fetching happens independently
-            }
+            document.dispatchEvent(new CustomEvent('categoriesUpdated'));
 
         } catch (error) {
             console.error('Error saving category:', error);
@@ -150,6 +176,7 @@
                 await deleteCategory(id);
                 showToast('Category deleted', 'success');
                 await loadCategories();
+                document.dispatchEvent(new CustomEvent('categoriesUpdated'));
             } catch (error) {
                 console.error('Error deleting category:', error);
                 showToast('Failed to delete category', 'error');
@@ -161,6 +188,8 @@
         categoryForm.reset();
         currentEditId = null;
         btnSubmitCategoryText.textContent = 'Add Category';
+        const imageInput = document.getElementById('categoryImage');
+        if (imageInput) imageInput.value = '';
     }
 
     // ==================== RENDERING ====================

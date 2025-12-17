@@ -147,17 +147,6 @@ function getFullImageUrl(imagePath) {
     return `http://localhost:8080/${cleanPath}`;
 }
 
-const CATEGORY_ICONS = {
-    'rings': 'https://images.unsplash.com/photo-1605100804763-ebea2407aabd?auto=format&fit=crop&w=100&q=80',
-    'necklaces': 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&w=100&q=80',
-    'bracelets': 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=100&q=80',
-    'earrings': 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=100&q=80',
-    'default': 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=100&q=80',
-    'all': 'https://images.unsplash.com/photo-1576158676285-b473796412f4?auto=format&fit=crop&w=100&q=80'
-};
-
-
-
 function populateCategoryFilter() {
     const filterSelect = document.getElementById('categoryFilter');
     if (!filterSelect) return;
@@ -178,33 +167,25 @@ function renderCategoryBar() {
     const categoryBar = document.getElementById('categoryBar');
     if (!categoryBar) return;
 
-    // Add "All" category at start
-    const allCategoryHtml = `
-        <button class="category-item ${state.filters.category === 'all' ? 'active' : ''}" 
-                onclick="setCategoryFilter('all')">
-            <img src="${CATEGORY_ICONS['all']}" alt="All" class="category-item__image" loading="lazy">
-            <span class="category-item__text">All</span>
-        </button>
-    `;
+    // Filter for Level 1 Categories (Root categories)
+    const rootCategories = state.categories.filter(c => !c.parentId);
 
-    const categoriesHtml = state.categories.map(category => {
-        const normalizedName = category.name.toLowerCase();
-        // Check for specific icon map, fallback to default
-        let iconSrc = CATEGORY_ICONS[normalizedName] || CATEGORY_ICONS['default'];
-
-        const isActive = state.filters.category === (category.id || category._id);
+    const categoriesHtml = rootCategories.map(category => {
         const categoryId = category.id || category._id;
+        // API Endpoint for category image
+        const iconSrc = ProductService.getCategoryImageUrl(category);
 
         return `
-            <button class="category-item ${isActive ? 'active' : ''}" 
-                    onclick="setCategoryFilter('${categoryId}')">
-                <img src="${iconSrc}" alt="${category.name}" class="category-item__image" loading="lazy">
+            <button class="category-item" 
+                    onclick="window.location.href='category.html?id=${categoryId}'">
+                <img src="${iconSrc}" alt="${category.name}" class="category-item__image" loading="lazy" 
+                     onerror="this.src='https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=100&q=80'">
                 <span class="category-item__text">${category.name}</span>
             </button>
         `;
     }).join('');
 
-    categoryBar.innerHTML = allCategoryHtml + categoriesHtml;
+    categoryBar.innerHTML = categoriesHtml;
 }
 
 function setCategoryFilter(categoryId) {
@@ -460,13 +441,24 @@ function renderProducts() {
                     </div>
     
                 </div>
-                 <button 
+                
+                <div class="product-card__actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button 
+                        class="product-card__btn-primary" 
+                        style="flex: 2; padding: 0.5rem; background: #ff9f00; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;"
+                        data-action="buy-now"
+                    >
+                        Buy Now
+                    </button>
+                    <button 
                         class="product-card__quick-view" 
+                        style="flex: 1; width: auto !important; margin: 0 !important; background-color: var(--color-primary);" 
                         data-action="quick-view"
                         aria-label="Quick view ${product.title}"
                     >
                         View
                     </button>
+                </div>
             </div>
         </article>
     `).join('');

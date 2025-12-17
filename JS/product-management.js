@@ -135,39 +135,115 @@
     }
 
     function populateCategoryDropdowns() {
-        const categorySelect = document.getElementById('categoryId');
+        // Dropdowns
+        const level1 = document.getElementById('categoryLevel1');
+        const level2 = document.getElementById('categoryLevel2');
+        const level3 = document.getElementById('categoryLevel3');
         const filterSelect = document.getElementById('categoryFilter');
 
-        if (!categorySelect || !filterSelect) {
-            console.error('Dropdown elements not found');
+        if (!level1 || !level2 || !level3) return;
+
+        // Reset
+        level1.innerHTML = '<option value="">-- Select Main Category --</option>';
+        level2.innerHTML = '<option value="">-- Select Sub Category --</option>';
+        level3.innerHTML = '<option value="">-- Select Child Category --</option>';
+        level2.disabled = true;
+        level3.disabled = true;
+
+        if (filterSelect) {
+            filterSelect.innerHTML = '<option value="">All Categories</option>';
+        }
+
+        // 1. Filter Root Categories (Level 1)
+        // Root categories have no parentId or parentId is null/empty string
+        const rootCategories = categories.filter(c => !c.parentId);
+
+        rootCategories.forEach(cat => {
+            const catId = cat.id || cat._id;
+            const option = document.createElement('option');
+            option.value = catId;
+            option.textContent = cat.name;
+            level1.appendChild(option);
+
+            // Populate filter as well (flattened for now, or just roots? let's do all for filter)
+            // Actually usually filter is just a flat list or main cats. Let's keep filter simple: all categories
+        });
+
+        // Populate Filter with ALL categories for search purposes
+        if (filterSelect) {
+            categories.forEach(cat => {
+                const catId = cat.id || cat._id;
+                const option = document.createElement('option');
+                option.value = catId;
+                option.textContent = cat.name;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        // 2. Setup Event Listeners for Hierarchy
+        // Remove old listeners to avoid duplicates if any (though this function is usually called once or on full reload)
+        level1.onchange = () => {
+            const parentId = level1.value;
+            loadSubCategories(parentId, level2);
+            // Reset Level 3 when Level 1 changes
+            level3.innerHTML = '<option value="">-- Select Child Category --</option>';
+            level3.disabled = true;
+        };
+
+        level2.onchange = () => {
+            const parentId = level2.value;
+            loadSubCategories(parentId, level3);
+        };
+    }
+
+    function loadSubCategories(parentId, targetSelect) {
+        // Reset target
+        targetSelect.innerHTML = '<option value="">-- Select Category --</option>';
+
+        if (!parentId) {
+            targetSelect.disabled = true;
             return;
         }
 
-        // Clear existing options (except first)
-        categorySelect.innerHTML = '<option value="">Select Category</option>';
-        filterSelect.innerHTML = '<option value="">All Categories</option>';
+        const subCategories = categories.filter(c => c.parentId === parentId);
 
-        categories.forEach(category => {
-            // Check for id or _id field
-            const catId = category.id || category._id;
+        if (subCategories.length > 0) {
+            targetSelect.disabled = false;
+            subCategories.forEach(cat => {
+                const catId = cat.id || cat._id;
+                const option = document.createElement('option');
+                option.value = catId;
+                option.textContent = cat.name;
+                targetSelect.appendChild(option);
+            });
+        } else {
+            targetSelect.disabled = true;
+            const option = document.createElement('option');
+            option.innerHTML = "No sub-categories";
+            targetSelect.appendChild(option);
+        }
+    }
 
-            if (!catId) {
-                console.warn('Category missing ID:', category);
-                return;
-            }
+    function getSelectedCategories() {
+        const l1 = document.getElementById('categoryLevel1').value;
+        const l2 = document.getElementById('categoryLevel2').value;
+        const l3 = document.getElementById('categoryLevel3').value;
 
-            const option1 = document.createElement('option');
-            option1.value = catId;
-            option1.textContent = category.name;
-            categorySelect.appendChild(option1);
+        // Return non-empty values
+        return [l1, l2, l3].filter(id => id);
+    }
 
-            const option2 = document.createElement('option');
-            option2.value = catId;
-            option2.textContent = category.name;
-            filterSelect.appendChild(option2);
-        });
+    function getCategoryPath() {
+        const l1 = document.getElementById('categoryLevel1');
+        const l2 = document.getElementById('categoryLevel2');
+        const l3 = document.getElementById('categoryLevel3');
 
-        console.log('Dropdowns populated with', categories.length, 'categories');
+        const names = [];
+        if (l1.value && l1.selectedOptions[0]) names.push(l1.selectedOptions[0].text);
+        if (l2.value && l2.selectedOptions[0]) names.push(l2.selectedOptions[0].text);
+        if (l3.value && l3.selectedOptions[0]) names.push(l3.selectedOptions[0].text);
+
+        return names.join(' > ');
     }
 
 
@@ -212,12 +288,22 @@
         card.className = 'product-card';
         card.dataset.productId = product.id;
 
-        // Ensure we compare strings for IDs
-        const category = categories.find(c => String(c.id) === String(product.categoryId));
-        const categoryName = category ? category.name : 'Uncategorized';
-        console.log("categories=====", categories);
-        console.log("product.categoryId=====", product.categoryId);
+        // Determine category display
+        let categoryName = 'Uncategorized';
+        if (product.categoryPath) {
+            categoryName = product.categoryPath;
+        } else if (product.categoryIds && Array.isArray(product.categoryIds) && product.categoryIds.length > 0) {
+            // Find names for IDs
+            const names = product.categoryIds.map(id => {
+                const c = categories.find(cat => String(cat.id || cat._id) === String(id));
+                return c ? c.name : '';
+            }).filter(n => n);
 
+            if (names.length > 0) categoryName = names.join(' > ');
+        } else {
+            const category = categories.find(c => String(c.id || c._id) === String(product.categoryId));
+            if (category) categoryName = category.name;
+        }
 
         const mainImage = product.images && product.images.length > 0
             ? getFullImageUrl(product.images[0])
@@ -281,8 +367,8 @@
         const formData = {
             productName: document.getElementById('productName').value,
             description: document.getElementById('description').value,
-            categoryId: document.getElementById('categoryId').value,
-            subCategory: document.getElementById('subCategory').value,
+            categoryIds: getSelectedCategories(),
+            categoryPath: getCategoryPath(),
             mrp: document.getElementById('mrp').value,
             price: document.getElementById('price').value,
             discountPercent: document.getElementById('discountPercent').value,
@@ -330,6 +416,9 @@
         document.getElementById('inStock').checked = true;
         discountInput.value = '0';
 
+        // Reset dropdowns
+        populateCategoryDropdowns();
+
         // Clear uploaded images
         uploadedImages = [];
         imagePreview.innerHTML = '';
@@ -344,8 +433,54 @@
             // Populate form
             document.getElementById('productName').value = product.productName || '';
             document.getElementById('description').value = product.description || '';
-            document.getElementById('categoryId').value = product.categoryId || '';
-            document.getElementById('subCategory').value = product.subCategory || '';
+
+            // Handle Hierarchical Categories
+            const level1 = document.getElementById('categoryLevel1');
+            const level2 = document.getElementById('categoryLevel2');
+            const level3 = document.getElementById('categoryLevel3');
+
+            // Reset dropdowns first
+            populateCategoryDropdowns();
+
+            // Try to find categories. 
+            // Case A: Product has explicit categoryIds (new format)
+            // Case B: Product has only single categoryId (old format) -> Need to traverse up
+
+            let targetIds = [];
+            if (product.categoryIds && Array.isArray(product.categoryIds) && product.categoryIds.length > 0) {
+                targetIds = product.categoryIds;
+            } else if (product.categoryId) {
+                // Traverse up to find the full path
+                const path = [];
+                let current = categories.find(c => (c.id || c._id) === product.categoryId);
+                while (current) {
+                    path.unshift(current.id || current._id);
+                    if (!current.parentId) break;
+                    current = categories.find(c => (c.id || c._id) === current.parentId);
+                }
+                targetIds = path;
+            }
+
+            // Set Level 1
+            if (targetIds[0]) {
+                level1.value = targetIds[0];
+                // Trigger change to load Level 2
+                loadSubCategories(targetIds[0], level2);
+            }
+
+            // Set Level 2
+            if (targetIds[1]) {
+                level2.value = targetIds[1];
+                // Trigger change to load Level 3
+                loadSubCategories(targetIds[1], level3);
+            }
+
+            // Set Level 3
+            if (targetIds[2]) {
+                level3.value = targetIds[2];
+            }
+
+
             document.getElementById('mrp').value = product.mrp || 0;
             document.getElementById('price').value = product.price || 0;
             document.getElementById('discountPercent').value = product.discountPercent || 0;

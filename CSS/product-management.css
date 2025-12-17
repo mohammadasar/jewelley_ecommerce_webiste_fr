@@ -647,5 +647,118 @@
 }
 
 .loading-state {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    /* Custom Multi-Select Dropdown */
+    .multi-select-wrapper {
+        position: relative;
+        user-select: none;
+        width: 100%;
+    }
+
+    .multi-select-trigger {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-family: inherit;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 50px;
+    }
+
+    .multi-select-trigger:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .multi-select-trigger .arrow {
+        font-size: 0.8rem;
+        color: #718096;
+        transition: transform 0.3s ease;
+    }
+
+    .multi-select-wrapper.open .multi-select-trigger {
+        border-color: #667eea;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .multi-select-wrapper.open .multi-select-trigger .arrow {
+        transform: rotate(180deg);
+    }
+
+    .multi-select-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        border: 2px solid #667eea;
+        border-top: none;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        background-color: #fff;
+        max-height: 250px;
+        overflow-y: auto;
+        display: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .multi-select-wrapper.open .multi-select-options {
+        display: block;
+    }
+
+    .option-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
+        color: #2d3748;
+    }
+
+    .option-item:hover {
+        background-color: #f7fafc;
+    }
+
+    .option-item.selected {
+        background-color: #ebf4ff;
+        color: #2c5282;
+        font-weight: 500;
+    }
+
+    .option-checkbox {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        accent-color: #667eea;
+        pointer-events: none;
+        /* Let the parent click handle it */
+    }
+
+    /* Scrollbar styling for options */
+    .multi-select-options::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .multi-select-options::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .multi-select-options::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 4px;
+    }
+
+    .multi-select-options::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
 }
