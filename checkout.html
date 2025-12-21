@@ -182,6 +182,12 @@
                 <form id="checkoutForm">
                     <div class="form-grid">
                         <div class="form-group full-width">
+                            <label class="form-label" for="customerName">Full Name *</label>
+                            <input type="text" id="customerName" class="form-input" required
+                                placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group full-width">
                             <label class="form-label" for="whatsappNumber">WhatsApp Number *</label>
                             <input type="tel" id="whatsappNumber" class="form-input" required pattern="^[6-9]\d{9}$"
                                 placeholder="Enter 10-digit WhatsApp number"
@@ -241,6 +247,8 @@
     <div class="toast" id="toast"></div>
 
     <script src="./JS/order-service.js"></script>
+    <script src="./JS/user-service.js"></script>
+    <script src="./JS/auth-state.js"></script>
     <script src="./JS/checkout.js"></script>
 </body>
 

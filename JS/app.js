@@ -308,6 +308,12 @@ function setupEventListeners() {
         modalBuyNowBtn.addEventListener('click', handleBuyNow);
     }
 
+    // Modal WhatsApp Order
+    const modalWhatsAppBtn = document.getElementById('modalWhatsAppBtn');
+    if (modalWhatsAppBtn) {
+        modalWhatsAppBtn.addEventListener('click', handleWhatsAppOrder);
+    }
+
     // Event delegation for product cards
     document.getElementById('productGrid').addEventListener('click', handleProductCardClick);
 
@@ -674,6 +680,49 @@ function handleBuyNow(e) {
 
     // Redirect
     window.location.href = 'checkout.html';
+}
+
+function handleWhatsAppOrder() {
+    if (!state.currentProduct) return;
+
+    const product = state.currentProduct;
+    const currentUser = (typeof AuthState !== 'undefined') ? AuthState.getCurrentUser() : null;
+
+    const customerName = currentUser ? (currentUser.customerName || currentUser.name || currentUser.username || 'Valued Customer') : 'Valued Customer';
+    const whatsappNumber = currentUser ? (currentUser.whatsappNumber || 'N/A') : 'N/A';
+    const address = currentUser ? (currentUser.address || 'N/A') : 'N/A';
+    const location = currentUser ? `${currentUser.district || ''} ${currentUser.state || ''} - ${currentUser.pincode || ''}`.trim() : 'N/A';
+
+    const msg = `*GURU JEWELLERY* ✅
+
+*The wait is over!* 💎
+
+🔥 *Product Inquiry Alert!* 🔥
+
+*${product.title}*
+Starting from *₹${product.price.toLocaleString()}*
+
+*Bonus deals:*
+✅ Handcrafted Quality
+✅ Fastest Shipping
+
+*Customer Info:*
+👤 ${customerName}
+📞 ${whatsappNumber}
+🏠 ${address}
+📍 ${location}
+
+*🔗 View Product:*
+${window.location.href}
+
+*🖼️ Image Link:*
+${product.images[0]}
+
+*Please send more details or payment options.*`;
+
+    const adminNumber = '6369675902';
+    const url = `https://wa.me/${adminNumber}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
 }
 
 // ==================== CART ====================

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Preview - Guru Jewellery</title>
+    <title>Invoice Preview - Guru Fashion Jewellery</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -209,7 +209,7 @@
     <div class="invoice-container" id="invoice">
         <header class="invoice-header">
             <div class="company-info">
-                <h1>💎 Guru Jewellery</h1>
+                <h1>💎 Guru Fashion Jewellery</h1>
                 <div>123 Jewelry Lane, Gold City</div>
                 <div>support@gurujewellery.com</div>
                 <div>+91 98765 43210</div>
@@ -329,7 +329,8 @@
             const date = invoice.createdAt ? new Date(invoice.createdAt) : new Date();
             document.getElementById('invDate').textContent = date.toLocaleDateString();
 
-            document.getElementById('custName').textContent = 'Valued Customer'; // Backend might not send name on Invoice object directly if not mapped
+            document.getElementById('custName').textContent = invoice.customerName || 'Valued Customer';
+            console.log("customerName", invoice.customerName);
             document.getElementById('custAddress').textContent = invoice.customerAddress;
             document.getElementById('custPhone').textContent = invoice.customerWhatsapp;
 

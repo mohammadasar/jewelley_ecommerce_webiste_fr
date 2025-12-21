@@ -4,10 +4,33 @@
  * ============================================
  */
 
+let initialUserData = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     loadCheckoutItems();
+    loadUserProfile();
     setupFormListener();
 });
+
+async function loadUserProfile() {
+    try {
+        const user = await UserService.getUserProfile();
+        if (user) {
+            initialUserData = user;
+            // Prioritize customerName, fallback to name. Remove username fallback as requested.
+            const displayName = user.customerName || user.name || '';
+            document.getElementById('customerName').value = displayName;
+            document.getElementById('whatsappNumber').value = user.whatsappNumber || '';
+            document.getElementById('alternateNumber').value = user.alternateNumber || '';
+            document.getElementById('address').value = user.address || '';
+            document.getElementById('state').value = user.state || '';
+            document.getElementById('district').value = user.district || '';
+            document.getElementById('pincode').value = user.pincode || '';
+        }
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+    }
+}
 
 function loadCheckoutItems() {
     const orderItemsContainer = document.getElementById('orderItems');
@@ -69,28 +92,72 @@ function setupFormListener() {
 
         try {
             // 1. Gather Data
-            const formData = {
+            const currentFormData = {
+                customerName: document.getElementById('customerName').value,
                 whatsappNumber: document.getElementById('whatsappNumber').value,
                 alternateNumber: document.getElementById('alternateNumber').value || null,
                 address: document.getElementById('address').value,
                 state: document.getElementById('state').value,
                 district: document.getElementById('district').value,
-                pincode: document.getElementById('pincode').value,
+                pincode: document.getElementById('pincode').value
+            };
+
+            // 2. Check for Address Changes
+            if (initialUserData) {
+                const isChanged =
+                    currentFormData.customerName !== (initialUserData.customerName || initialUserData.name || '') ||
+                    currentFormData.whatsappNumber !== (initialUserData.whatsappNumber || '') ||
+                    currentFormData.address !== (initialUserData.address || '') ||
+                    currentFormData.state !== (initialUserData.state || '') ||
+                    currentFormData.district !== (initialUserData.district || '') ||
+                    currentFormData.pincode !== (initialUserData.pincode || '');
+
+                if (isChanged) {
+                    const shouldSave = confirm('Save this as new address?');
+                    if (shouldSave) {
+                        // Send 'customerName' to the backend as requested
+                        const profileUpdateData = {
+                            ...currentFormData,
+                            customerName: currentFormData.customerName,
+                            name: currentFormData.customerName // Keep 'name' for backward compatibility
+                        };
+                        await UserService.updateUserProfile(profileUpdateData);
+                    }
+                }
+            } else {
+                // First order flow - optionally save automatically or ask
+                const shouldSave = confirm('Would you like to save these details for future orders?');
+                if (shouldSave) {
+                    const profileUpdateData = {
+                        ...currentFormData,
+                        customerName: currentFormData.customerName,
+                        name: currentFormData.customerName
+                    };
+                    await UserService.updateUserProfile(profileUpdateData);
+                }
+            }
+
+            // 3. Place Order
+            const finalOrderData = {
+                ...currentFormData,
                 items: getOrderItems(),
                 totalAmount: parseFloat(document.getElementById('orderItems').dataset.total)
             };
 
-            // 2. Call API
-            const savedOrder = await OrderService.placeOrder(formData);
+            const savedOrder = await OrderService.placeOrder(finalOrderData);
 
-            // 3. Clear Cart / BuyNow Item
+            // 4. Clear Cart / BuyNow Item
             localStorage.removeItem('jewel_cart');
             localStorage.removeItem('jewel_buyNowItem');
 
-            // 4. Redirect to WhatsApp
-            redirectToWhatsApp(savedOrder);
+            // 5. Redirect to WhatsApp (merge data to avoid undefined fields)
+            const fullOrderForWhatsApp = {
+                ...finalOrderData,
+                orderId: savedOrder.orderId
+            };
+            redirectToWhatsApp(fullOrderForWhatsApp);
 
-            // 5. Redirect to Success Page (or Home for now)
+            // 6. Redirect to Success Page (or Home for now)
             window.location.href = 'index.html';
 
         } catch (error) {
@@ -126,18 +193,39 @@ function getOrderItems() {
 }
 
 function redirectToWhatsApp(data) {
-    const msg = `*New Order Received*
-Order ID: ${data.orderId}
+    let itemsList = '';
+    let firstImage = '';
+    if (data.items && data.items.length > 0) {
+        itemsList = '\n*Summary:*' + data.items.map(item => `\n- ${item.productName} (Qty: ${item.quantity})`).join('');
+        firstImage = `\n\n*🖼️ View Image:*\n${data.items[0].image}`;
+    }
 
-WhatsApp: ${data.whatsappNumber}
+    const msg = `*GURU JEWELLERY* ✅
 
-Address:
-${data.address}
-${data.district}, ${data.state} - ${data.pincode}
+*The wait is over!* 💎
 
-Total: ₹${data.totalAmount}
+🔥 *New Order Received* 🔥
 
-Please send payment details.`;
+*Order ID: ${data.orderId}*
+${itemsList}
+
+*Bonus deals:*
+✅ Handcrafted Quality
+✅ Fastest Shipping
+
+*Address:*
+🏠 ${data.customerName}
+📞 ${data.whatsappNumber}
+📍 ${data.address}, ${data.district}, ${data.state} - ${data.pincode}
+
+*Total Amount:*
+💰 *₹${data.totalAmount}*
+${firstImage}
+
+*Please send payment details to proceed.*`;
+
+    // NOTE: WhatsApp link previews (images) only show for public URLs. 
+    // They will NOT show for "localhost" URLs.
 
     // Use specific number from user request or default
     const adminNumber = '6369675902'; // Replace with actual admin number if known, using placeholder

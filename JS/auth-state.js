@@ -40,7 +40,7 @@
         const adminPanelLink = document.getElementById('adminPanel');
 
         if (!profileMenuToggle || !loginSignupBtn) {
-            console.error('Profile menu elements not found');
+            // Silently skip if elements are missing (e.g., simplified checkout page)
             return;
         }
 
@@ -51,7 +51,8 @@
 
             // Check if user is admin
             const user = getCurrentUser();
-            if (user && user.role === 'ADMIN' && adminPanelLink) {
+            const isAdmin = user && (user.role === 'ADMIN' || user.username === 'admin'); // Fallback check
+            if (isAdmin && adminPanelLink) {
                 adminPanelLink.style.display = 'flex';
             } else if (adminPanelLink) {
                 adminPanelLink.style.display = 'none';

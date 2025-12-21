@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Guru Jewellery Admin</title>
+    <link rel="stylesheet" href="./CSS/styles.css">
+    <link rel="stylesheet" href="./CSS/admin-panel.css">
+    <style>
+        .search-container {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .user-table-container {
+            overflow-x: auto;
+            background: var(--color-surface);
+            border-radius: 0.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .admin-table th {
+            background: var(--color-bg);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .admin-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .role-user {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* User Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: var(--color-surface);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid var(--color-border);
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            color: var(--color-text-muted);
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--color-text-muted);
+        }
+
+        .detail-value {
+            color: var(--color-text);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.25rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Modal Styles - Fix z-index issue */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999 !important;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--color-surface);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10000 !important;
+        }
+
+        .close-modal {
+            color: var(--color-text-muted);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: var(--color-text);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <header class="header" role="banner">
+        <nav class="nav container" aria-label="Main navigation">
+            <div class="nav__brand">
+                <h1 class="nav__logo">💎 Guru Jewellery - Admin</h1>
+            </div>
+
+            <div class="nav__actions">
+                <button class="nav__action" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="icon">🌙</span>
+                </button>
+
+                <button class="nav__action" id="backToDashboard" aria-label="Back to Dashboard"
+                    title="Back to Dashboard">
+                    <span class="icon">📊</span>
+                </button>
+
+                <div class="profile-menu-container">
+                    <button class="nav__action" id="profileMenuToggle" aria-label="Profile menu" title="Profile">
+                        <span class="icon">👤</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="admin.html" class="profile-dropdown__item admin-only">
+                            <span class="icon">⚙️</span> Admin Panel
+                        </a>
+                        <hr class="profile-dropdown__divider">
+                        <a href="#" class="profile-dropdown__item" id="logoutBtn">
+                            <span class="icon">🚪</span> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-main container">
+        <div class="admin-header">
+            <h1 class="admin-title">User Management</h1>
+            <p class="admin-subtitle">View and manage customer accounts and information</p>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-container">
+            <input type="text" id="userSearch" class="search-input"
+                placeholder="Search by username, email, phone, state, district or address...">
+        </div>
+
+        <!-- User Table -->
+        <div class="user-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>WhatsApp</th>
+                        <th>Address</th>
+                        <th>District</th>
+                        <th>State</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+            <div id="loadingState" class="loading-spinner">Loading users...</div>
+            <div id="noResults" class="loading-spinner" style="display: none;">No users found matching your search.
+            </div>
+        </div>
+    </main>
+
+    <!-- User Detail / Edit Modal -->
+    <div id="userDetailModal" class="modal"
+        style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
+        <div class="modal-content"
+            style="position: relative; background-color: #ffffff !important; margin: 5% auto; padding: 2rem; border-radius: 0.75rem; width: 90%; max-width: 600px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 100000; color: #000000 !important;">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle" style="color: #000000 !important; margin-bottom: 1.5rem;">Edit User Role</h2>
+            <form id="userEditForm">
+                <input type="hidden" id="editUserId">
+                <div class="detail-grid"
+                    style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; align-items: center;">
+                    <div class="detail-label" style="font-weight: 600; color: #000000;">Username:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editUsername" class="search-input"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; background: #f5f5f5;"
+                            readonly>
+                    </div>
+
+                    <div class="detail-label" style="font-weight: 600; color: #000000;">Email:</div>
+                    <div class="detail-value">
+                        <input type="email" id="editEmail" class="search-input"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; background: #f5f5f5;"
+                            readonly>
+                    </div>
+
+                    <div class="detail-label" style="font-weight: 600; color: #000000;">Role:</div>
+                    <div class="detail-value">
+                        <select id="editRole" class="search-input"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; background: #ffffff; color: #000000;"
+                            required>
+                            <option value="USER">USER</option>
+                            <option value="ADMIN">ADMIN</option>
+                        </select>
+                    </div>
+
+                    <div class="detail-label" style="font-weight: 600; color: #000000;">Full Name:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editName" class="search-input" style="width: 100%;" readonly>
+                    </div>
+
+                    <div class="detail-label">WhatsApp:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editWhatsapp" class="search-input" style="width: 100%;" readonly>
+                    </div>
+
+                    <div class="detail-label">Alternate No:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editAlternate" class="search-input" style="width: 100%;" readonly>
+                    </div>
+
+                    <div class="detail-label">Address:</div>
+                    <div class="detail-value">
+                        <textarea id="editAddress" class="search-input" style="width: 100%; min-height: 80px;"
+                            readonly></textarea>
+                    </div>
+
+                    <div class="detail-label">Pincode:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editPincode" class="search-input" style="width: 100%;" readonly>
+                    </div>
+
+                    <div class="detail-label">District:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editDistrict" class="search-input" style="width: 100%;" readonly>
+                    </div>
+
+                    <div class="detail-label">State:</div>
+                    <div class="detail-value">
+                        <input type="text" id="editState" class="search-input" style="width: 100%;" readonly>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-back"
+                        onclick="document.getElementById('userDetailModal').style.display='none'">Cancel</button>
+                    <button type="submit" class="admin-card__button" style="width: auto;">Update Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p class="footer__text">
+                &copy; 2025 Guru Jewellery. Admin Panel
+            </p>
+        </div>
+    </footer>
+
+    <script src="./JS/user-management.js"></script>
+</body>
+
+</html>
