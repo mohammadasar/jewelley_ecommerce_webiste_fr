@@ -1731,3 +1731,46 @@ select {
     border-radius: 8px;
     padding: 1rem;
 }
+
+/* ==================== PROFILE MODAL ==================== */
+#profileForm .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+#profileForm .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#profileForm .form-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+}
+
+#profileForm textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+@media (max-width: 768px) {
+    #profileForm .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.modal__info-text {
+    border-left: 4px solid var(--color-primary) !important;
+}
+
+[data-theme="dark"] .modal__info-text {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .modal__info-text p {
+    color: var(--color-text-muted) !important;
+}

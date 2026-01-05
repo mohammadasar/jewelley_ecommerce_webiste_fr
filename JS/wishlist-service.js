@@ -46,17 +46,12 @@
         // Method 3: Check if token exists (user is logged in but no user object)
         const token = localStorage.getItem('jewel_token');
         if (token) {
-            console.warn('User is logged in (token exists) but user ID not found. Using username as fallback.');
-            // Try to extract username from token or use a placeholder
-            try {
-                const userStr = localStorage.getItem('jewel_user');
-                if (userStr) {
-                    const user = JSON.parse(userStr);
-                    return user.username || 'current_user';
-                }
-            } catch (e) {
-                // Ignore
-            }
+            // STRICT MODE: If token exists but User ID is missing, force re-login
+            alert('Your session is invalid. Please login again.');
+            localStorage.removeItem('jewel_token'); // Clear invalid session
+            localStorage.removeItem('jewel_user');
+            window.location.href = 'login.html';
+            return null;
         }
 
         console.log('No user ID found - user not logged in');

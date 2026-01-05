@@ -104,7 +104,7 @@
         if (myProfile) {
             myProfile.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Profile page - Coming soon!');
+                openProfileModal();
                 profileDropdown.classList.remove('show');
             });
         }
@@ -117,7 +117,111 @@
                 profileDropdown.classList.remove('show');
             });
         }
+
+        // Close modal
+        const closeProfileBtn = document.getElementById('closeProfileModal');
+        const cancelProfileBtn = document.getElementById('cancelProfileUpdate');
+        const profileModal = document.getElementById('profileModal');
+
+        if (closeProfileBtn) {
+            closeProfileBtn.addEventListener('click', () => {
+                profileModal.style.display = 'none';
+            });
+        }
+
+        if (cancelProfileBtn) {
+            cancelProfileBtn.addEventListener('click', () => {
+                profileModal.style.display = 'none';
+            });
+        }
+
+        // Close modal on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                profileModal.style.display = 'none';
+            }
+        });
+
+        // Form submission
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', handleProfileUpdate);
+        }
     }
+
+    // Open Profile Modal and fetch data
+    async function openProfileModal() {
+        const modal = document.getElementById('profileModal');
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+
+        try {
+            const user = await window.UserService.getUserProfile();
+            if (user) {
+                document.getElementById('profileUsername').value = user.username || '';
+                document.getElementById('profileWhatsapp').value = user.whatsappNumber || '';
+                document.getElementById('profileAlternate').value = user.alternateNumber || '';
+                document.getElementById('profileAddress').value = user.address || '';
+                document.getElementById('profilePincode').value = user.pincode || '';
+                document.getElementById('profileState').value = user.state || '';
+                document.getElementById('profileDistrict').value = user.district || '';
+            }
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            showToast('Failed to load profile details.', 'error');
+        }
+    }
+
+    // Handle Profile Update
+    async function handleProfileUpdate(e) {
+        e.preventDefault();
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating...';
+
+        const userData = {
+            whatsappNumber: document.getElementById('profileWhatsapp').value,
+            alternateNumber: document.getElementById('profileAlternate').value,
+            address: document.getElementById('profileAddress').value,
+            pincode: document.getElementById('profilePincode').value,
+            state: document.getElementById('profileState').value,
+            district: document.getElementById('profileDistrict').value
+        };
+
+        try {
+            await window.UserService.updateUserProfile(userData);
+            showToast('Profile updated successfully!', 'success');
+            document.getElementById('profileModal').style.display = 'none';
+            // Dispatch event so other components (Cart) can update
+            window.dispatchEvent(new CustomEvent('user-updated'));
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            showToast(error.message || 'Failed to update profile.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+        }
+    }
+
+    // Helper for toast
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (!toast) {
+            alert(message);
+            return;
+        }
+
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
 
     // Handle logout
     function handleLogout() {
@@ -135,11 +239,18 @@
     });
 
     // Expose functions globally
+    // Expose functions globally
     window.AuthState = {
         isLoggedIn,
         getCurrentUser,
         updateNavbar,
-        logout: handleLogout
+        logout: handleLogout,
+        openProfileModal // Exposed for Cart
     };
 
-})();
+    // Dispatch custom event helper
+    function dispatchUserUpdated() {
+        window.dispatchEvent(new CustomEvent('user-updated'));
+    }
+
+})(window.AuthState = window.AuthState || {});

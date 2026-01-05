@@ -16,6 +16,7 @@
 
     function getHeaders() {
         const token = getAuthToken();
+        console.log('[OrderService] Token available:', !!token); // DEBUG
         return {
             'Content-Type': 'application/json',
             'Authorization': token ? `Bearer ${token}` : ''

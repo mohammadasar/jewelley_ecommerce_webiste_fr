@@ -325,6 +325,15 @@ function setupEventListeners() {
 
     // Keyboard accessibility
     document.addEventListener('keydown', handleKeyboard);
+
+    // Listen for user profile updates to refresh cart
+    window.addEventListener('user-updated', () => {
+        // If cart is open, re-render to show new details
+        const cartPanel = document.getElementById('cartPanel');
+        if (cartPanel && cartPanel.style.display === 'block') {
+            renderCart();
+        }
+    });
 }
 
 // ==================== SEARCH & FILTER ====================
@@ -831,14 +840,95 @@ function renderCart() {
         return;
     }
 
+    // Clear previous content
+    cartItems.innerHTML = '';
+
+    // === NEW: Render User Details Section ===
+    if (typeof AuthState !== 'undefined' && AuthState.isLoggedIn()) {
+        const user = AuthState.getCurrentUser();
+        if (user) {
+            const userDetailsHTML = `
+                <div class="cart-user-details" style="background: #f8f9fa; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #e9ecef;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; font-size: 0.95rem; color: #333;">Deliver to: <span style="font-weight: 700;">${user.username || 'User'}</span></h4>
+                        <button id="cartUpdateProfileBtn" style="background: none; border: 1px solid #ddd; padding: 0.2rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #007bff;">Change</button>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4;">
+                        ${user.address ? user.address : '<span style="color: #999; font-style: italic;">No address set</span>'}
+                        ${user.pincode ? `<br>${user.district || ''}, ${user.state || ''} - ${user.pincode}` : ''}
+                        ${user.whatsappNumber ? `<br>📞 ${user.whatsappNumber}` : ''}
+                        ${user.alternateNumber ? ` | 📞 ${user.alternateNumber}` : ''}
+                    </p>
+                </div>
+            `;
+            cartItems.innerHTML += userDetailsHTML;
+
+            // Add event listener for the "Change" button
+            // We need to use setTimeout or event delegation because we just added it to innerHTML
+            setTimeout(() => {
+                const updateBtn = document.getElementById('cartUpdateProfileBtn');
+                if (updateBtn) {
+                    updateBtn.addEventListener('click', () => {
+                        // Close cart first to focus on modal (optional, but cleaner)
+                        // closeCart(); 
+                        if (AuthState.openProfileModal) {
+                            AuthState.openProfileModal();
+                        }
+                    });
+                }
+            }, 0);
+        }
+    }
+
     if (state.cart.length === 0) {
         emptyCart.style.display = 'block';
-        cartItems.innerHTML = '';
+        // HTML is already cleared effectively, but we need to append the empty message if not present
+        // Actually, existing logic hides emptyCart. Let's adjust.
+        // If cart is empty, show empty div, clear items (but keep user details? No, usually empty cart is just empty)
+
+        // Wait, if I clear innerHTML above, I lost the empty cart element if it was inside cartItems?
+        // Looking at HTML: <div class="cart__body" id="cartItems"> ... <div class="cart__empty" id="emptyCart">...</div> </div>
+        // Ah, emptyCart is INSIDE cartItems. My innerHTML = '' wiped it out!
+
+        // Fix: Repopulate empty cart if needed OR just toggle display if I didn't wipe it.
+        // The original code:
+        // const emptyCart = document.getElementById('emptyCart'); 
+        // ...
+        // cartItems.innerHTML = ''; 
+        // ... 
+        // emptyCart.style.display = 'block';
+
+        // If emptyCart is a CHILD of cartItems, `cartItems.innerHTML = ''` removes it from DOM.
+        // `document.getElementById('emptyCart')` might still hold the reference if grabbed before wipe, but it's detached.
+        // I need to reconstruct the empty state or ensure it's not wiped.
+
+        // Let's check HTML structure from previous view_file...
+        // <div class="cart__body" id="cartItems"> 
+        //    <!-- Cart items will be dynamically inserted here -->
+        //    <div class="cart__empty" id="emptyCart">...</div>
+        // </div>
+
+        // Correct approach: Don't wipe everything blindly if I want to keep emptyCart structure, 
+        // OR re-inject empty cart HTML. Re-injecting is safer.
+
+        const emptyCartHTML = `
+            <div class="cart__empty" id="emptyCart" style="display: block;">
+                <p>Your cart is empty</p>
+                <p class="cart__empty-subtitle">Add some beautiful pieces to get started!</p>
+            </div>
+        `;
+
+        cartItems.innerHTML += emptyCartHTML;
         cartTotal.textContent = '$0.00';
         return;
     }
 
-    emptyCart.style.display = 'none';
+    // Logic for non-empty cart
+    // We already have User Details at top (if logged in)
+    // Now append items
+
+    // Note: emptyCart element reference is now stale if we wiped it. 
+    // But we don't need it if we are rendering items.
 
     const itemsHTML = state.cart.map((item, index) => `
         <div class="cart-item">
@@ -856,7 +946,7 @@ function renderCart() {
         </div>
     `).join('');
 
-    cartItems.innerHTML = itemsHTML;
+    cartItems.innerHTML += itemsHTML;
 
     // Calculate total
     const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);

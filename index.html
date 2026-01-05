@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="./CSS/admin-panel.css">
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
     <link rel="stylesheet" href="./CSS/category-bar.css">
+    <link rel="stylesheet" href="./CSS/profile-modal.css">
 </head>
 
 <body>
@@ -118,11 +119,10 @@
             <div class="slides" id="slides" aria-live="polite">
                 <!-- Slide 1 -->
                 <article class="slide" data-title="Aurora Diamond Ring" data-price="$3,200">
-                    <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=80"
-                        alt="Woman wearing Aurora Diamond Ring" />
+                    <img src="assets/images/rings.jpg" alt="Woman wearing Aurora Diamond Ring" />
                     <span class="badge">New Arrival</span>
                     <div class="info" aria-hidden="false">
-                        <span class="brand">Guru Jewellery</span>
+                        <span class="brand">CyrusCrafts</span>
                         <h2 class="title">Aurora Diamond Ring</h2>
                         <p class="desc">Hand-crafted 18k gold with ethically sourced brilliant-cut diamonds.
                             Simple, timeless, perfect for everyday elegance.</p>
@@ -135,8 +135,7 @@
 
                 <!-- Slide 2 -->
                 <article class="slide" data-title="Golden Halo Necklace" data-price="$1,450">
-                    <img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=1800&q=80"
-                        alt="Woman wearing Golden Halo Necklace" />
+                    <img src="assets/images/necklaces.jpg" alt="Woman wearing Golden Halo Necklace" />
                     <span class="badge">Bestseller</span>
                     <div class="info">
                         <span class="brand">Guru Jewellery</span>
@@ -151,8 +150,7 @@
 
                 <!-- Slide 3 -->
                 <article class="slide" data-title="Sapphire Elegance Bracelet" data-price="$2,890">
-                    <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=80"
-                        alt="Woman wearing Sapphire Elegance Bracelet" />
+                    <img src="assets/images/bracelet.jpg" alt="Woman wearing Sapphire Elegance Bracelet" />
                     <span class="badge">Limited</span>
                     <div class="info">
                         <span class="brand">Maison Lumière</span>
@@ -326,6 +324,64 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle"
+        style="display: none;">
+        <div class="modal__overlay" aria-hidden="true"></div>
+        <div class="modal__content">
+            <button class="modal__close" id="closeProfileModal" aria-label="Close modal">&times;</button>
+
+            <div class="modal__body">
+                <div class="modal__header">
+                    <h3 id="profileModalTitle" class="modal__title">My Profile</h3>
+                </div>
+
+                <form id="profileForm" class="modal__form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="profileUsername" class="form-label">Username</label>
+                            <input type="text" id="profileUsername" class="search__input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileWhatsapp" class="form-label">WhatsApp Number</label>
+                            <input type="tel" id="profileWhatsapp" class="search__input" placeholder="e.g. 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileAlternate" class="form-label">Alternate Number</label>
+                            <input type="tel" id="profileAlternate" class="search__input" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePincode" class="form-label">Pincode</label>
+                            <input type="text" id="profilePincode" class="search__input" maxlength="6">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="profileAddress" class="form-label">Full Address</label>
+                        <textarea id="profileAddress" class="search__input"
+                            placeholder="House No, Street, Landmark..."></textarea>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="profileState" class="form-label">State</label>
+                            <input type="text" id="profileState" class="search__input">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileDistrict" class="form-label">District</label>
+                            <input type="text" id="profileDistrict" class="search__input">
+                        </div>
+                    </div>
+
+                    <div class="modal__actions">
+                        <button type="button" class="btn btn--secondary" id="cancelProfileUpdate">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Cart Sidebar -->
     <aside class="cart" id="cartPanel" aria-label="Shopping cart" style="display: none;">
         <div class="cart__overlay"></div>
@@ -391,6 +447,7 @@
 
     <script src="./JS/product-service.js"></script>
     <script src="./JS/wishlist-service.js"></script>
+    <script src="./JS/user-service.js"></script>
     <script src="./JS/app.js"></script>
     <script src="./JS/signup-popup.js"></script>
     <script src="./JS/auth-state.js"></script>

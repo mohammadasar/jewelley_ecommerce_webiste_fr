@@ -1,0 +1,188 @@
+/* Modern Profile Modal Styles */
+
+/* Ensure the modal content is cleaner and more focused */
+#profileModal .modal__content {
+    max-width: 1000px;
+    /* Slightly wider for the grid */
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-surface);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* overflow: hidden; */
+}
+
+#profileModal .modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem 2.5rem;
+}
+
+/* Header Section */
+#profileModal .modal__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 0 !important;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+#profileModal .modal__title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: 0;
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#profileModal .modal__info-text {
+    background: rgba(52, 152, 219, 0.1) !important;
+    border-left: none !important;
+    border-radius: 12px !important;
+    padding: 1rem 1.5rem !important;
+    max-width: 80%;
+    margin-top: 1rem !important;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+#profileModal .modal__info-text p {
+    color: var(--color-text);
+    font-size: 0.9rem !important;
+    opacity: 0.8;
+}
+
+/* Form Styles */
+#profileForm {
+    width: 100%;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 1.5rem;
+}
+
+.form-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.2rem;
+}
+
+/* Modern Input Fields */
+#profileModal input[type="text"],
+#profileModal input[type="tel"],
+#profileModal textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+    outline: none;
+}
+
+/* Focus State */
+#profileModal input:focus,
+#profileModal textarea:focus {
+    background-color: var(--color-surface);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Readonly Input (Username) */
+#profileModal input[readonly] {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.05);
+    color: var(--color-text-muted);
+    cursor: default;
+    box-shadow: none;
+}
+
+/* Full Width Address Field */
+#profileAddress {
+    min-height: 60px;
+    height: 60px;
+    line-height: 1.4;
+    resize: none;
+    padding: 0.6rem 0.8rem;
+}
+
+/* Action Buttons */
+#profileModal .modal__actions {
+    margin-top: 1rem !important;
+    padding-top: 0 !important;
+    border-top: none;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+#profileModal .btn {
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-transform: none;
+    font-size: 0.9rem;
+}
+
+#profileModal .btn--secondary {
+    background-color: transparent;
+    border: 2px solid var(--color-border);
+    color: var(--color-text-muted);
+}
+
+#profileModal .btn--secondary:hover {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border-color: var(--color-text);
+}
+
+#profileModal .btn--primary {
+    background: var(--gradient-hero);
+    /* Override standard primary button for this modal */
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+#profileModal .btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    #profileModal .modal__body {
+        padding: 1.5rem;
+    }
+
+    #profileModal .modal__title {
+        font-size: 1.5rem;
+    }
+}

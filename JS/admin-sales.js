@@ -31,6 +31,7 @@ async function loadSalesData() {
 
         // 2. Load Orders
         const orders = await OrderService.getAllOrders();
+        window.currentOrders = orders; // Store globally for access
         renderOrdersTable(orders, tableContainer);
 
     } catch (error) {
@@ -113,8 +114,22 @@ window.handleConfirmPayment = async function (orderId) {
     }
 
     try {
+        // 1. Find the order details
+        const order = window.currentOrders.find(o => o.id === orderId || o.orderId === orderId);
+        if (!order) {
+            throw new Error("Order details not found locally. Please refresh.");
+        }
+
+        // 2. Deduct Stock
+        // Note: We need to map the order object to match PlaceOrderRequestDto if structure differs.
+        // Assuming 'order' has 'items' populated correctly.
+        console.log("Deducting stock for order:", order);
+        await InventoryService.deductStockAfterOrder(order);
+
+        // 3. Confirm Payment
         await OrderService.confirmPayment(orderId, 'UPI', paymentRefId); // Default to UPI as per request
-        showToast("Payment Confirmed Successfully!");
+
+        showToast("Payment Confirmed & Stock Updated Successfully!");
         loadSalesData(); // Refresh
     } catch (error) {
         console.error(error);
