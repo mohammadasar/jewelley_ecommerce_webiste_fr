@@ -64,10 +64,22 @@
 
             const updatedUser = await response.json();
 
-            // Sync local storage
-            localStorage.setItem('jewel_user', JSON.stringify(updatedUser));
+            // Sync local storage - Merge to preserve ID if not returned
+            // Sync local storage - Merge to preserve ID/Username if not returned
+            const existingUser = JSON.parse(localStorage.getItem('jewel_user') || '{}');
 
-            return updatedUser;
+            // Start with existing, apply updates
+            const mergedUser = { ...existingUser, ...updatedUser };
+
+            // Explicitly restore critical fields if the update set them to null/undefined
+            if ((updatedUser.id == null) && existingUser.id) mergedUser.id = existingUser.id;
+            if ((updatedUser.username == null) && existingUser.username) mergedUser.username = existingUser.username;
+            if ((updatedUser.role == null) && existingUser.role) mergedUser.role = existingUser.role;
+            if ((updatedUser.email == null) && existingUser.email) mergedUser.email = existingUser.email;
+
+            localStorage.setItem('jewel_user', JSON.stringify(mergedUser));
+
+            return mergedUser;
         } catch (error) {
             console.error('Error updating user profile:', error);
             throw error;

@@ -850,7 +850,7 @@ function renderCart() {
             const userDetailsHTML = `
                 <div class="cart-user-details" style="background: #f8f9fa; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #e9ecef;">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; font-size: 0.95rem; color: #333;">Deliver to: <span style="font-weight: 700;">${user.username || 'User'}</span></h4>
+                        <h4 style="margin: 0; font-size: 0.95rem; color: #333;">Deliver to: <span style="font-weight: 700;">${user.name || user.customerName || user.username || 'User'}</span></h4>
                         <button id="cartUpdateProfileBtn" style="background: none; border: 1px solid #ddd; padding: 0.2rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #007bff;">Change</button>
                     </div>
                     <p style="margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4;">

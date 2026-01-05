@@ -120,7 +120,8 @@
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
-                console.log('Logged in as:', user.username, '(Admin)');
+                const displayUser = user.username || user.name || user.customerName || 'Admin';
+                console.log('Logged in as:', displayUser, '(Admin)');
             } catch (error) {
                 console.error('Error loading user info:', error);
             }

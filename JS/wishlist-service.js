@@ -32,7 +32,7 @@
                 const user = JSON.parse(userStr);
 
                 // Try different possible field names
-                const userId = user.id || user.userId || user._id || user.username;
+                const userId = user.id || user.userId || user._id || user.username || user.whatsappNumber;
 
                 if (userId) {
                     console.log('User ID from localStorage:', userId);
@@ -46,11 +46,8 @@
         // Method 3: Check if token exists (user is logged in but no user object)
         const token = localStorage.getItem('jewel_token');
         if (token) {
-            // STRICT MODE: If token exists but User ID is missing, force re-login
-            alert('Your session is invalid. Please login again.');
-            localStorage.removeItem('jewel_token'); // Clear invalid session
-            localStorage.removeItem('jewel_user');
-            window.location.href = 'login.html';
+            console.warn('Token exists but User ID not found in localStorage. Profile might be incomplete.');
+            // Do NOT force logout here. Allow app to try and recover or just use local wishlist.
             return null;
         }
 
@@ -66,7 +63,24 @@
         const userId = getUserId();
 
         if (!userId) {
-            console.warn('User not logged in, using local wishlist');
+            // Attempt to recover user profile if token exists
+            if (localStorage.getItem('jewel_token') && window.UserService) {
+                console.log('Token found but ID missing. Attempting to fetch profile...');
+                try {
+                    const user = await window.UserService.getUserProfile();
+                    if (user && (user.id || user.whatsappNumber)) {
+                        userId = user.id || user.whatsappNumber;
+                        // Update local storage with full user object is handled by UserService
+                        console.log('Profile recovered. User ID:', userId);
+                    }
+                } catch (e) {
+                    console.error('Failed to recover profile:', e);
+                }
+            }
+        }
+
+        if (!userId) {
+            console.warn('User not logged in (and recovery failed), using local wishlist');
             return getLocalWishlist();
         }
 
@@ -109,6 +123,16 @@
         const userId = getUserId();
 
         if (!userId) {
+            // Attempt to recover user profile if token exists
+            if (localStorage.getItem('jewel_token') && window.UserService) {
+                try {
+                    const user = await window.UserService.getUserProfile();
+                    if (user && (user.id || user.whatsappNumber)) userId = user.id || user.whatsappNumber;
+                } catch (e) { console.error('Recovery failed:', e); }
+            }
+        }
+
+        if (!userId) {
             console.warn('User not logged in, using local wishlist');
             return addToLocalWishlist(productId);
         }
@@ -148,6 +172,16 @@
      */
     async function removeFromWishlist(productId) {
         const userId = getUserId();
+
+        if (!userId) {
+            // Attempt to recover user profile if token exists
+            if (localStorage.getItem('jewel_token') && window.UserService) {
+                try {
+                    const user = await window.UserService.getUserProfile();
+                    if (user && (user.id || user.whatsappNumber)) userId = user.id || user.whatsappNumber;
+                } catch (e) { console.error('Recovery failed:', e); }
+            }
+        }
 
         if (!userId) {
             console.warn('User not logged in, using local wishlist');
