@@ -53,11 +53,12 @@ async function initializeApp() {
     // Load data from API
     await loadDataFromApi();
 
-    // Load wishlist from backend if user is logged in
-    loadWishlistFromBackend();
-
     // Setup event listeners
     setupEventListeners();
+
+    // Load wishlist and cart from backend if user is logged in
+    loadWishlistFromBackend();
+    loadCartFromBackend();
 
     // Update cart badge
     updateCartBadge();
@@ -230,6 +231,45 @@ async function loadWishlistFromBackend() {
             renderProducts(); // Re-render to update heart icons
         } catch (error) {
             console.error('Error loading wishlist from backend:', error);
+        }
+    }
+}
+
+// Load cart from backend API
+async function loadCartFromBackend() {
+    if (typeof CartService !== 'undefined') {
+        try {
+            const apiCart = await CartService.getCart();
+            if (apiCart && apiCart.items) {
+                // Merge or replace? For simplicity, we'll replace local cart or merge if needed.
+                // Assuming backend is source of truth if logged in.
+                // We need to map backend items to frontend cart structure.
+                // Backend Item: { productId, quantity, ... } -> Frontend Item: { id, title, price, image, ... }
+
+                const mappedItems = [];
+                for (const item of apiCart.items) {
+                    const product = state.products.find(p => p.id == item.productId || p._id == item.productId);
+                    if (product) {
+                        mappedItems.push({
+                            id: product.id,
+                            title: product.title,
+                            price: product.price,
+                            image: product.images[0],
+                            size: 'Free Size', // Backend doesn't seem to store this yet based on controller, default
+                            metal: 'Gold',     // Default
+                            quantity: item.quantity
+                        });
+                    }
+                }
+
+                if (mappedItems.length > 0) {
+                    state.cart = mappedItems;
+                    updateCartBadge();
+                    // Don't render cart here, it renders when opened
+                }
+            }
+        } catch (error) {
+            console.error('Error loading cart from backend:', error);
         }
     }
 }
@@ -738,8 +778,11 @@ ${product.images[0]}
 function addToCartFromModal() {
     if (!state.currentProduct) return;
 
-    const size = document.getElementById('sizeSelect').value;
-    const metal = document.getElementById('metalSelect').value;
+    const sizeSelect = document.getElementById('sizeSelect');
+    const metalSelect = document.getElementById('metalSelect');
+
+    const size = sizeSelect ? sizeSelect.value : 'Free Size';
+    const metal = metalSelect ? metalSelect.value : 'Gold';
 
     addToCart(state.currentProduct.id, size, metal);
     showToast(`${state.currentProduct.title} added to cart!`);
@@ -771,6 +814,14 @@ function addToCart(productId, size = 'medium', metal = 'gold') {
 
     updateCartBadge();
     saveToLocalStorage();
+
+    // Sync with Backend
+    if (typeof CartService !== 'undefined') {
+        // We pass 1 as qty for addition (increment)
+        CartService.addToCart(productId, 1).then(updatedCart => {
+            if (updatedCart) console.log('Cart synced with backend');
+        }).catch(err => console.error('Cart sync failed', err));
+    }
 }
 
 function removeFromCart(index) {
@@ -780,6 +831,13 @@ function removeFromCart(index) {
     updateCartBadge();
     saveToLocalStorage();
     showToast(`${item.title} removed from cart`);
+
+    // Sync with Backend (Remove)
+    if (typeof CartService !== 'undefined') {
+        CartService.removeFromCart(item.id).then(success => {
+            if (success) console.log('Item removed from backend cart');
+        });
+    }
 }
 
 function updateCartQuantity(index, change) {
@@ -834,9 +892,9 @@ function renderCart() {
     const emptyCart = document.getElementById('emptyCart');
     const cartTotal = document.getElementById('cartTotal');
 
-    // Add null checks to prevent errors
-    if (!cartItems || !emptyCart || !cartTotal) {
-        console.error('Cart elements not found in DOM');
+    // Add null checks to prevent errors - REMOVED emptyCart from check as it's dynamic
+    if (!cartItems || !cartTotal) {
+        console.error('Cart elements (items or total) not found in DOM');
         return;
     }
 
@@ -881,45 +939,14 @@ function renderCart() {
     }
 
     if (state.cart.length === 0) {
-        emptyCart.style.display = 'block';
-        // HTML is already cleared effectively, but we need to append the empty message if not present
-        // Actually, existing logic hides emptyCart. Let's adjust.
-        // If cart is empty, show empty div, clear items (but keep user details? No, usually empty cart is just empty)
-
-        // Wait, if I clear innerHTML above, I lost the empty cart element if it was inside cartItems?
-        // Looking at HTML: <div class="cart__body" id="cartItems"> ... <div class="cart__empty" id="emptyCart">...</div> </div>
-        // Ah, emptyCart is INSIDE cartItems. My innerHTML = '' wiped it out!
-
-        // Fix: Repopulate empty cart if needed OR just toggle display if I didn't wipe it.
-        // The original code:
-        // const emptyCart = document.getElementById('emptyCart'); 
-        // ...
-        // cartItems.innerHTML = ''; 
-        // ... 
-        // emptyCart.style.display = 'block';
-
-        // If emptyCart is a CHILD of cartItems, `cartItems.innerHTML = ''` removes it from DOM.
-        // `document.getElementById('emptyCart')` might still hold the reference if grabbed before wipe, but it's detached.
-        // I need to reconstruct the empty state or ensure it's not wiped.
-
-        // Let's check HTML structure from previous view_file...
-        // <div class="cart__body" id="cartItems"> 
-        //    <!-- Cart items will be dynamically inserted here -->
-        //    <div class="cart__empty" id="emptyCart">...</div>
-        // </div>
-
-        // Correct approach: Don't wipe everything blindly if I want to keep emptyCart structure, 
-        // OR re-inject empty cart HTML. Re-injecting is safer.
-
-        const emptyCartHTML = `
+        // If cart is empty, render the empty state directly
+        cartItems.innerHTML = `
             <div class="cart__empty" id="emptyCart" style="display: block;">
                 <p>Your cart is empty</p>
                 <p class="cart__empty-subtitle">Add some beautiful pieces to get started!</p>
             </div>
         `;
-
-        cartItems.innerHTML += emptyCartHTML;
-        cartTotal.textContent = '$0.00';
+        cartTotal.textContent = '₹0';
         return;
     }
 
@@ -1077,7 +1104,8 @@ function renderWishlist() {
 }
 
 async function removeFromWishlist(productId) {
-    const index = state.wishlist.indexOf(productId);
+    // Use findIndex for loose equality (handle string vs number)
+    const index = state.wishlist.findIndex(id => id == productId);
     if (index > -1) {
         if (typeof WishlistService !== 'undefined') {
             const success = await WishlistService.removeFromWishlist(productId);
@@ -1102,7 +1130,11 @@ function handleWishlistItemClick(e) {
     if (!button) return;
 
     const action = button.dataset.action;
-    const productId = parseInt(button.dataset.productId);
+    const productIdRaw = button.dataset.productId;
+    // Check if it's a number-like string to decide parsing, OR simply keep as string if we want strictness.
+    // However, existing codebase seems to prefer numbers where possible but handles strings for UUIDs.
+    // Best match with handleProductCardClick logic:
+    const productId = isNaN(productIdRaw) ? productIdRaw : Number(productIdRaw);
 
     if (action === 'add-to-cart') {
         addToCartFromWishlist(productId);

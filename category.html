@@ -11,14 +11,35 @@
     <style>
         .category-header {
             text-align: center;
-            padding: 2rem 0;
+            padding: 4rem 0;
             background: #f8f9fa;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .category-title {
             font-size: 2rem;
             color: #2d3748;
             margin-bottom: 0.5rem;
+        }
+
+        .nav__home-link {
+            text-decoration: none;
+            background: linear-gradient(135deg, #4a7cae, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .nav__home-link {
+                font-size: 1.1rem;
+            }
         }
 
         /* Sub-category bar variations for this page */
@@ -97,6 +118,7 @@
             color: #a0aec0;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -109,9 +131,7 @@
                 </a>
             </div>
             <div class="nav__actions">
-                <a href="index.html" class="nav__action"
-                    style="text-decoration: none; background: linear-gradient(135deg, #4a7cae, #764ba2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; font-size: 1.5rem; font-weight: 600;">🏠
-                    Home</a>
+                <a href="index.html" class="nav__action nav__home-link">🏠 Home</a>
             </div>
         </nav>
     </header>
@@ -119,7 +139,11 @@
     <main>
         <!-- Category Header -->
         <section class="category-header">
-            <div class="container">
+            <div class="container" style="position: relative;">
+                <button onclick="window.history.back()"
+                    style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 0.5rem; font-weight: 500; transition: background 0.2s;">
+                    ← Back
+                </button>
                 <h1 class="category-title" id="pageTitle">Loading...</h1>
             </div>
         </section>
@@ -155,7 +179,181 @@
         </section>
     </main>
 
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast" role="alert" aria-live="polite">
+        Item added to cart
+    </div>
+
+    <!-- Orders Sidebar -->
+    <aside class="cart" id="ordersPanel" aria-label="My Orders" style="display: none;">
+        <div class="cart__overlay"></div>
+        <div class="cart__content">
+            <div class="cart__header">
+                <h3 class="cart__title">My Orders</h3>
+                <button class="cart__close" aria-label="Close orders">&times;</button>
+            </div>
+
+            <div class="cart__body" id="ordersList">
+                <div class="cart__empty">
+                    <p>Loading orders...</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
+        style="display: none;">
+        <div class="modal__overlay" aria-hidden="true"></div>
+        <div class="modal__content">
+            <button class="modal__close" aria-label="Close modal">&times;</button>
+
+            <div class="modal__body">
+                <!-- Image Carousel -->
+                <div class="modal__gallery">
+                    <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">‹</button>
+                    <img id="modalImage" class="modal__image" src="" alt="Product Image">
+                    <button class="carousel__btn carousel__btn--next" aria-label="Next image">›</button>
+                    <div class="carousel__dots" id="carouselDots"></div>
+                </div>
+
+                <!-- Info -->
+                <div class="modal__info">
+                    <div class="modal__header">
+                        <h3 id="modalTitle" class="modal__title">Product Title</h3>
+                        <div class="modal__rating" id="modalRating">
+                            <!-- Stars rendered via JS -->
+                        </div>
+                    </div>
+
+                    <div class="modal__price-box">
+                        <span class="modal__price" id="modalPrice">₹0</span>
+                        <span class="modal__mrp" id="modalMrp"></span>
+                        <span class="modal__discount" id="modalDiscount"></span>
+                    </div>
+
+                    <div class="modal__description-box">
+                        <p class="modal__description" id="modalDescription">Description goes here...</p>
+                    </div>
+
+                    <!-- Product Specifications -->
+                    <div class="modal__specs">
+                        <div class="spec-row">
+                            <span class="spec-label">Material:</span>
+                            <span class="spec-value" id="modalMaterial">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Plating:</span>
+                            <span class="spec-value" id="modalPlating">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Occasion:</span>
+                            <span class="spec-value" id="modalOccasion">-</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Color:</span>
+                            <span class="spec-value" id="modalColor">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="modal__options">
+                        <div class="option__group">
+                            <label for="sizeSelect" class="option__label">Size</label>
+                            <select id="sizeSelect" class="option__select">
+                                <option value="free">Free Size</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="modal__actions">
+                        <div style="flex: 1; display: flex; gap: 0.5rem;">
+                            <button class="btn btn--primary" id="addToCartBtn"
+                                style="flex: 1; padding: 0.5rem; font-size: 1rem; white-space: nowrap;">
+                                Add to Cart
+                            </button>
+                            <button class="btn btn--primary" id="modalBuyNowBtn"
+                                style="flex: 1; padding: 0.5rem; font-size: 1rem; background-color: #ff9f00; border-color: #ff9f00; white-space: nowrap;">
+                                Buy Now
+                            </button>
+                        </div>
+                        <button class="btn btn--secondary" id="modalWishlistBtn" aria-label="Add to wishlist"
+                            style="width: auto; padding: 0.5rem 1rem;">
+                            ♡
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__content">
+                <!-- Col 1: Brand -->
+                <div class="footer__column">
+                    <a href="index.html" style="text-decoration:none">
+                        <h3 class="footer__logo">GURU JEWELLERY</h3>
+                    </a>
+                    <p class="footer__description">
+                        Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed
+                        stet lorem sit clita
+                    </p>
+                    <div class="footer__social">
+                        <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Address -->
+                <div class="footer__column">
+                    <h4 class="footer__heading">Address</h4>
+                    <div class="footer__contact-item">
+                        <span>📍</span>
+                        <span>123 Street, New York, USA</span>
+                    </div>
+                    <div class="footer__contact-item">
+                        <span>📞</span>
+                        <span>+012 345 67890</span>
+                    </div>
+                    <div class="footer__contact-item">
+                        <span>✉️</span>
+                        <span>info@example.com</span>
+                    </div>
+                </div>
+
+                <!-- Col 3: Quick Links -->
+                <div class="footer__column">
+                    <h4 class="footer__heading">Quick Links</h4>
+                    <ul class="footer__links">
+                        <li class="footer__link-item"><a href="#" class="footer__link">About Us</a></li>
+                        <li class="footer__link-item"><a href="#" class="footer__link">Contact Us</a></li>
+                        <li class="footer__link-item"><a href="#" class="footer__link">Our Service</a></li>
+                        <li class="footer__link-item"><a href="#" class="footer__link">Terms & Condition</a></li>
+                        <li class="footer__link-item"><a href="#" class="footer__link">Support</a></li>
+                    </ul>
+                </div>
+
+
+            </div>
+
+            <div class="footer__bottom">
+                &copy; 2025 Guru Jewellery. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="./JS/auth-state.js"></script>
+    <script src="./JS/user-service.js"></script>
+    <script src="./JS/wishlist-service.js"></script>
+    <script src="./JS/cart-service.js"></script>
     <script src="./JS/product-service.js"></script>
+    <script src="./JS/order-service.js"></script>
+    <script src="./JS/orders-panel.js"></script>
     <script src="./JS/category-page.js"></script>
 </body>
 

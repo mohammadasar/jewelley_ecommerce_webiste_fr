@@ -146,12 +146,43 @@
         }
     }
 
+
+    /**
+     * Get Current User Orders
+     * @returns {Promise<Array>}
+     */
+    async function getMyOrders() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/my-orders`, {
+                method: 'GET',
+                headers: getHeaders()
+            });
+
+            if (!response.ok) {
+                // Return empty if 404 or handled error
+                if (response.status === 404) return [];
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            if (response.status === 204) {
+                return [];
+            }
+
+            const text = await response.text();
+            return text ? JSON.parse(text) : [];
+        } catch (error) {
+            console.error('Error fetching my orders:', error);
+            throw error;
+        }
+    }
+
     window.OrderService = {
         placeOrder,
         getAllOrders,
         updateOrderStatus,
         confirmPayment,
-        getSalesReport
+        getSalesReport,
+        getMyOrders
     };
 
 })();

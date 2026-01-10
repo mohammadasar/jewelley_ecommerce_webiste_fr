@@ -228,7 +228,7 @@ ${firstImage}
     // They will NOT show for "localhost" URLs.
 
     // Use specific number from user request or default
-    const adminNumber = '6369675902'; // Replace with actual admin number if known, using placeholder
+    const adminNumber = '9943986695'; // Replace with actual admin number if known, using placeholder
     const url = `https://wa.me/${adminNumber}?text=${encodeURIComponent(msg)}`;
 
     window.open(url, '_blank');

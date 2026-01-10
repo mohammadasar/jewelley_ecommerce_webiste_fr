@@ -113,7 +113,12 @@
         if (myOrders) {
             myOrders.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Orders page - Coming soon!');
+                if (window.OrdersUI && window.OrdersUI.openOrdersPanel) {
+                    window.OrdersUI.openOrdersPanel();
+                } else {
+                    console.error('OrdersUI not found');
+                    alert('Orders panel loading...');
+                }
                 profileDropdown.classList.remove('show');
             });
         }
