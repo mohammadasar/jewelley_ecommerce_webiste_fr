@@ -20,8 +20,11 @@
     <!-- Navigation -->
     <header class="header" role="banner">
         <nav class="nav container" aria-label="Main navigation">
-            <div class="nav__brand">
-                <h1 class="nav__logo">💎 Guru Jewellery</h1>
+            <div class="nav__brand" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav__logo-link" style="display: flex; align-items: center;">
+                    <img src="assets/images/logo.png" alt="Guru Fashion Jewellery Logo" class="nav__logo-img"
+                        style="height: 80px; width: auto; max-height: 100%; object-fit: contain;">
+                </a>
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -454,8 +457,9 @@
             <div class="footer__content">
                 <!-- Col 1: Brand -->
                 <div class="footer__column">
-                    <a href="index.html" style="text-decoration:none">
-                        <h3 class="footer__logo">GURU JEWELLERY</h3>
+                    <a href="index.html" style="text-decoration:none; display: inline-block; margin-bottom: 1rem;">
+                        <img src="assets/images/logo.png" alt="Guru Fashion Jewellery Logo"
+                            style="height: 140px; width: auto; max-width: 100%;">
                     </a>
                     <p class="footer__description">
                         Guru Fashion Jewellery blends premium quality, modern trends, elegant designs, and affordable
@@ -509,6 +513,11 @@
 
     <!-- Toast Notification -->
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="./JS/animations.js"></script>
 
     <script src="./JS/product-service.js"></script>
     <script src="./JS/wishlist-service.js"></script>

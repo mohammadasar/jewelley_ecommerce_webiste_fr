@@ -114,6 +114,15 @@
     --gradient-card: linear-gradient(145deg, rgba(22, 33, 62, 0.9), rgba(15, 52, 96, 0.7));
 }
 
+[data-theme="dark"] .nav__logo-img {
+    filter: brightness(0) invert(1);
+}
+
+[data-theme="dark"] .nav__logo,
+[data-theme="dark"] .auth-logo h1 {
+    color: #fff;
+}
+
 /* ==================== RESET & BASE ==================== */
 *,
 *::before,
@@ -399,10 +408,17 @@ select {
 .nav__logo {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    background: var(--gradient-hero);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #000;
+}
+
+/* Make logo images black */
+.nav__logo-img {
+    filter: brightness(0);
+}
+
+/* Make footer logo golden */
+.footer__column img[src*="logo.png"] {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(33%) saturate(1081%) hue-rotate(5deg) brightness(96%) contrast(89%);
 }
 
 .nav__toggle {
@@ -1681,10 +1697,7 @@ select {
 
 .auth-logo h1 {
     font-size: var(--font-size-2xl);
-    background: var(--gradient-hero);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #000;
 }
 
 .auth-title {

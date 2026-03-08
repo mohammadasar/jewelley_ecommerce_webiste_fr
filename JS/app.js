@@ -523,6 +523,13 @@ function renderProducts() {
             </div>
         </article>
     `).join('');
+
+    // Trigger GSAP Scroll Animations after the DOM updates
+    setTimeout(() => {
+        if (typeof initScrollAnimations === 'function') {
+            initScrollAnimations();
+        }
+    }, 50);
 }
 
 function renderStars(rating) {
