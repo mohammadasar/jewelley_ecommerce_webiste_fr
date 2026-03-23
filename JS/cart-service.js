@@ -9,7 +9,8 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/cart';
+//     const API_BASE_URL = 'http://localhost:8080/api/cart';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/cart';
 
     /**
      * Get the current user ID

@@ -659,7 +659,8 @@
 
     async function uploadImagesToServer(files) {
         const imageUrls = [];
-        const uploadEndpoint = 'http://localhost:8080/api/images/upload';
+//         const uploadEndpoint = 'http://localhost:8080/api/images/upload';
+        const uploadEndpoint = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/images/upload';
 
         for (const file of files) {
             try {
@@ -733,7 +734,8 @@
         imagePath = imagePath.replace(/\\/g, '/');
 
         const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-        return `http://localhost:8080/${cleanPath}`;
+//         return `http://localhost:8080/${cleanPath}`;
+        return `https://jewelley-ecommerce-webiste-bk.onrender.com/${cleanPath}`;
     }
 
 })();

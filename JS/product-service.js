@@ -9,8 +9,10 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/products';
-    const CATEGORY_API_URL = 'http://localhost:8080/api/categories';
+//     const API_BASE_URL = 'http://localhost:8080/api/products';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/products';
+//     const CATEGORY_API_URL = 'http://localhost:8080/api/categories';
+    const CATEGORY_API_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/categories';
 
     /**
      * Get authentication token
@@ -315,7 +317,8 @@
         // Encode path to handle spaces and special characters
         // Extract just the filename in case the DB contains a full path (e.g. api/categories/...)
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:8080/api/categories/image-file/${encodeURI(filename)}`;
+//         return `http://localhost:8080/api/categories/image-file/${encodeURI(filename)}`;
+        return `https://jewelley-ecommerce-webiste-bk.onrender.com/api/categories/image-file/${encodeURI(filename)}`;
     }
 
     // Expose API globally

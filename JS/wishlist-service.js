@@ -9,7 +9,8 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/wishlist'; // Update this to your backend URL
+//     const API_BASE_URL = 'http://localhost:8080/api/wishlist'; // Update this to your backend URL
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/wishlist'; // Update this to your backend URL
 
     /**
      * Get the current user ID from localStorage

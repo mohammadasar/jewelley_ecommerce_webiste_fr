@@ -9,7 +9,8 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/admin';
+//     const API_BASE_URL = 'http://localhost:8080/api/admin';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/admin';
 
     // Check if user is logged in and is admin
     function checkAdminAccess() {

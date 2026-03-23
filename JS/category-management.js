@@ -9,7 +9,8 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/categories';
+//     const API_BASE_URL = 'http://localhost:8080/api/categories';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/categories';
 
     // State
     let categories = [];

@@ -3,7 +3,8 @@
 
 // CONFIGURATION
 // Replace this with your actual backend URL
-const API_BASE_URL = 'http://localhost:8080/api/auth';
+// const API_BASE_URL = 'http://localhost:8080/api/auth';
+const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/auth';
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');

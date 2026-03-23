@@ -9,7 +9,8 @@
     'use strict';
 
     // Assuming the base URL based on previous patterns
-    const API_BASE_URL = 'http://localhost:8080/api/invoices';
+//     const API_BASE_URL = 'http://localhost:8080/api/invoices';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/invoices';
 
     function getAuthToken() {
         return localStorage.getItem('jewel_token');

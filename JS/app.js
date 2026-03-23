@@ -145,7 +145,8 @@ function getFullImageUrl(imagePath) {
     imagePath = imagePath.replace(/\\/g, '/');
 
     const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-    return `http://localhost:8080/${cleanPath}`;
+//     return `http://localhost:8080/${cleanPath}`;
+    return `https://jewelley-ecommerce-webiste-bk.onrender.com/${cleanPath}`;
 }
 
 function populateCategoryFilter() {

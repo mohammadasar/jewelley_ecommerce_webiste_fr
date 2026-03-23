@@ -50,7 +50,8 @@
             }
 
             try {
-                const response = await fetch("http://localhost:8080/api/admin/stats", {
+//                 const response = await fetch("http://localhost:8080/api/admin/stats", {
+                const response = await fetch("https://jewelley-ecommerce-webiste-bk.onrender.com/api/admin/stats", {
                     method: "GET",
                     headers: {
                         "Authorization": "Bearer " + token,

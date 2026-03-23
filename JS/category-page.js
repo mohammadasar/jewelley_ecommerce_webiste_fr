@@ -72,7 +72,8 @@
                 const header = document.querySelector('.category-header');
                 if (header) {
                     const imgSrc = ProductService.getCategoryImageUrl(currentCat);
-                    const fullImgUrl = imgSrc.startsWith('http') ? imgSrc : `http://localhost:8080/${imgSrc}`;
+//                     const fullImgUrl = imgSrc.startsWith('http') ? imgSrc : `http://localhost:8080/${imgSrc}`;
+                    const fullImgUrl = imgSrc.startsWith('http') ? imgSrc : `https://jewelley-ecommerce-webiste-bk.onrender.com/${imgSrc}`;
 
                     // Increased overlay opacity (0.7) for better text visibility on bright images
                     header.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${fullImgUrl}')`;
@@ -447,7 +448,8 @@
         if (imagePath.startsWith('data:')) return imagePath;
         imagePath = imagePath.replace(/\\/g, '/');
         const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-        return `http://localhost:8080/${cleanPath}`;
+//         return `http://localhost:8080/${cleanPath}`;
+        return `https://jewelley-ecommerce-webiste-bk.onrender.com/${cleanPath}`;
     }
 
 })();

@@ -9,7 +9,8 @@
     'use strict';
 
     // Configuration
-    const API_BASE_URL = 'http://localhost:8080/api/admin';
+//     const API_BASE_URL = 'http://localhost:8080/api/admin';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/admin';
     let allUsers = [];
     let searchTimeout;
 

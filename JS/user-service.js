@@ -8,7 +8,8 @@
 (function () {
     'use strict';
 
-    const API_BASE_URL = 'http://localhost:8080/api/user';
+//     const API_BASE_URL = 'http://localhost:8080/api/user';
+    const API_BASE_URL = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/user';
 
     function getAuthToken() {
         return localStorage.getItem('jewel_token');
