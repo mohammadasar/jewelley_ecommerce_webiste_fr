@@ -29,7 +29,10 @@ const state = {
     filters: {
         search: '',
         category: 'all',
-        sortBy: 'newest'
+        sortBy: 'newest',
+        minPrice: null,
+        maxPrice: null,
+        attributes: {}
     },
     currentProduct: null,
     currentImageIndex: 0,
@@ -72,17 +75,16 @@ async function loadDataFromApi() {
             productGrid.innerHTML = '<div class="loading">Loading products...</div>';
         }
 
-        // 1. Fetch Categories
         const categories = await ProductService.getAllCategories();
         state.categories = categories;
-        populateCategoryFilter();
+        populateCategoryFilters();
         renderCategoryBar();
 
         // 2. Fetch Products
         const apiProducts = await ProductService.getAllProducts();
 
         // 3. Map API data to frontend model
-        state.products = apiProducts.map(mapApiProductToFrontend);
+        state.products = apiProducts.map(mapApiProductToFrontend).filter(p => p !== null);
         state.filteredProducts = [...state.products];
 
         // 4. Render
@@ -98,9 +100,19 @@ async function loadDataFromApi() {
 }
 
 function mapApiProductToFrontend(apiProduct) {
-    // Find category name
-    const categoryObj = state.categories.find(c => c.id === apiProduct.categoryId || c._id === apiProduct.categoryId);
-    const categoryName = categoryObj ? categoryObj.name.toLowerCase() : 'uncategorized';
+    if (!apiProduct) return null;
+
+    // 🔥 UPDATED: Handle both singular 'categoryId' and plural 'categoryIds' from backend
+    let categoryObj = null;
+    if (apiProduct.categoryIds && Array.isArray(apiProduct.categoryIds) && apiProduct.categoryIds.length > 0) {
+        // Find the most specific (last) category name for display
+        const lastId = apiProduct.categoryIds[apiProduct.categoryIds.length - 1];
+        categoryObj = state.categories.find(c => (c.id || c._id) === lastId);
+    } else if (apiProduct.categoryId) {
+        categoryObj = state.categories.find(c => (c.id || c._id) === apiProduct.categoryId);
+    }
+
+    const categoryName = categoryObj ? categoryObj.name : 'Uncategorized';
 
     // Handle images
     let images = [];
@@ -111,28 +123,27 @@ function mapApiProductToFrontend(apiProduct) {
     }
 
     return {
-        id: apiProduct.id, // Keep original ID
-        title: apiProduct.productName,
+        id: apiProduct.id || apiProduct._id,
+        title: apiProduct.productName || apiProduct.title || 'Untitled Product',
         description: apiProduct.description || 'No description available',
-        price: apiProduct.price,
-        category: categoryObj ? categoryObj.id : 'others', // Use ID for filtering
-        categoryName: categoryName, // Keep name for display if needed
+        price: parseFloat(apiProduct.price) || 0,
+        mrp: parseFloat(apiProduct.mrp) || apiProduct.price || 0,
+        category: categoryObj ? (categoryObj.id || categoryObj._id) : 'others',
+        categoryName: categoryName,
         images: images,
-        // ... existing properties
-        rating: 4.5, // Default
-        isNew: true, // Default
-        isOnSale: apiProduct.discountPercent > 0,
-        discountPercent: apiProduct.discountPercent,
-        mrp: apiProduct.mrp,
+        rating: apiProduct.rating || 4.5,
+        isNew: apiProduct.isNew !== undefined ? apiProduct.isNew : true,
+        isOnSale: (apiProduct.discountPercent > 0) || (apiProduct.mrp > apiProduct.price),
+        discountPercent: parseInt(apiProduct.discountPercent) || 0,
 
-        // New Specification Fields
+        // Specifications
         material: apiProduct.material || 'N/A',
         plating: apiProduct.plating || 'N/A',
         occasion: apiProduct.occasion || 'Everyday',
         color: apiProduct.color || 'N/A',
         size: apiProduct.size || 'Free Size',
 
-        dateAdded: new Date().toISOString()
+        dateAdded: apiProduct.createdAt || new Date().toISOString()
     };
 }
 
@@ -149,19 +160,24 @@ function getFullImageUrl(imagePath) {
     return `https://jewelley-ecommerce-webiste-bk.onrender.com/${cleanPath}`;
 }
 
-function populateCategoryFilter() {
-    const filterSelect = document.getElementById('categoryFilter');
-    if (!filterSelect) return;
+function populateCategoryFilters() {
+    const container = document.getElementById('categoryFilters');
+    if (!container) return;
 
-    // Keep "All Categories"
-    filterSelect.innerHTML = '<option value="all">All Categories</option>';
+    container.innerHTML = state.categories.map(cat => {
+        const id = cat.id || cat._id;
+        return `
+            <label class="checkbox-container">
+                <input type="checkbox" data-type="category" value="${id}">
+                <span class="checkmark"></span>
+                <span class="checkbox-label">${cat.name}</span>
+            </label>
+        `;
+    }).join('');
 
-    state.categories.forEach(category => {
-        const option = document.createElement('option');
-        // Use ID as value for robust filtering
-        option.value = category.id || category._id;
-        option.textContent = category.name;
-        filterSelect.appendChild(option);
+    // Re-attach listeners because we just replaced the innerHTML
+    container.querySelectorAll('input').forEach(cb => {
+        cb.addEventListener('change', applyFilters);
     });
 }
 
@@ -241,15 +257,21 @@ async function loadCartFromBackend() {
     if (typeof CartService !== 'undefined') {
         try {
             const apiCart = await CartService.getCart();
-            if (apiCart && apiCart.items) {
-                // Merge or replace? For simplicity, we'll replace local cart or merge if needed.
-                // Assuming backend is source of truth if logged in.
-                // We need to map backend items to frontend cart structure.
-                // Backend Item: { productId, quantity, ... } -> Frontend Item: { id, title, price, image, ... }
-
+            if (apiCart) {
+                // Determine the correct array property name returned by the backend Cart class
+                let itemsStr = [];
+                if (Array.isArray(apiCart)) {
+                    itemsStr = apiCart;
+                } else {
+                    itemsStr = apiCart.items || apiCart.cartItems || apiCart.products || apiCart.cart || [];
+                }
                 const mappedItems = [];
-                for (const item of apiCart.items) {
-                    const product = state.products.find(p => p.id == item.productId || p._id == item.productId);
+                
+                for (const item of itemsStr) {
+                    const pid = item.productId || item.product?.id || item.id;
+                    const pqty = item.quantity !== undefined ? item.quantity : (item.qty || 1);
+                    
+                    const product = state.products.find(p => p.id == pid || p._id == pid);
                     if (product) {
                         mappedItems.push({
                             id: product.id,
@@ -258,16 +280,15 @@ async function loadCartFromBackend() {
                             image: product.images[0],
                             size: 'Free Size', // Backend doesn't seem to store this yet based on controller, default
                             metal: 'Gold',     // Default
-                            quantity: item.quantity
+                            quantity: pqty
                         });
                     }
                 }
 
-                if (mappedItems.length > 0) {
-                    state.cart = mappedItems;
-                    updateCartBadge();
-                    // Don't render cart here, it renders when opened
-                }
+                // If backend gives an empty cart, or we mapped it, update the local state fully
+                state.cart = mappedItems;
+                updateCartBadge();
+                saveToLocalStorage();
             }
         } catch (error) {
             console.error('Error loading cart from backend:', error);
@@ -288,21 +309,79 @@ function saveToLocalStorage() {
 
 // ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
-    // Search
+    // Search input
     const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', handleSearch);
-
-    // Mobile Search (sync with desktop search)
-    const mobileSearchInput = document.getElementById('mobileSearchInput');
-    if (mobileSearchInput) {
-        mobileSearchInput.addEventListener('input', handleSearch);
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            state.filters.search = e.target.value;
+            applyFilters();
+        });
     }
 
-    // Filters
-    document.getElementById('categoryFilter').addEventListener('change', handleCategoryFilter);
+    // Modern Accordion Toggle Logic
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.filter-section__toggle');
+        if (toggle) {
+            const sectionId = toggle.dataset.target;
+            if (sectionId) {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.toggle('collapsed');
+                }
+            }
+        }
+    });
 
-    document.getElementById('sortBy').addEventListener('change', handleSort);
-    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    // Mobile specific
+    const mobileToggle = document.getElementById('filterMobileToggle');
+    const filterPanel = document.getElementById('filterPanel');
+    const filterOverlay = document.getElementById('filterOverlay');
+    const mobileApply = document.getElementById('filterMobileApply');
+    const mobileReset = document.getElementById('filterMobileReset');
+
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+            filterPanel?.classList.add('open');
+            filterOverlay?.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    if (filterOverlay) {
+        filterOverlay.addEventListener('click', () => {
+            filterPanel?.classList.remove('open');
+            filterOverlay?.classList.remove('visible');
+            document.body.style.overflow = '';
+        });
+    }
+
+    if (mobileApply) {
+        mobileApply.addEventListener('click', () => {
+            filterOverlay?.click();
+            applyFilters();
+        });
+    }
+
+    if (mobileReset) {
+        mobileReset.addEventListener('click', () => {
+             resetFilters();
+             filterOverlay?.click();
+        });
+    }
+
+    // Price Filter
+    document.getElementById('filterApplyPrice')?.addEventListener('click', applyFilters);
+
+    // Clear All
+    document.getElementById('filterClearAll')?.addEventListener('click', resetFilters);
+
+    // Sorting
+    document.querySelectorAll('input[name="sortByMobile"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            state.filters.sortBy = e.target.value;
+            applyFilters();
+        });
+    });
 
     // Dark mode toggle
     document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
@@ -377,77 +456,297 @@ function setupEventListeners() {
     });
 }
 
-// ==================== SEARCH & FILTER ====================
-function handleSearch(e) {
-    state.filters.search = e.target.value.toLowerCase();
-    applyFilters();
-}
+// ==================== SEARCH & FILTER (NEW API ENGINE) ====================
+const API_BASE = 'https://jewelley-ecommerce-webiste-bk.onrender.com/api/products';
+let _filterDebounceTimer = null;
 
-function handleCategoryFilter(e) {
-    state.filters.category = e.target.value;
-    renderCategoryBar(); // Sync bar highlight
-    applyFilters();
-}
+function resetFilters() {
+    state.filters = { search: '', sortBy: 'newest', minPrice: null, maxPrice: null, attributes: {} };
+    
+    // Clear Inputs
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+    
+    const minPrice = document.getElementById('filterMinPrice');
+    if (minPrice) minPrice.value = '';
+    
+    const maxPrice = document.getElementById('filterMaxPrice');
+    if (maxPrice) maxPrice.value = '';
 
-
-
-function handleSort(e) {
-    state.filters.sortBy = e.target.value;
-    applyFilters();
-}
-
-function clearFilters() {
-    state.filters = {
-        search: '',
-        category: 'all',
-
-        sortBy: 'newest'
-    };
-
-    document.getElementById('searchInput').value = '';
-    document.getElementById('categoryFilter').value = 'all';
-
-    document.getElementById('sortBy').value = 'newest';
-
+    // Reset Sort
+    document.querySelectorAll('input[name="sortByMobile"]').forEach(r => r.checked = r.value === 'newest');
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(cb => cb.checked = false);
+    
     applyFilters();
 }
 
 function applyFilters() {
-    let filtered = [...state.products];
+    clearTimeout(_filterDebounceTimer);
+    _filterDebounceTimer = setTimeout(_doApiFilter, 150);
+}
 
-    // Search filter
-    if (state.filters.search) {
-        filtered = filtered.filter(product =>
-            product.title.toLowerCase().includes(state.filters.search) ||
-            product.description.toLowerCase().includes(state.filters.search)
-        );
+async function _doApiFilter() {
+    updateActiveFilterTags();
+
+    // 1. Collect selected categories and attributes
+    const selectedCats = [];
+    const selectedCatNames = [];
+    const selectedAttrs = {};
+    
+    document.querySelectorAll('.filter-panel input[type="checkbox"]:checked').forEach(cb => {
+        if (cb.dataset.type === 'category') {
+            selectedCats.push(cb.value);
+            // Also get the name label for fallbacks
+            const label = cb.closest('.checkbox-container')?.querySelector('.checkbox-label')?.textContent;
+            if (label) selectedCatNames.push(label);
+        } else {
+            const key = cb.dataset.attrKey;
+            if (!selectedAttrs[key]) selectedAttrs[key] = [];
+            selectedAttrs[key].push(cb.value);
+        }
+    });
+
+    // 2. Build Payload (Strictly matching ProductFilterRequest.java DTO)
+    const payload = {
+        categoryIds: selectedCats.length > 0 ? selectedCats : [],
+        minPrice: state.filters.minPrice !== null ? state.filters.minPrice : null,
+        maxPrice: state.filters.maxPrice !== null ? state.filters.maxPrice : null,
+        attributes: Object.keys(selectedAttrs).length > 0 ? selectedAttrs : {},
+        sortBy: state.filters.sortBy || "" 
+    };
+
+    if (state.filters.minPrice !== null) payload.minPrice = state.filters.minPrice;
+    if (state.filters.maxPrice !== null) payload.maxPrice = state.filters.maxPrice;
+    if (Object.keys(selectedAttrs).length > 0) payload.attributes = selectedAttrs;
+
+    console.log("📡 [FILTER ENGINE] Outgoing Payload:", JSON.stringify(payload, null, 2));
+
+    // 3. Show loading state
+    showGridSkeleton();
+
+    try {
+        const res = await fetch(`${API_BASE}/filter`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Filter API Error: " + res.status);
+
+        const rawProducts = await res.json();
+        console.log("💎 [FILTER ENGINE] Raw Backend Response:", rawProducts);
+
+        let finalProducts = [];
+
+        // 4. Hybrid Logic: Use Backend Results if found, otherwise fallback to Intelligent Client-Side Filter
+        if (Array.isArray(rawProducts) && rawProducts.length > 0) {
+            console.log("✅ [FILTER ENGINE] Using Backend results");
+            finalProducts = rawProducts.map(mapApiProductToFrontend).filter(p => p !== null);
+        } else {
+            console.log("⚠️ [FILTER ENGINE] Backend returned no results. Falling back to Client-Side Intelligence...");
+            finalProducts = runClientSideFilter(state.products, payload);
+        }
+
+        // 5. Post-Process (Search & Sort)
+        if (state.filters.search) {
+            const q = state.filters.search.toLowerCase();
+            finalProducts = finalProducts.filter(p => 
+                (p.title && p.title.toLowerCase().includes(q)) || 
+                (p.description && p.description.toLowerCase().includes(q))
+            );
+        }
+
+        // Client-side sort for consistency
+        finalProducts = runClientSideSort(finalProducts, state.filters.sortBy);
+
+        state.filteredProducts = finalProducts;
+        renderProducts();
+
+        // 6. Build dynamic filters from results
+        if (Object.keys(state.filters.attributes).length === 0 && !state.hasBuiltDynamicFilters) {
+            buildDynamicAttributeFilters(finalProducts);
+            state.hasBuiltDynamicFilters = true; 
+        }
+
+    } catch (err) {
+        console.warn("⚠️ [FILTER ENGINE] API Filter failed completely:", err);
+        state.filteredProducts = runClientSideFilter(state.products, payload);
+        renderProducts();
+    }
+}
+
+/**
+ * INTELLIGENT CLIENT-SIDE FILTER
+ * Mirror of the backend logic to ensure UI stays functional
+ */
+function runClientSideFilter(products, criteria) {
+    let filtered = [...products];
+
+    // Category Filter
+    if (criteria.categoryIds && criteria.categoryIds.length > 0) {
+        filtered = filtered.filter(p => {
+            // Check if product is in ANY of the selected categories
+            const pCats = Array.isArray(p.categoryIds) ? p.categoryIds : [p.category];
+            return criteria.categoryIds.some(id => pCats.includes(id));
+        });
     }
 
-    // Category filter
-    if (state.filters.category !== 'all') {
-        filtered = filtered.filter(product => product.category === state.filters.category);
+    // Price Filter
+    if (criteria.minPrice !== null) {
+        filtered = filtered.filter(p => p.price >= criteria.minPrice);
+    }
+    if (criteria.maxPrice !== null) {
+        filtered = filtered.filter(p => p.price <= criteria.maxPrice);
     }
 
-
-
-    // Sort
-    switch (state.filters.sortBy) {
-        case 'price-low':
-            filtered.sort((a, b) => a.price - b.price);
-            break;
-        case 'price-high':
-            filtered.sort((a, b) => b.price - a.price);
-            break;
-        case 'rating':
-            filtered.sort((a, b) => b.rating - a.rating);
-            break;
-        case 'newest':
-            filtered.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-            break;
+    // Attributes Filter
+    if (criteria.attributes && Object.keys(criteria.attributes).length > 0) {
+        Object.entries(criteria.attributes).forEach(([key, values]) => {
+            if (values && values.length > 0) {
+                filtered = filtered.filter(p => {
+                    const pVal = p[key.toLowerCase()]; // e.g. p.material, p.color
+                    return values.includes(pVal) || (p.attributes && p.attributes.some(a => (a.key === key || a.name === key) && values.includes(a.value)));
+                });
+            }
+        });
     }
 
-    state.filteredProducts = filtered;
-    renderProducts();
+    return filtered;
+}
+
+function runClientSideSort(products, sortBy) {
+    const arr = [...products];
+    switch (sortBy) {
+        case 'price_asc':  return arr.sort((a, b) => a.price - b.price);
+        case 'price_desc': return arr.sort((a, b) => b.price - a.price);
+        case 'newest':     return arr.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+        default:           return arr;
+    }
+}
+
+function updateActiveFilterTags() {
+    const container = document.getElementById('activeFilterTags');
+    const clearAllBtn = document.getElementById('filterClearAll');
+    if (!container) return;
+    
+    // Clear container
+    container.innerHTML = '';
+    const tags = [];
+    
+    // Price Tags
+    const minStr = document.getElementById('filterMinPrice')?.value;
+    const maxStr = document.getElementById('filterMaxPrice')?.value;
+    if (minStr || maxStr) {
+        const min = minStr || '0';
+        const max = maxStr || '∞';
+        tags.push({ label: `Price: ₹${min} - ₹${max}`, type: 'price' });
+    }
+
+    // Category Tags
+    document.querySelectorAll('#categoryFilters input:checked').forEach(cb => {
+        const labelText = cb.closest('.checkbox-container')?.querySelector('.checkbox-label')?.textContent;
+        // Generate a temporary ID for the checkbox if it doesn't have one
+        if (!cb.id) cb.id = 'cat-filter-' + Math.random().toString(36).substr(2, 9);
+        tags.push({ label: labelText, elId: cb.id });
+    });
+
+    // Dynamic Attribute Tags
+    document.querySelectorAll('#dynamicFilters input:checked').forEach(cb => {
+        const key = cb.dataset.attrKey;
+        const val = cb.value;
+        if (!cb.id) cb.id = 'attr-filter-' + Math.random().toString(36).substr(2, 9);
+        tags.push({ label: `${key}: ${val}`, elId: cb.id });
+    });
+
+    container.innerHTML = tags.map(tag => `
+        <span class="filter-tag">
+            ${tag.label}
+            <span class="filter-tag__remove" 
+                  ${tag.elId ? `data-el-id="${tag.elId}"` : ''} 
+                  onclick="if(this.dataset.elId) { document.getElementById(this.dataset.elId).click(); } else { window.clearPriceFilter(); }">✕</span>
+        </span>
+    `).join('');
+
+    // Helper for clearing
+    window.clearPriceFilter = () => {
+        const min = document.getElementById('filterMinPrice');
+        const max = document.getElementById('filterMaxPrice');
+        if (min) min.value = '';
+        if (max) max.value = '';
+        applyFilters();
+    };
+
+    // Show/Hide Clear All
+    if (clearAllBtn) {
+        clearAllBtn.classList.toggle('visible', tags.length > 0);
+    }
+
+    // Update Mobile Badge
+    const badge = document.getElementById('filterBadge');
+    if (badge) {
+        badge.textContent = tags.length;
+        badge.classList.toggle('visible', tags.length > 0);
+    }
+}
+
+function showGridSkeleton() {
+    const grid = document.getElementById('productGrid');
+    if (!grid) return;
+    grid.innerHTML = Array(8).fill(0).map(() => `
+        <div class="product-card skeleton" style="height: 350px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite;"></div>
+    `).join('');
+}
+
+function buildDynamicAttributeFilters(products) {
+    const container = document.getElementById('dynamicFilters');
+    if (!container) return;
+
+    const attributes = {};
+    products.forEach(p => {
+        if (p.material && p.material !== 'N/A') { 
+            if(!attributes['Material']) attributes['Material'] = new Set(); 
+            attributes['Material'].add(p.material); 
+        }
+        if (p.color && p.color !== 'N/A') { 
+            if(!attributes['Color']) attributes['Color'] = new Set(); 
+            attributes['Color'].add(p.color); 
+        }
+        if (p.occasion && p.occasion !== 'Everyday') { 
+            if(!attributes['Occasion']) attributes['Occasion'] = new Set(); 
+            attributes['Occasion'].add(p.occasion); 
+        }
+    });
+
+    container.innerHTML = Object.keys(attributes).map(key => `
+        <div class="filter-section" id="section-${key.toLowerCase()}">
+            <button class="filter-section__toggle" data-target="section-${key.toLowerCase()}">
+                <span>${key}</span>
+                <span class="filter-section__chevron">▼</span>
+            </button>
+            <div class="filter-section__body">
+                <div class="checkbox-group">
+                    ${Array.from(attributes[key]).map(val => `
+                        <label class="checkbox-container">
+                            <input type="checkbox" data-attr-key="${key}" value="${val}">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">${val}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('input').forEach(cb => {
+        cb.addEventListener('change', applyFilters);
+    });
+}
+
+// Legacy function renamed to keep compatibility if called elsewhere, but logic moved to mapApiProductToFrontend
+function normaliseProduct(p) {
+    return mapApiProductToFrontend(p);
 }
 
 // ==================== RENDERING ====================
@@ -467,59 +766,24 @@ function renderProducts() {
     productCount.textContent = `${state.filteredProducts.length} product${state.filteredProducts.length !== 1 ? 's' : ''}`;
 
     grid.innerHTML = state.filteredProducts.map(product => `
-        <article class="product-card" role="listitem" data-product-id="${product.id}">
+        <article class="product-card" role="listitem" data-product-id="${product.id}" style="cursor:pointer;">
             <div class="product-card__image-wrapper">
-                <img 
-                    src="${product.images[0]}" 
+                <img
+                    src="${product.images[0]}"
                     alt="${product.title}"
                     class="product-card__image"
                     loading="lazy"
+                    onerror="this.src='assets/images/placeholder.svg'"
                 >
-                <div class="product-card__badges">
-                    ${product.isNew ? '<span class="badge--new">New</span>' : ''}
-                    ${product.isOnSale ? '<span class="badge--sale">Sale</span>' : ''}
-                </div>
-                <button 
-                    class="product-card__wishlist ${isInWishlist(product.id) ? 'active' : ''}" 
-                    data-action="wishlist"
-                    aria-label="Add to wishlist"
-                >
-                    ${isInWishlist(product.id) ? '❤️' : '♡'}
-                </button>
             </div>
             <div class="product-card__content">
                 <h3 class="product-card__title">${product.title}</h3>
-                <p class="product-card__description">${product.description}</p>
-                <div class="product-card__rating" aria-label="Rating: ${product.rating} out of 5 stars">
-                    ${renderStars(product.rating)}
-                </div>
-                <div class="product-card__footer">
-                    <div class="product-card__pricing">
-                        <span class="product-card__price">₹${product.price ? product.price.toLocaleString() : '0'}</span>
-                        ${product.mrp && product.mrp > product.price ? `
-                            <span class="product-card__mrp">₹${product.mrp.toLocaleString()}</span>
-                            <span class="product-card__discount">${product.discountPercent}% OFF</span>
-                        ` : ''}
-                    </div>
-    
-                </div>
-                
-                <div class="product-card__actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                    <button 
-                        class="product-card__btn-primary" 
-                        style="flex: 2; padding: 0.5rem; background: #ff9f00; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;"
-                        data-action="buy-now"
-                    >
-                        Buy Now
-                    </button>
-                    <button 
-                        class="product-card__quick-view" 
-                        style="flex: 1; width: auto !important; margin: 0 !important; background-color: var(--color-primary);" 
-                        data-action="quick-view"
-                        aria-label="Quick view ${product.title}"
-                    >
-                        View
-                    </button>
+                <div class="product-card__pricing">
+                    <span class="product-card__price">₹${product.price ? product.price.toLocaleString() : '0'}</span>
+                    ${product.mrp && product.mrp > product.price ? `
+                        <span class="product-card__mrp">₹${product.mrp.toLocaleString()}</span>
+                        <span class="product-card__discount">${product.discountPercent}% OFF</span>
+                    ` : ''}
                 </div>
             </div>
         </article>
@@ -553,12 +817,18 @@ function handleProductCardClick(e) {
 
     const action = e.target.closest('[data-action]')?.dataset.action;
 
-    if (action === 'quick-view') {
-        openProductModal(productId);
-    } else if (action === 'wishlist') {
+    if (action === 'wishlist') {
+        e.preventDefault();
         toggleWishlistItem(productId);
     } else if (action === 'buy-now') {
+        e.preventDefault();
         handleBuyNow(e);
+    } else if (action === 'view-detail') {
+        // Let the <a> tag handle navigation naturally
+        return;
+    } else {
+        // Clicking anywhere else on the card → go to product detail page
+        window.location.href = `product.html?id=${productIdRaw}`;
     }
 }
 
@@ -855,9 +1125,31 @@ function updateCartQuantity(index, change) {
     if (item.quantity <= 0) {
         removeFromCart(index);
     } else {
-        renderCart();
+        // Optimistic DOM update
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        
+        if (cartItems) {
+            const incBtn = cartItems.querySelector(`.cart-item__btn[data-action="increase"][data-index="${index}"]`);
+            if (incBtn) {
+                const row = incBtn.closest('.cart-item');
+                if (row) {
+                    const qtySpan = row.querySelector('.cart-item__quantity');
+                    if (qtySpan) qtySpan.textContent = item.quantity;
+                }
+            }
+            
+            const total = state.cart.reduce((sum, cartItem) => sum + (cartItem.price * cartItem.quantity), 0);
+            if (cartTotal) cartTotal.textContent = `₹${total.toLocaleString()}`;
+        }
+        
         updateCartBadge();
         saveToLocalStorage();
+
+        // Sync with Backend
+        if (typeof CartService !== 'undefined' && typeof AuthState !== 'undefined' && AuthState.isLoggedIn()) {
+            CartService.addToCart(item.id, change).catch(err => console.error('Cart sync failed', err));
+        }
     }
 }
 

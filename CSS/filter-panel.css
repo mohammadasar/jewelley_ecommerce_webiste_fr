@@ -1,0 +1,458 @@
+/* ============================================================
+   MODERN E-COMMERCE FILTER PANEL
+   Clean, Premium, and Responsive Design
+   ============================================================ */
+
+:root {
+    --filter-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --filter-border: #f0f1f3;
+    --filter-accent: #2d3436; /* Modern dark neutral */
+    --filter-accent-rgb: 45, 52, 54;
+    --filter-bg: #ffffff;
+    --filter-text-main: #2d3436;
+    --filter-text-muted: #636e72;
+    --filter-radius: 12px;
+}
+
+[data-theme="dark"] {
+    --filter-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --filter-border: #2d3436;
+    --filter-accent: #ffffff;
+    --filter-accent-rgb: 255, 255, 255;
+    --filter-bg: #1a1a1a;
+    --filter-text-main: #f5f6fa;
+    --filter-text-muted: #a4b0be;
+}
+
+/* ── Layout ── */
+.category-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    margin-top: 2rem;
+    margin-bottom: 5rem;
+}
+
+@media (max-width: 1024px) {
+    .category-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* ── Filter Sidebar Panel ── */
+.filter-panel {
+    background: var(--filter-bg);
+    border: 1px solid var(--filter-border);
+    border-radius: var(--filter-radius);
+    padding: 0;
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    box-shadow: var(--filter-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-panel::-webkit-scrollbar { width: 5px; }
+.filter-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+[data-theme="dark"] .filter-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+/* Panel Header */
+.filter-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1.5px solid var(--filter-border);
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 10;
+}
+
+.filter-panel__title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--filter-text-main);
+    letter-spacing: -0.01em;
+}
+
+.filter-clear-all {
+    background: none;
+    border: none;
+    color: var(--filter-text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+}
+
+.filter-clear-all.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.filter-clear-all:hover {
+    color: #e74c3c;
+}
+
+/* ── Filter Sections (Accordions) ── */
+.filter-section {
+    border-bottom: 1px solid var(--filter-border);
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-section__toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--filter-text-main);
+    transition: background 0.2s;
+}
+
+.filter-section__toggle:hover {
+    background: rgba(var(--filter-accent-rgb), 0.03);
+}
+
+.filter-section__chevron {
+    font-size: 0.7rem;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0.5;
+}
+
+.filter-section.collapsed .filter-section__chevron {
+    transform: rotate(-180deg);
+}
+
+.filter-section__body {
+    padding: 0 1.5rem 1.5rem;
+    max-height: 500px;
+    opacity: 1;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-section.collapsed .filter-section__body {
+    max-height: 0;
+    opacity: 0;
+    padding-bottom: 0;
+    pointer-events: none;
+}
+
+/* ── Custom Checkboxes ── */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--filter-text-muted);
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.checkbox-container:hover {
+    color: var(--filter-text-main);
+}
+
+/* Hide original checkbox */
+.checkbox-container input {
+    display: none;
+}
+
+/* Custom Box */
+.checkbox-container .checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dfe6e9;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="dark"] .checkbox-container .checkmark {
+    border-color: #2d3436;
+    background: #2d3436;
+}
+
+.checkbox-container input:checked + .checkmark {
+    background: var(--filter-accent);
+    border-color: var(--filter-accent);
+}
+
+.checkbox-container .checkmark::after {
+    content: "✓";
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+}
+
+[data-theme="dark"] .checkbox-container input:checked + .checkmark::after {
+    color: #1a1a1a;
+}
+
+.checkbox-container input:checked + .checkmark::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkbox-label {
+    flex: 1;
+}
+
+.filter-checkbox-count {
+    font-size: 0.75rem;
+    background: rgba(var(--filter-accent-rgb), 0.05);
+    padding: 2px 8px;
+    border-radius: 20px;
+    color: var(--filter-text-muted);
+}
+
+/* ── Price Range ── */
+.price-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.price-range-inputs input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--filter-border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+    background: transparent;
+    color: var(--filter-text-main);
+    transition: all 0.2s;
+}
+
+.price-range-inputs input:focus {
+    border-color: var(--filter-accent);
+    box-shadow: 0 0 0 3px rgba(var(--filter-accent-rgb), 0.1);
+}
+
+.filter-apply-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--filter-accent);
+    color: var(--filter-bg);
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.filter-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--filter-accent-rgb), 0.2);
+}
+
+.filter-apply-btn:active {
+    transform: translateY(0);
+}
+
+/* ── Active Chips ── */
+.filter-active-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(var(--filter-accent-rgb), 0.02);
+}
+
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--filter-bg);
+    border: 1px solid var(--filter-border);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--filter-text-main);
+    transition: all 0.2s;
+    animation: chip-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes chip-pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.filter-tag:hover {
+    border-color: var(--filter-accent);
+}
+
+.filter-tag__remove {
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: normal;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.filter-tag__remove:hover {
+    opacity: 1;
+    color: #e74c3c;
+}
+
+/* ── Sort Options (Radios Modernized) ── */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--filter-text-muted);
+}
+
+.radio-container input {
+    display: none;
+}
+
+.radio-container .radio-mark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--filter-border);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.radio-container input:checked + .radio-mark {
+    border-color: var(--filter-accent);
+}
+
+.radio-container input:checked + .radio-mark::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--filter-accent);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* ── Mobile UI ── */
+@media (max-width: 1024px) {
+    .filter-mobile-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.8rem 1.2rem;
+        background: var(--filter-bg);
+        border: 1.5px solid var(--filter-border);
+        border-radius: 12px;
+        font-weight: 700;
+        color: var(--filter-text-main);
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .filter-panel {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--filter-bg);
+        z-index: 1000;
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh;
+        top: auto !important; /* Force bottom sheet */
+    }
+
+    .filter-panel.open {
+        display: block;
+        animation: slide-up 0.4s cubic-bezier(0, 0.55, 0.45, 1);
+    }
+
+    .filter-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        display: none;
+    }
+
+    .filter-overlay.visible {
+        display: block;
+    }
+
+    .filter-mobile-actions {
+        display: flex;
+        padding: 1.2rem;
+        gap: 1rem;
+        border-top: 1.5px solid var(--filter-border);
+        background: inherit;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .filter-reset-btn {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1.5px solid var(--filter-border);
+        background: transparent;
+        color: var(--filter-text-muted);
+        border-radius: 8px;
+        font-weight: 600;
+    }
+}
+
+@keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* Skeleton Enhancements */
+.product-card.skeleton {
+    overflow: hidden;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}

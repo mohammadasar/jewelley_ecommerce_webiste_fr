@@ -236,44 +236,42 @@
                         </div>
                     </div>
 
-                    <!-- Product Attributes -->
+
+
+                    <!-- Dynamic Attributes -->
                     <div class="form-section">
-                        <h3 class="form-section__title">Product Attributes</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <div class="form-group">
-                                    <label for="material" class="form-label">Material</label>
-                                    <input type="text" id="material" class="form-input"
-                                        placeholder="e.g. Brass, Copper">
-                                </div>
+                        <div class="form-section__header">
+                            <h3 class="form-section__title">Custom Attributes</h3>
+                            <button type="button" class="btn-add-row" id="addAttributeBtn">
+                                <span>＋</span> Add Attribute
+                            </button>
+                        </div>
+                        <p class="form-help" style="margin-bottom:1rem;">Add extra details like Material, Finish,
+                            Weight, etc. specific to this product.</p>
+                        <div id="attributesContainer" class="dynamic-rows-container">
+                            <!-- Rows injected by JS -->
+                        </div>
+                    </div>
 
-                                <div class="form-group">
-                                    <label for="color" class="form-label">Color</label>
-                                    <input type="text" id="color" class="form-input" placeholder="e.g. Gold, Rose Gold">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="plating" class="form-label">Plating</label>
-                                    <input type="text" id="plating" class="form-input"
-                                        placeholder="e.g. 1g Gold Plated">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="size" class="form-label">Size</label>
-                                    <input type="text" id="size" class="form-input" placeholder="e.g. Free Size, S, M">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="occasion" class="form-label">Occasion</label>
-                                    <input type="text" id="occasion" class="form-input"
-                                        placeholder="e.g. Party, Bridal">
-                                </div>
-                            </div>
+                    <!-- Variants -->
+                    <div class="form-section">
+                        <div class="form-section__header">
+                            <h3 class="form-section__title">Variants <span
+                                    style="font-size:0.8rem;font-weight:400;color:#718096;">(Optional – for fashion /
+                                    multi-SKU products)</span></h3>
+                            <button type="button" class="btn-add-row" id="addVariantBtn">
+                                <span>＋</span> Add Variant
+                            </button>
+                        </div>
+                        <p class="form-help" style="margin-bottom:1rem;">Define individual combinations of Size, Color
+                            and their stock levels.</p>
+                        <div id="variantsContainer" class="dynamic-rows-container">
+                            <!-- Rows injected by JS -->
                         </div>
                     </div>
 
                     <!-- Inventory -->
-                    <div class="form-section">
+                    <!-- <div class="form-section">
                         <h3 class="form-section__title">Inventory</h3>
                         <div class="form-grid">
                             <div class="form-group">
@@ -289,7 +287,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Images -->
                     <div class="form-section">

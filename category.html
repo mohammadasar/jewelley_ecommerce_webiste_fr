@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./CSS/styles.css">
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
     <link rel="stylesheet" href="./CSS/category-bar.css">
+    <link rel="stylesheet" href="./CSS/filter-panel.css">
     <style>
         .category-header {
             text-align: center;
@@ -164,21 +165,114 @@
             <span class="category-search-icon">🔍</span>
         </div>
 
-        <!-- Products -->
-        <section class="products container" style="margin-top: 2rem; margin-bottom: 4rem;">
-            <div class="products__header">
-                <h2 class="products__title">Products</h2>
-                <p class="products__count" id="productCount">0 products</p>
-            </div>
+        <!-- Mobile Filter Toggle -->
+        <div class="container" style="margin-top:1rem; display:flex; gap:0.75rem; align-items:center;">
+            <button class="filter-mobile-toggle" id="filterMobileToggle" aria-label="Open filters">
+                <span>🎚️</span> Filters
+                <span class="filter-badge" id="filterBadge">0</span>
+            </button>
+            <p class="products__count" id="productCount" style="margin:0; font-size:0.9rem; color:#718096;">0 products</p>
+        </div>
 
-            <div class="product-grid" id="productGrid">
-                <!-- Products populated by JS -->
-            </div>
+        <!-- ── Two-column layout: [Filter | Products] ── -->
+        <div class="container category-layout">
 
-            <div id="noResults" class="no-results" style="display: none; text-align: center; padding: 2rem;">
-                <p>No products found.</p>
-            </div>
-        </section>
+            <!-- FILTER SIDEBAR -->
+            <aside id="filterPanel" class="filter-panel" aria-label="Filter products">
+                <!-- Sticky header -->
+                <div class="filter-panel__header">
+                    <span class="filter-panel__title">🎚️ Filters</span>
+                    <button class="filter-clear-all" id="filterClearAll">Clear All</button>
+                </div>
+
+                <!-- Active filter tags row -->
+                <div class="filter-active-tags" id="filterActiveTags"></div>
+
+                <!-- ── Price Range ── -->
+                <div class="filter-section" id="fsPriceRange">
+                    <button class="filter-section__toggle" aria-expanded="true" data-target="fsPriceRange">
+                        <span>Price Range</span>
+                        <span class="filter-section__chevron">▾</span>
+                    </button>
+                    <div class="filter-section__body">
+                        <div class="price-range-inputs">
+                            <input type="number" id="filterMinPrice" placeholder="Min ₹" min="0" step="100">
+                            <span class="price-range-sep">–</span>
+                            <input type="number" id="filterMaxPrice" placeholder="Max ₹" min="0" step="100">
+                        </div>
+                        <button class="filter-apply-btn" id="filterApplyPrice">Apply</button>
+                    </div>
+                </div>
+
+                <!-- ── Sort (inside panel for mobile) ── -->
+                <div class="filter-section" id="fsSortBy">
+                    <button class="filter-section__toggle" aria-expanded="true" data-target="fsSortBy">
+                        <span>Sort By</span>
+                        <span class="filter-section__chevron">▾</span>
+                    </button>
+                    <div class="filter-section__body">
+                        <ul class="filter-checkbox-list" id="sortOptions">
+                            <li class="filter-checkbox-item">
+                                <input type="radio" name="sortBy" id="sortDefault" value="" checked>
+                                <label for="sortDefault">Relevance</label>
+                            </li>
+                            <li class="filter-checkbox-item">
+                                <input type="radio" name="sortBy" id="sortPriceLow" value="price_asc">
+                                <label for="sortPriceLow">Price: Low to High</label>
+                            </li>
+                            <li class="filter-checkbox-item">
+                                <input type="radio" name="sortBy" id="sortPriceHigh" value="price_desc">
+                                <label for="sortPriceHigh">Price: High to Low</label>
+                            </li>
+                            <li class="filter-checkbox-item">
+                                <input type="radio" name="sortBy" id="sortNewest" value="newest">
+                                <label for="sortNewest">Newest First</label>
+                            </li>
+                            <li class="filter-checkbox-item">
+                                <input type="radio" name="sortBy" id="sortDiscount" value="discount">
+                                <label for="sortDiscount">Best Discount</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ── Dynamic attribute sections injected by JS here ── -->
+                <div id="dynamicFilterSections"></div>
+
+                <!-- Mobile sticky bottom actions -->
+                <div class="filter-mobile-actions">
+                    <button class="filter-reset-btn" id="filterMobileReset">Reset</button>
+                    <button class="filter-apply-btn" id="filterMobileApply">Apply Filters</button>
+                </div>
+            </aside>
+
+            <!-- PRODUCT AREA -->
+            <section class="products" aria-label="Product listing">
+                <!-- Sort bar (desktop) -->
+                <div class="products-sort-bar">
+                    <p class="products-sort-bar__count" id="productCountDesktop"></p>
+                    <select class="sort-select" id="sortSelectDesktop" aria-label="Sort products">
+                        <option value="">Relevance</option>
+                        <option value="price_asc">Price: Low → High</option>
+                        <option value="price_desc">Price: High → Low</option>
+                        <option value="newest">Newest First</option>
+                        <option value="discount">Best Discount</option>
+                    </select>
+                </div>
+
+                <div class="product-grid" id="productGrid">
+                    <!-- Products populated by JS -->
+                </div>
+
+                <div id="noResults" class="no-results" style="display: none; text-align: center; padding: 2rem;">
+                    <p>No products found matching your filters.</p>
+                    <button id="noResultsClear" style="margin-top:1rem; padding:0.5rem 1.2rem; background:#2874f0; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Clear Filters</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Mobile overlay -->
+        <div class="filter-overlay" id="filterOverlay"></div>
     </main>
 
     <!-- TOAST NOTIFICATION -->

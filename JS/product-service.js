@@ -292,9 +292,14 @@
             inStock: formData.inStock,
             quantity: parseInt(formData.quantity) || 0,
             sku: formData.sku || '',
-            brand: formData.brand || ''
+            brand: formData.brand || '',
+
+            // 🔥 NEW: Dynamic attributes & variants
+            attributes: Array.isArray(formData.attributes) ? formData.attributes : [],
+            variants: Array.isArray(formData.variants) ? formData.variants : []
         };
     }
+
 
     /**
      * Get category image URL

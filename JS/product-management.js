@@ -113,6 +113,16 @@
             console.log('Categories updated event received, reloading dropdowns...');
             loadCategories();
         });
+
+        // Dynamic Attributes
+        document.getElementById('addAttributeBtn').addEventListener('click', () => addAttributeRow());
+
+        // Dynamic Variants
+        document.getElementById('addVariantBtn').addEventListener('click', () => addVariantRow());
+
+        // Render empty-state placeholders
+        renderAttributesEmpty();
+        renderVariantsEmpty();
     }
 
     // ==================== CATEGORY MANAGEMENT ====================
@@ -310,6 +320,43 @@
             : 'assets/images/placeholder.svg';
         console.log("image url==", mainImage);
 
+        // Build attributes HTML
+        let attributesHtml = '';
+        if (product.attributes && Array.isArray(product.attributes) && product.attributes.length > 0) {
+            const tags = product.attributes
+                .filter(a => a.name)
+                .map(a => `<span class="attr-tag"><strong>${a.name}:</strong> ${a.value || '—'}</span>`)
+                .join('');
+            if (tags) {
+                attributesHtml = `
+                <div class="product-card__attributes">
+                    <div class="product-card__attr-title">Attributes</div>
+                    <div class="attr-tag-list">${tags}</div>
+                </div>`;
+            }
+        }
+
+        // Build variants HTML
+        let variantsHtml = '';
+        if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+            const pills = product.variants.map(v => {
+                const colorDot = v.color
+                    ? `<span class="v-color-dot" style="background:${v.color.toLowerCase()};"></span>`
+                    : '';
+                const sizeLabel = v.size ? `${v.size}` : '';
+                const colorLabel = v.color ? v.color : '';
+                const stockLabel = (v.stock !== undefined && v.stock !== null) ? ` · ${v.stock} pcs` : '';
+                return `<span class="variant-pill">${colorDot}${[sizeLabel, colorLabel].filter(Boolean).join(' / ')}${stockLabel}</span>`;
+            }).join('');
+            if (pills) {
+                variantsHtml = `
+                <div class="product-card__attributes">
+                    <div class="product-card__attr-title">Variants</div>
+                    <div class="attr-tag-list">${pills}</div>
+                </div>`;
+            }
+        }
+
         card.innerHTML = `
             <img src="${mainImage}" alt="${product.productName}" class="product-card__image" 
                  onerror="this.src='assets/images/placeholder.svg'">
@@ -322,6 +369,8 @@
                 </div>
                 <p class="product-card__category">${categoryName}</p>
                 <p class="product-card__description">${product.description || 'No description'}</p>
+                ${attributesHtml}
+                ${variantsHtml}
                 <div class="product-card__pricing">
                     <span class="product-card__price">₹${product.price.toLocaleString()}</span>
                     ${product.mrp > product.price ? `
@@ -381,7 +430,9 @@
             inStock: document.getElementById('inStock').checked,
             sku: document.getElementById('sku').value,
             brand: document.getElementById('brand').value,
-            images: imageUrls.join('\n') // Convert array to newline-separated string
+            images: imageUrls.join('\n'), // Convert array to newline-separated string
+            attributes: collectAttributes(),
+            variants: collectVariants()
         };
 
         const productData = ProductService.formatProductData(formData);
@@ -423,6 +474,12 @@
         uploadedImages = [];
         imagePreview.innerHTML = '';
         imageUploadInput.value = '';
+
+        // Clear dynamic sections
+        document.getElementById('attributesContainer').innerHTML = '';
+        document.getElementById('variantsContainer').innerHTML = '';
+        renderAttributesEmpty();
+        renderVariantsEmpty();
     }
 
     // ==================== EDIT PRODUCT ====================
@@ -496,6 +553,24 @@
 
             // Note: For edit, images are already on server, so we don't need to populate upload
             // You could display existing images in preview if needed
+
+            // Populate dynamic attributes
+            const attrContainer = document.getElementById('attributesContainer');
+            attrContainer.innerHTML = '';
+            if (product.attributes && Array.isArray(product.attributes) && product.attributes.length > 0) {
+                product.attributes.forEach(attr => addAttributeRow(attr.name, attr.value));
+            } else {
+                renderAttributesEmpty();
+            }
+
+            // Populate dynamic variants
+            const varContainer = document.getElementById('variantsContainer');
+            varContainer.innerHTML = '';
+            if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+                product.variants.forEach(v => addVariantRow(v.size, v.color, v.stock));
+            } else {
+                renderVariantsEmpty();
+            }
 
             currentEditId = productId;
             submitBtnText.textContent = 'Update Product';
@@ -736,6 +811,105 @@
         const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 //         return `http://localhost:8080/${cleanPath}`;
         return `https://jewelley-ecommerce-webiste-bk.onrender.com/${cleanPath}`;
+    }
+
+
+    // ==================== DYNAMIC ATTRIBUTES ====================
+
+    function renderAttributesEmpty() {
+        const c = document.getElementById('attributesContainer');
+        if (c && c.children.length === 0) {
+            c.innerHTML = '<div class="dynamic-rows-empty">No attributes yet. Click "Add Attribute" to start.</div>';
+        }
+    }
+
+    function addAttributeRow(name = '', value = '') {
+        const c = document.getElementById('attributesContainer');
+        // Remove empty placeholder if present
+        const placeholder = c.querySelector('.dynamic-rows-empty');
+        if (placeholder) placeholder.remove();
+
+        const row = document.createElement('div');
+        row.className = 'dynamic-row';
+        row.innerHTML = `
+            <input type="text" class="row-input attr-name" placeholder="Attribute name (e.g. Material)" value="${escapeHtml(name)}">
+            <span class="row-sep">:</span>
+            <input type="text" class="row-input attr-value" placeholder="Value (e.g. Cotton)" value="${escapeHtml(value)}">
+            <button type="button" class="btn-remove-row" title="Remove" onclick="this.closest('.dynamic-row').remove(); renderAttributesEmptyCheck();">&#x2715;</button>
+        `;
+        c.appendChild(row);
+    }
+
+    // Exposed so the inline onclick can call it
+    window.renderAttributesEmptyCheck = function () {
+        const c = document.getElementById('attributesContainer');
+        if (c && c.children.length === 0) renderAttributesEmpty();
+    };
+
+    function collectAttributes() {
+        const rows = document.querySelectorAll('#attributesContainer .dynamic-row');
+        const attrs = [];
+        rows.forEach(row => {
+            const name = row.querySelector('.attr-name').value.trim();
+            const value = row.querySelector('.attr-value').value.trim();
+            if (name) attrs.push({ name, value });
+        });
+        return attrs;
+    }
+
+    // ==================== DYNAMIC VARIANTS ====================
+
+    function renderVariantsEmpty() {
+        const c = document.getElementById('variantsContainer');
+        if (c && c.children.length === 0) {
+            c.innerHTML = '<div class="dynamic-rows-empty">No variants yet. Click "Add Variant" to start.</div>';
+        }
+    }
+
+    function addVariantRow(size = '', color = '', stock = '') {
+        const c = document.getElementById('variantsContainer');
+        const placeholder = c.querySelector('.dynamic-rows-empty');
+        if (placeholder) placeholder.remove();
+
+        const row = document.createElement('div');
+        row.className = 'dynamic-row';
+        row.innerHTML = `
+            <input type="text" class="row-input var-size" placeholder="Size (e.g. M, XL, Free)" value="${escapeHtml(String(size))}">
+            <span class="row-sep">/</span>
+            <input type="text" class="row-input var-color" placeholder="Color (e.g. Red)" value="${escapeHtml(String(color))}">
+            <span class="row-sep">/</span>
+            <input type="number" class="row-input var-stock" placeholder="Stock" min="0" style="max-width:90px;" value="${stock !== '' ? Number(stock) : ''}">
+            <button type="button" class="btn-remove-row" title="Remove" onclick="this.closest('.dynamic-row').remove(); renderVariantsEmptyCheck();">&#x2715;</button>
+        `;
+        c.appendChild(row);
+    }
+
+    window.renderVariantsEmptyCheck = function () {
+        const c = document.getElementById('variantsContainer');
+        if (c && c.children.length === 0) renderVariantsEmpty();
+    };
+
+    function collectVariants() {
+        const rows = document.querySelectorAll('#variantsContainer .dynamic-row');
+        const variants = [];
+        rows.forEach(row => {
+            const size  = row.querySelector('.var-size').value.trim();
+            const color = row.querySelector('.var-color').value.trim();
+            const stockRaw = row.querySelector('.var-stock').value.trim();
+            const stock = stockRaw !== '' ? parseInt(stockRaw, 10) : null;
+            if (size || color) variants.push({ size, color, stock });
+        });
+        return variants;
+    }
+
+    // ==================== UTILITY: escape HTML ====================
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
 })();

@@ -100,9 +100,9 @@ function initScrollAnimations() {
             { autoAlpha: 1, y: 0, duration: 0.8, scrollTrigger: { trigger: ".products", start: "top 85%" } }
         );
 
-        gsap.fromTo(".filters",
+        gsap.fromTo(".filter-panel",
             { autoAlpha: 0, x: -40 },
-            { autoAlpha: 1, x: 0, duration: 0.8, scrollTrigger: { trigger: ".main", start: "top 85%" } }
+            { autoAlpha: 1, x: 0, duration: 0.8, scrollTrigger: { trigger: ".category-layout", start: "top 85%" } }
         );
 
         // E. Footer Columns Step-by-Step

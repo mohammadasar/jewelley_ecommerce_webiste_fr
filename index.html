@@ -8,6 +8,7 @@
         content="Discover exquisite handcrafted jewellery - rings, necklaces, bracelets, and earrings. Shop our curated collection of fine jewelry.">
     <title>Guru Jewellery - Exquisite Handcrafted Jewelry</title>
     <link rel="stylesheet" href="./CSS/styles.css">
+    <link rel="stylesheet" href="./CSS/filter-panel.css">
     <link rel="stylesheet" href="./CSS/signup-popup.css">
     <link rel="stylesheet" href="./CSS/admin-panel.css">
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
@@ -187,34 +188,98 @@
 
     <!-- Main Content -->
     <main class="main container" role="main">
-        <!-- Filters & Controls -->
-        <aside class="filters" role="search" aria-label="Product filters">
-            <div class="filters__group">
-                <label for="categoryFilter" class="filter__label">Category</label>
-                <select id="categoryFilter" class="filter__select">
-                    <option value="all">All Categories</option>
-                    <option value="rings">Rings</option>
-                    <option value="necklaces">Necklaces</option>
-                    <option value="bracelets">Bracelets</option>
-                    <option value="earrings">Earrings</option>
-                </select>
-            </div>
+        <!-- New Filter Panel (Mirroring Category Page) -->
+        <button id="filterMobileToggle" class="filter-mobile-toggle" aria-label="Toggle Filters">
+            <i class="fas fa-filter"></i> Filters
+            <span id="filterBadge" class="filter-badge">0</span>
+        </button>
 
-            <div class="filters__group">
-                <label for="sortBy" class="filter__label">Sort By</label>
-                <select id="sortBy" class="filter__select">
-                    <option value="newest">Newest Arrivals</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Highest Rated</option>
-                </select>
-            </div>
+        <div class="category-layout">
+            <!-- MODERN FILTER SIDEBAR -->
+            <aside id="filterPanel" class="filter-panel" aria-label="Product Filters">
+                <!-- Header -->
+                <div class="filter-panel__header">
+                    <span class="filter-panel__title">Filters</span>
+                    <button class="filter-clear-all" id="filterClearAll">Clear All</button>
+                </div>
 
-            <button class="filters__clear" id="clearFilters">Clear All Filters</button>
-        </aside>
+                <!-- Active Chips (Injected by JS) -->
+                <div class="filter-active-tags" id="activeFilterTags"></div>
 
-        <!-- Product Grid -->
-        <section class="products" aria-label="Product listing">
+                <!-- Section: Categories -->
+                <div class="filter-section" id="sectionCategories">
+                    <button class="filter-section__toggle" aria-label="Toggle Categories Section" data-target="sectionCategories">
+                        <span>Collections</span>
+                        <span class="filter-section__chevron">▼</span>
+                    </button>
+                    <div class="filter-section__body">
+                        <div id="categoryFilters" class="checkbox-group">
+                            <!-- Dynamically populated -->
+                            <div class="filter-skeleton" style="height:20px; width:80%;"></div>
+                            <div class="filter-skeleton" style="height:20px; width:65%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Price Range -->
+                <div class="filter-section" id="sectionPrice">
+                    <button class="filter-section__toggle" aria-label="Toggle Price Section" data-target="sectionPrice">
+                        <span>Price Range</span>
+                        <span class="filter-section__chevron">▼</span>
+                    </button>
+                    <div class="filter-section__body">
+                        <div class="price-range-inputs">
+                            <input type="number" id="filterMinPrice" placeholder="Min ₹" min="0">
+                            <input type="number" id="filterMaxPrice" placeholder="Max ₹" min="0">
+                        </div>
+                        <button class="filter-apply-btn" id="filterApplyPrice">Apply Price</button>
+                    </div>
+                </div>
+
+                <!-- Section: Attributes (Dynamic) -->
+                <div id="dynamicFilters"></div>
+
+                <!-- Section: Sort (Desktop uses select, Mobile uses these radios) -->
+                <div class="filter-section" id="sectionSort">
+                    <button class="filter-section__toggle" aria-label="Toggle Sort Section" data-target="sectionSort">
+                        <span>Sort By</span>
+                        <span class="filter-section__chevron">▼</span>
+                    </button>
+                    <div class="filter-section__body">
+                        <div class="radio-group">
+                            <label class="radio-container">
+                                <input type="radio" name="sortByMobile" value="newest" checked>
+                                <span class="radio-mark"></span>
+                                <span class="radio-label">Newest Arrivals</span>
+                            </label>
+                            <label class="radio-container">
+                                <input type="radio" name="sortByMobile" value="price_asc">
+                                <span class="radio-mark"></span>
+                                <span class="radio-label">Price: Low to High</span>
+                            </label>
+                            <label class="radio-container">
+                                <input type="radio" name="sortByMobile" value="price_desc">
+                                <span class="radio-mark"></span>
+                                <span class="radio-label">Price: High to Low</span>
+                            </label>
+                            <label class="radio-container">
+                                <input type="radio" name="sortByMobile" value="rating">
+                                <span class="radio-mark"></span>
+                                <span class="radio-label">Customer Reviews</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile only actions -->
+                <div class="filter-mobile-actions">
+                    <button class="filter-reset-btn" id="filterMobileReset">Reset</button>
+                    <button class="filter-apply-btn" id="filterMobileApply">Apply</button>
+                </div>
+            </aside>
+
+            <!-- Product Grid Column -->
+            <section class="products">
             <!-- Mobile Search Bar (visible only on mobile) -->
             <div class="mobile-search-container">
                 <div class="mobile-search">
@@ -238,8 +303,10 @@
                 <p>No products found matching your criteria.</p>
                 <button class="btn btn--secondary" id="resetFilters">Reset Filters</button>
             </div>
-        </section>
+            </section>
+        </div>
     </main>
+    <div id="filterOverlay" class="filter-overlay"></div>
 
     <!-- Product Detail Modal -->
     <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"

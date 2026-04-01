@@ -32,9 +32,13 @@ async function loadUserProfile() {
     }
 }
 
-function loadCheckoutItems() {
+let loadedOrderItems = [];
+
+async function loadCheckoutItems() {
     const orderItemsContainer = document.getElementById('orderItems');
     const orderTotalElement = document.getElementById('orderTotal');
+
+    orderItemsContainer.innerHTML = '<p>Loading your cart items...</p>';
 
     // Check if we have a "Buy Now" item first (single item checkout)
     const buyNowItem = localStorage.getItem('jewel_buyNowItem');
@@ -45,10 +49,41 @@ function loadCheckoutItems() {
         // Optional: clear it so refresh uses cart? Or keep it? 
         // Better to clear it on successful order only, but for now we render it.
     } else {
-        // Fallback to Cart
-        const cart = localStorage.getItem('jewel_cart');
-        if (cart) {
-            items = JSON.parse(cart);
+        // Fallback to Cart - optionally fetch from API
+        if (typeof CartService !== 'undefined' && typeof AuthState !== 'undefined' && AuthState.isLoggedIn()) {
+            try {
+                const apiCart = await CartService.getCart();
+                if (apiCart) {
+                    const itemsStr = Array.isArray(apiCart) ? apiCart : (apiCart.items || apiCart.cartItems || apiCart.products || apiCart.cart || []);
+                    for (const item of itemsStr) {
+                        const pid = item.productId || item.product?.id || item.id;
+                        const pqty = item.quantity !== undefined ? item.quantity : (item.qty || 1);
+
+                        let title = 'Product ' + pid;
+                        let price = 0;
+                        let image = 'assets/images/placeholder.svg';
+
+                        if (typeof ProductService !== 'undefined') {
+                            try {
+                                const p = await ProductService.getProductById(pid);
+                                if (p) {
+                                    title = p.productName;
+                                    price = Number(p.price) || 0;
+                                    if (p.images && p.images.length > 0) image = p.images[0].startsWith('http') || p.images[0].startsWith('data:') ? p.images[0] : `https://jewelley-ecommerce-webiste-bk.onrender.com/${p.images[0].replace(/\\\\/g, '/')}`;
+                                }
+                            } catch (e) { }
+                        }
+                        items.push({ id: pid, title, price, quantity: pqty, image, size: 'Free Size' });
+                    }
+                }
+            } catch (e) {
+                console.error('API cart fetch failed in checkout', e);
+            }
+        } else {
+            const cart = localStorage.getItem('jewel_cart');
+            if (cart) {
+                items = JSON.parse(cart);
+            }
         }
     }
 
@@ -57,6 +92,8 @@ function loadCheckoutItems() {
         orderTotalElement.textContent = '₹0';
         return;
     }
+
+    loadedOrderItems = items;
 
     // Render items
     orderItemsContainer.innerHTML = items.map(item => `
@@ -146,19 +183,30 @@ function setupFormListener() {
 
             const savedOrder = await OrderService.placeOrder(finalOrderData);
 
-            // 4. Clear Cart / BuyNow Item
+            // 4. Clear Cart / BuyNow Item locally
             localStorage.removeItem('jewel_cart');
             localStorage.removeItem('jewel_buyNowItem');
+
+            // Clear backend cart individually if user is logged in
+            if (typeof AuthState !== 'undefined' && AuthState.isLoggedIn() && typeof CartService !== 'undefined') {
+                for (const item of finalOrderData.items) {
+                    try {
+                        await CartService.removeFromCart(item.productId);
+                    } catch (err) {
+                        console.error('Failed to clear item from backend cart:', item.productId);
+                    }
+                }
+            }
 
             // 5. Redirect to WhatsApp (merge data to avoid undefined fields)
             const fullOrderForWhatsApp = {
                 ...finalOrderData,
                 orderId: savedOrder.orderId
             };
+
             redirectToWhatsApp(fullOrderForWhatsApp);
 
-            // 6. Redirect to Success Page (or Home for now)
-            window.location.href = 'index.html';
+            // Removed immediate index.html window reload so WhatsApp navigation executes flawlessly
 
         } catch (error) {
             console.error(error);
@@ -170,20 +218,7 @@ function setupFormListener() {
 }
 
 function getOrderItems() {
-    const buyNowItem = localStorage.getItem('jewel_buyNowItem');
-    if (buyNowItem) {
-        const item = JSON.parse(buyNowItem);
-        return [{
-            productId: item.id,
-            productName: item.title,
-            quantity: item.quantity,
-            price: item.price,
-            image: item.image
-        }];
-    }
-
-    const cart = JSON.parse(localStorage.getItem('jewel_cart') || '[]');
-    return cart.map(item => ({
+    return (typeof loadedOrderItems !== 'undefined' ? loadedOrderItems : []).map(item => ({
         productId: item.id,
         productName: item.title,
         quantity: item.quantity,
@@ -220,7 +255,7 @@ ${itemsList}
 
 *Total Amount:*
 💰 *₹${data.totalAmount}*
-${firstImage}
+<img src='${firstImage}'>
 
 *Please send payment details to proceed.*`;
 
@@ -231,7 +266,7 @@ ${firstImage}
     const adminNumber = '9943986695'; // Replace with actual admin number if known, using placeholder
     const url = `https://wa.me/${adminNumber}?text=${encodeURIComponent(msg)}`;
 
-    window.open(url, '_blank');
+    window.location.href = url;
 }
 
 function showToast(message) {

@@ -565,9 +565,17 @@ select {
 
 .product-grid {
     display: grid;
-    /* grid-template-columns: 1fr; */
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: var(--spacing-xl);
+    padding: var(--spacing-md) 0;
+}
+
+/* Mobile: Force 2 columns */
+@media (max-width: 600px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
 }
 
 /* Product Card */
@@ -666,14 +674,17 @@ select {
 }
 
 .product-card__content {
-    padding: var(--spacing-lg);
+    padding: 0.65rem 0.75rem 0.85rem;
 }
 
 .product-card__title {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-sm);
     color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.35rem;
 }
 
 .product-card__description {
@@ -701,34 +712,29 @@ select {
     color: var(--color-border);
 }
 
-.product-card__footer {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 1rem !important;
-    margin-top: var(--spacing-md);
-    align-items: stretch !important;
+.product-card__pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
 }
 
 .product-card__price {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
     color: var(--color-primary);
 }
 
-.product-card__quick-view {
-    width: 100% !important;
-    text-align: center !important;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--color-primary);
-    color: white;
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    transition: var(--transition-base);
+.product-card__mrp {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-decoration: line-through;
 }
 
-.product-card__quick-view:hover {
-    background-color: var(--color-primary-dark);
+.product-card__discount {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: #e53e3e;
 }
 
 /* No Results */
@@ -1562,10 +1568,8 @@ select {
     }
 
     .main {
-        display: grid;
-        grid-template-columns: 250px 1fr;
-        gap: var(--spacing-2xl);
-        align-items: start;
+        display: block; /* Remove legacy grid, handled by category-layout */
+        padding: var(--spacing-xl) 0;
     }
 
     .filters {

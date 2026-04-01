@@ -472,6 +472,7 @@
     margin-bottom: 1rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -762,3 +763,187 @@
         background: #a0aec0;
     }
 }
+
+/* ============================================
+   DYNAMIC ATTRIBUTES & VARIANTS
+   ============================================ */
+
+/* Row header: title + add button side by side */
+.form-section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+/* "Add ..." button */
+.btn-add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
+}
+
+.btn-add-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.5);
+}
+
+/* Container for all rows */
+.dynamic-rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Single attribute / variant row */
+.dynamic-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    animation: rowSlideIn 0.2s ease;
+}
+
+.dynamic-row:hover {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
+}
+
+@keyframes rowSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.dynamic-row .row-input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.55rem 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.dynamic-row .row-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Separator label between inputs  e.g.  ":" */
+.dynamic-row .row-sep {
+    color: #a0aec0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Remove row button */
+.btn-remove-row {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #a0aec0;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.btn-remove-row:hover {
+    background: #fed7d7;
+    color: #c53030;
+    transform: scale(1.1);
+}
+
+/* Placeholder shown when no rows added yet */
+.dynamic-rows-empty {
+    text-align: center;
+    padding: 1.2rem;
+    color: #a0aec0;
+    font-size: 0.88rem;
+    border: 1.5px dashed #e2e8f0;
+    border-radius: 8px;
+}
+
+/* ============================================
+   PRODUCT CARD — Attribute & Variant Display
+   ============================================ */
+
+.product-card__attributes {
+    margin-bottom: 0.75rem;
+}
+
+.product-card__attr-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+}
+
+.attr-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.attr-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 2px 10px;
+    background: #edf2f7;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    color: #4a5568;
+}
+
+.attr-tag strong {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Variant pills */
+.variant-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 3px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    color: #4a5568;
+    background: #fff;
+}
+
+.variant-pill .v-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+    display: inline-block;
+}
