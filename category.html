@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
     <link rel="stylesheet" href="./CSS/category-bar.css">
     <link rel="stylesheet" href="./CSS/filter-panel.css">
+    <link rel="stylesheet" href="./CSS/signup-popup.css">
+    <link rel="stylesheet" href="./CSS/admin-panel.css">
+    <link rel="stylesheet" href="./CSS/profile-modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .category-header {
             text-align: center;
@@ -118,26 +122,160 @@
             transform: translateY(-50%);
             color: #a0aec0;
         }
+
+        /* Header Alignment Fixes */
+        .nav__actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav__action {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: background 0.3s;
+            font-size: 1.2rem;
+            color: var(--color-text);
+            text-decoration: none;
+            background: rgba(0,0,0,0.03);
+        }
+
+        .nav__action:hover {
+            background: rgba(0,0,0,0.08);
+        }
+
+        .nav__action .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e53e3e;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            border: 2px solid white;
+        }
+
+        .search__icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .profile-menu-container {
+            position: relative;
+            margin-left: 5px;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <!-- Header (Simplified reuse) -->
-    <header class="header">
-        <nav class="nav container">
+    <!-- ░░ HEADER — identical to index.html ░░ -->
+    <header class="header" role="banner">
+        <nav class="nav container" aria-label="Main navigation">
             <div class="nav__brand" style="display: flex; align-items: center;">
-                <a href="index.html" class="nav__logo-link"
-                    style="display: flex; align-items: center; text-decoration: none;">
+                <a href="index.html" class="nav__logo-link" style="display: flex; align-items: center;">
                     <img src="assets/images/logo.png" alt="Guru Fashion Jewellery Logo" class="nav__logo-img"
                         style="height: 80px; width: auto; max-height: 100%; object-fit: contain;">
                 </a>
             </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="nav__toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="nav__search" style="max-width: 450px;">
+                <input type="search" id="searchInput" class="search__input" placeholder="Search jewellery..."
+                    aria-label="Search products"
+                    onkeydown="if(event.key==='Enter'){ window.location.href='index.html?search='+encodeURIComponent(this.value); }">
+                <span class="search__icon">🔍</span>
+            </div>
+
+            <!-- Navigation Actions -->
             <div class="nav__actions">
-                <a href="index.html" class="nav__action nav__home-link">🏠 Home</a>
+                <button class="nav__action" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="icon">🌙</span>
+                </button>
+
+                <button class="nav__action" id="wishlistToggle" aria-label="Wishlist" title="View wishlist">
+                    <span class="icon">❤️</span>
+                    <span class="badge" id="wishlistBadge">0</span>
+                </button>
+
+                <button class="nav__action" id="cartToggle" aria-label="Shopping cart" title="View cart">
+                    <span class="icon">🛍️</span>
+                    <span class="badge" id="cartBadge">0</span>
+                </button>
+
+                <!-- Profile Menu -->
+                <div class="profile-menu-container" id="profileMenuContainer">
+                    <button class="nav__action" id="profileMenuToggle" aria-label="Profile menu" title="Profile" style="display: none;">
+                        <span class="icon">👤</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="profile.html" class="profile-dropdown__item">
+                            <span class="icon">👤</span> My Profile
+                        </a>
+                        <a href="orders.html" class="profile-dropdown__item">
+                            <span class="icon">📦</span> My Orders
+                        </a>
+                        <a href="admin.html" class="profile-dropdown__item admin-only" id="adminPanel" style="display: none;">
+                            <span class="icon">⚙️</span> Admin Panel
+                        </a>
+                        <hr class="profile-dropdown__divider">
+                        <a href="#" class="profile-dropdown__item" id="logoutBtn">
+                            <span class="icon">🚪</span> Logout
+                        </a>
+                    </div>
+                    <a href="login.html" class="btn-login" id="loginSignupBtn" style="display: none;">Login / Signup</a>
+                </div>
             </div>
         </nav>
     </header>
+
+    <!-- Mobile Search Bar (Only visible on mobile via mobile-nav.css) -->
+    <div class="container mobile-search-container" style="margin-top: 1rem;">
+        <div class="mobile-search">
+            <input type="search" class="mobile-search__input" placeholder="Search jewellery..." 
+                onkeydown="if(event.key==='Enter'){ window.location.href='index.html?search='+encodeURIComponent(this.value); }">
+            <span class="mobile-search__icon">🔍</span>
+        </div>
+    </div>
 
     <main>
         <!-- Category Header -->
@@ -275,6 +413,49 @@
         <div class="filter-overlay" id="filterOverlay"></div>
     </main>
 
+    <!-- ░░ CART SIDEBAR ░░ -->
+    <aside class="cart" id="cartPanel" aria-label="Shopping cart" style="display: none;">
+        <div class="cart__overlay"></div>
+        <div class="cart__content">
+            <div class="cart__header">
+                <h3 class="cart__title">Shopping Cart</h3>
+                <button class="cart__close" aria-label="Close cart">&times;</button>
+            </div>
+            <div class="cart__body" id="cartItems">
+                <div class="cart__empty" id="emptyCart">
+                    <p>Your cart is empty</p>
+                    <p class="cart__empty-subtitle">Add some beautiful pieces to get started!</p>
+                </div>
+            </div>
+            <div class="cart__footer">
+                <div class="cart__subtotal">
+                    <span>Subtotal:</span>
+                    <span class="cart__total" id="cartTotal">₹0.00</span>
+                </div>
+                <button class="btn btn--primary btn--block" id="checkoutBtn">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ░░ WISHLIST SIDEBAR ░░ -->
+    <aside class="cart" id="wishlistPanel" aria-label="Wishlist" style="display: none;">
+        <div class="cart__overlay"></div>
+        <div class="cart__content">
+            <div class="cart__header">
+                <h3 class="cart__title">My Wishlist</h3>
+                <button class="cart__close" aria-label="Close wishlist">&times;</button>
+            </div>
+            <div class="cart__body" id="wishlistItems">
+                <div class="cart__empty" id="emptyWishlist">
+                    <p>Your wishlist is empty</p>
+                    <p class="cart__empty-subtitle">Save your favourites!</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
     <!-- TOAST NOTIFICATION -->
     <div class="toast" id="toast" role="alert" aria-live="polite">
         Item added to cart
@@ -296,6 +477,58 @@
             </div>
         </div>
     </aside>
+
+    <!-- ░░ PROFILE MODAL ░░ -->
+    <div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle"
+        style="display: none;">
+        <div class="modal__overlay" aria-hidden="true"></div>
+        <div class="modal__content">
+            <button class="modal__close" id="closeProfileModal" aria-label="Close modal">&times;</button>
+            <div class="modal__body">
+                <div class="modal__header">
+                    <h3 id="profileModalTitle" class="modal__title">My Profile</h3>
+                </div>
+                <form id="profileForm" class="modal__form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="profileUsername" class="form-label">Username</label>
+                            <input type="text" id="profileUsername" class="search__input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileWhatsapp" class="form-label">WhatsApp Number</label>
+                            <input type="tel" id="profileWhatsapp" class="search__input" placeholder="e.g. 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileAlternate" class="form-label">Alternate Number</label>
+                            <input type="tel" id="profileAlternate" class="search__input" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePincode" class="form-label">Pincode</label>
+                            <input type="text" id="profilePincode" class="search__input" maxlength="6">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="profileAddress" class="form-label">Full Address</label>
+                        <textarea id="profileAddress" class="search__input" placeholder="House No, Street, Landmark..."></textarea>
+                    </div>
+                    <div class="form-grid" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="profileState" class="form-label">State</label>
+                            <input type="text" id="profileState" class="search__input">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileDistrict" class="form-label">District</label>
+                            <input type="text" id="profileDistrict" class="search__input">
+                        </div>
+                    </div>
+                    <div class="modal__actions">
+                        <button type="button" class="btn btn--secondary" id="cancelProfileUpdate">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- PRODUCT DETAIL MODAL -->
     <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
@@ -450,6 +683,60 @@
     <script src="./JS/product-service.js"></script>
     <script src="./JS/order-service.js"></script>
     <script src="./JS/orders-panel.js"></script>
+
+    <!-- Dark-mode / nav toggle mini script -->
+    <script>
+        // Dark mode
+        (function () {
+            const saved = localStorage.getItem('jewel_darkMode');
+            if (saved === 'true') document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('darkModeToggle')?.addEventListener('click', function () {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+                localStorage.setItem('jewel_darkMode', String(!isDark));
+            });
+        })();
+
+        // Cart toggle (sidebar)
+        document.getElementById('cartToggle')?.addEventListener('click', function () {
+            const p = document.getElementById('cartPanel');
+            if (p) {
+                p.style.display = p.style.display === 'none' ? 'block' : 'none';
+                if (p.style.display === 'block' && window.renderMiniCart) {
+                    window.renderMiniCart();
+                }
+            }
+        });
+        document.getElementById('cartPanel')?.querySelector('.cart__close')?.addEventListener('click', function () {
+            document.getElementById('cartPanel').style.display = 'none';
+        });
+        document.getElementById('cartPanel')?.querySelector('.cart__overlay')?.addEventListener('click', function () {
+            document.getElementById('cartPanel').style.display = 'none';
+        });
+
+        // Wishlist toggle (sidebar)
+        document.getElementById('wishlistToggle')?.addEventListener('click', function () {
+            const p = document.getElementById('wishlistPanel');
+            if (p) {
+                p.style.display = p.style.display === 'none' ? 'block' : 'none';
+                if (p.style.display === 'block' && window.renderWishlist) {
+                    window.renderWishlist();
+                }
+            }
+        });
+        document.getElementById('wishlistPanel')?.querySelector('.cart__close')?.addEventListener('click', function () {
+            document.getElementById('wishlistPanel').style.display = 'none';
+        });
+        document.getElementById('wishlistPanel')?.querySelector('.cart__overlay')?.addEventListener('click', function () {
+            document.getElementById('wishlistPanel').style.display = 'none';
+        });
+
+        // Checkout redirect
+        document.getElementById('checkoutBtn')?.addEventListener('click', function () {
+            window.location.href = 'checkout.html';
+        });
+    </script>
+
     <script src="./JS/category-page.js"></script>
 </body>
 

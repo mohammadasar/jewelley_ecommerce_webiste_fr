@@ -1063,7 +1063,7 @@ function addToCartFromModal() {
     const metal = metalSelect ? metalSelect.value : 'Gold';
 
     addToCart(state.currentProduct.id, size, metal);
-    showToast(`${state.currentProduct.title} added to cart!`);
+    showToast(`${state.currentProduct.title} added to cart! 🛒`);
 }
 
 function addToCart(productId, size = 'medium', metal = 'gold') {
@@ -1314,10 +1314,7 @@ async function toggleWishlistItem(productId) {
         if (typeof WishlistService !== 'undefined') {
             const success = await WishlistService.addToWishlist(productId);
             state.wishlist.push(productId);
-            showToast(`${product ? product.title : 'Item'} added to wishlist!`);
-        } else {
-            state.wishlist.push(productId);
-            showToast(`${product ? product.title : 'Item'} added to wishlist!`);
+            showToast(`${product ? product.title : 'Item'} added to wishlist! ❤️`);
             saveToLocalStorage();
         }
     }
@@ -1382,7 +1379,7 @@ function renderWishlist() {
     emptyWishlist.style.display = 'none';
 
     const itemsHTML = state.wishlist.map(productId => {
-        const product = state.products.find(p => p.id === productId);
+        const product = state.products.find(p => p.id == productId);
         if (!product) return '';
 
         return `
@@ -1463,7 +1460,9 @@ function toggleDarkMode() {
 
     // Update icon
     const icon = document.querySelector('#darkModeToggle .icon');
-    icon.textContent = state.darkMode ? '☀️' : '🌙';
+    if (icon) {
+        icon.textContent = state.darkMode ? '☀️' : '🌙';
+    }
 
     saveToLocalStorage();
 }
@@ -1630,7 +1629,8 @@ function handleKeyboard(e) {
 // ==================== TOAST NOTIFICATIONS ====================
 function showToast(message) {
     const toast = document.getElementById('toast');
-    toast.textContent = message;
+    if (!toast) return;
+    toast.innerHTML = message;
     toast.classList.add('show');
 
     setTimeout(() => {

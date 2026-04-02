@@ -132,17 +132,23 @@
     padding: 0;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
+html,
 body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     line-height: 1.6;
     color: var(--color-text);
     background-color: var(--color-bg);
     transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 img {
@@ -458,39 +464,129 @@ select {
 
 .search__icon {
     position: absolute;
-    right: var(--spacing-md);
+    right: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
+    color: var(--color-primary);
     pointer-events: none;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav__actions {
     display: flex;
-    gap: var(--spacing-sm);
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .nav__action {
     position: relative;
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-md);
-    transition: var(--transition-base);
-    font-size: var(--font-size-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    transition: all var(--transition-base);
+    font-size: 1.3rem;
+    color: var(--color-text);
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .nav__action:hover {
-    background-color: var(--color-bg);
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
 }
 
 .nav__action .badge {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
     background-color: var(--color-accent);
     color: white;
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-bold);
-    padding: 2px 6px;
-    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center;
+    line-height: 1;
+    padding: 0 !important;
+    border: 2px solid var(--color-surface);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 10;
+    aspect-ratio: 1/1 !important;
+}
+
+/* Profile Dropdown Styling */
+.profile-menu-container {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    left: auto !important;
+    background-color: var(--color-surface);
+    min-width: 210px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+    display: none;
+    flex-direction: column;
+    z-index: 2000 !important;
+    border: 1px solid var(--color-border);
+}
+
+.profile-dropdown.show {
+    display: flex !important;
+}
+
+.profile-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.profile-dropdown__item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.profile-dropdown__item .icon {
+    font-size: 1.1rem;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-dropdown__divider {
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 0.5rem 0;
+    border: none;
+}
+
+@media (max-width: 480px) {
+    .profile-dropdown {
+        right: 0 !important;
+        left: auto !important;
+        min-width: 190px;
+    }
 }
 
 /* ==================== FILTERS ==================== */
@@ -1568,7 +1664,8 @@ select {
     }
 
     .main {
-        display: block; /* Remove legacy grid, handled by category-layout */
+        display: block;
+        /* Remove legacy grid, handled by category-layout */
         padding: var(--spacing-xl) 0;
     }
 

@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
     <link rel="stylesheet" href="./CSS/profile-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./CSS/mobile-nav.css">
 </head>
 
 <body class="pd-page">
@@ -65,10 +66,10 @@
                         <span class="icon">👤</span>
                     </button>
                     <div class="profile-dropdown" id="profileDropdown">
-                        <a href="#" class="profile-dropdown__item" id="myProfile">
+                        <a href="profile.html" class="profile-dropdown__item" id="myProfile">
                             <span class="icon">👤</span> My Profile
                         </a>
-                        <a href="#" class="profile-dropdown__item" id="myOrders">
+                        <a href="orders.html" class="profile-dropdown__item" id="myOrders">
                             <span class="icon">📦</span> My Orders
                         </a>
                         <a href="admin.html" class="profile-dropdown__item admin-only" id="adminPanel"
@@ -89,6 +90,15 @@
             </div>
         </nav>
     </header>
+
+    <!-- Mobile Search Bar (Only visible on mobile via mobile-nav.css) -->
+    <div class="container mobile-search-container" style="margin-top: 1rem;">
+        <div class="mobile-search">
+            <input type="search" class="mobile-search__input" placeholder="Search jewellery..." 
+                onkeydown="if(event.key==='Enter'){ window.location.href='index.html?search='+encodeURIComponent(this.value); }">
+            <span class="mobile-search__icon">🔍</span>
+        </div>
+    </div>
 
     <!-- ░░ PRODUCT DETAIL APP SHELL ░░ -->
     <main id="pd-app" role="main" aria-label="Product detail" aria-live="polite">

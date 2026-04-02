@@ -66,6 +66,7 @@
         setupFilterUI();
         setupEventListeners();
         await loadData();
+        updateBadges();
     }
 
     // ── Event Listeners ─────────────────────────────────────────────────
@@ -647,7 +648,7 @@
             const rating    = product.rating || 4.5;
             const isNew     = product.isNew !== undefined ? product.isNew : true;
             const isOnSale  = product.discountPercent > 0;
-            const inWishlist = Array.isArray(cartState.wishlist) && cartState.wishlist.includes(product.id);
+            const inWishlist = Array.isArray(cartState.wishlist) && cartState.wishlist.some(id => String(id) === String(product.id));
 
             return `
                 <article class="product-card" role="listitem" data-product-id="${product.id}">
@@ -740,36 +741,53 @@
 
     // ── Cart / Wishlist Actions ─────────────────────────────────────────
     async function toggleWishlistItem(productId) {
-        const index = cartState.wishlist.findIndex(id => id == productId);
-        if (index > -1) {
-            cartState.wishlist.splice(index, 1);
-            showToast('Removed from wishlist');
-            if (typeof WishlistService !== 'undefined') await WishlistService.removeFromWishlist(productId);
+        if (typeof WishlistService !== 'undefined') {
+            await WishlistService.toggle(productId);
         } else {
-            cartState.wishlist.push(productId);
-            showToast('Added to wishlist ❤️');
-            if (typeof WishlistService !== 'undefined') await WishlistService.addToWishlist(productId);
+            let list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
+            const idx = list.findIndex(id => String(id) === String(productId));
+            if (idx >= 0) list.splice(idx, 1); else list.push(productId);
+            localStorage.setItem('jewel_wishlist', JSON.stringify(list));
         }
+        
+        // Sync local state for quick lookup
+        const list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
+        cartState.wishlist = list.map(item => item.id || item.productId || item);
+
+        updateBadges();
         renderProducts();
+        if (document.getElementById('wishlistPanel')?.style.display === 'block') renderWishlist();
+        showToast(isWishlisted(productId) ? 'Added to wishlist ❤️' : 'Removed from wishlist');
+    }
+
+    function isWishlisted(id) {
+        const list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
+        return list.some(w => String(w.id || w) === String(id));
     }
 
     function addToCart(productId, size = 'Free Size', metal = 'Gold') {
         const product = state.products.find(p => p.id == productId);
         if (!product) return;
 
-        if (typeof CartService !== 'undefined') {
+        if (typeof CartService !== 'undefined' && !!localStorage.getItem('jewel_token')) {
             CartService.addToCart(productId, 1)
                 .then(res => {
                     if (res === null) _saveToLocalCart(product, size, metal);
                     showToast(`${product.productName} added to cart! 🛒`);
+                    updateBadges();
+                    if (document.getElementById('cartPanel')?.style.display === 'block') renderMiniCart();
                 })
                 .catch(() => {
                     _saveToLocalCart(product, size, metal);
                     showToast(`${product.productName} added to cart! 🛒`);
+                    updateBadges();
+                    if (document.getElementById('cartPanel')?.style.display === 'block') renderMiniCart();
                 });
         } else {
             _saveToLocalCart(product, size, metal);
             showToast(`${product.productName} added to cart! 🛒`);
+            updateBadges();
+            if (document.getElementById('cartPanel')?.style.display === 'block') renderMiniCart();
         }
     }
 
@@ -800,10 +818,11 @@
 
     async function toggleWishlistFromModal() {
         if (!cartState.currentProduct) return;
-        await toggleWishlistItem(cartState.currentProduct.id);
+        const productId = cartState.currentProduct.id;
+        await toggleWishlistItem(productId);
         const wishlistBtn = document.getElementById('modalWishlistBtn');
-        const inWishlist = cartState.wishlist.includes(cartState.currentProduct.id);
-        if (wishlistBtn) wishlistBtn.textContent = inWishlist ? '❤️' : '♡';
+        const loved = isWishlisted(productId);
+        if (wishlistBtn) wishlistBtn.textContent = loved ? '❤️' : '♡';
     }
 
     function handleBuyNow(e) {
@@ -946,11 +965,140 @@
     function showToast(msg) {
         const toast = document.getElementById('toast');
         if (!toast) return;
-        toast.textContent = msg;
+        toast.innerHTML = msg;
         toast.classList.add('show');
         clearTimeout(toast._t);
         toast._t = setTimeout(() => toast.classList.remove('show'), 3000);
     }
+
+    // ── Badge & Sidebar Sync ─────────────────────────────────
+    async function updateBadges() {
+        const wBadge = document.getElementById('wishlistBadge');
+        if (wBadge) {
+            let list = [];
+            if (typeof WishlistService !== 'undefined') {
+                try { list = await WishlistService.fetchWishlist(); } catch { list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]'); }
+            } else { list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]'); }
+            wBadge.textContent = list.length;
+        }
+
+        const cBadge = document.getElementById('cartBadge');
+        if (cBadge) {
+            let items = [];
+            if (typeof CartService !== 'undefined' && !!localStorage.getItem('jewel_token')) {
+                try { const res = await CartService.getCart(); items = res.items || []; } catch { items = JSON.parse(localStorage.getItem('jewel_cart') || '[]'); }
+            } else { items = JSON.parse(localStorage.getItem('jewel_cart') || '[]'); }
+            cBadge.textContent = items.reduce((acc, i) => acc + (i.quantity || 1), 0);
+        }
+    }
+
+    async function renderWishlist() {
+        const container = document.getElementById('wishlistItems');
+        const empty = document.getElementById('emptyWishlist');
+        if (!container || !empty) return;
+
+        let list = [];
+        if (typeof WishlistService !== 'undefined') {
+            try { list = await WishlistService.fetchWishlist(); } catch { list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]'); }
+        } else { list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]'); }
+
+        if (list.length === 0) {
+            empty.style.display = 'block';
+            container.innerHTML = '';
+            return;
+        }
+        empty.style.display = 'none';
+        container.innerHTML = '<p style="text-align:center; padding:1rem;">Loading...</p>';
+
+        try {
+            const productPromises = list.map(id => ProductService.getProductById(id.id || id).catch(() => null));
+            const products = (await Promise.all(productPromises)).filter(p => p !== null);
+            container.innerHTML = products.map(p => `
+                <div class="cart-item">
+                    <img src="${getFullImageUrl(p.images[0])}" class="cart-item__image">
+                    <div class="cart-item__info">
+                        <div class="cart-item__name">${escHtml(p.productName)}</div>
+                        <div class="cart-item__price">₹${Number(p.price).toLocaleString()}</div>
+                        <button class="cart-item__remove" onclick="window.miniWishlistAction('remove', '${p.id}')">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch { container.innerHTML = '<p>Error loading items</p>'; }
+    }
+
+    async function renderMiniCart() {
+        const container = document.getElementById('cartItems');
+        const empty = document.getElementById('emptyCart');
+        const totalEl = document.getElementById('cartTotal');
+        if (!container || !empty) return;
+
+        let items = JSON.parse(localStorage.getItem('jewel_cart') || '[]');
+        if (items.length === 0) {
+            empty.style.display = 'block';
+            container.innerHTML = '';
+            if (totalEl) totalEl.textContent = '₹0';
+            return;
+        }
+        empty.style.display = 'none';
+        let total = 0;
+        container.innerHTML = items.map(i => {
+            total += (Number(i.price) || 0) * (Number(i.quantity) || 1);
+            return `
+                <div class="cart-item">
+                    <img src="${i.image?.startsWith('http') ? i.image : getFullImageUrl(i.image)}" class="cart-item__image">
+                    <div class="cart-item__info">
+                        <div class="cart-item__name">${escHtml(i.title)}</div>
+                        <div class="cart-item__price">₹${Number(i.price).toLocaleString()}</div>
+                        <div class="cart-item__qty-row">
+                            <button class="cart-item__btn" onclick="window.miniCartAction('decrease', '${i.id}', ${i.quantity})">-</button>
+                            <span class="cart-item__qty-val">${i.quantity}</span>
+                            <button class="cart-item__btn" onclick="window.miniCartAction('increase', '${i.id}', ${i.quantity})">+</button>
+                            <button class="cart-item__remove" onclick="window.miniCartAction('remove', '${i.id}')">×</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        if (totalEl) totalEl.textContent = `₹${total.toLocaleString()}`;
+    }
+
+    // Expose to window
+    window.renderMiniCart = renderMiniCart;
+    window.renderWishlist = renderWishlist;
+    window.updateBadges = updateBadges;
+
+    window.miniWishlistAction = async (action, id) => {
+        if (action === 'remove') {
+            if (typeof WishlistService !== 'undefined') await WishlistService.removeFromWishlist(id);
+            let list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
+            list = list.filter(w => String(w.id || w) !== String(id));
+            localStorage.setItem('jewel_wishlist', JSON.stringify(list));
+            updateBadges();
+            renderWishlist();
+            renderProducts();
+        }
+    };
+
+    window.miniCartAction = async (action, id, qty) => {
+        let cart = JSON.parse(localStorage.getItem('jewel_cart') || '[]');
+        const idx = cart.findIndex(c => String(c.id) === String(id));
+        if (idx === -1) return;
+
+        if (action === 'increase') cart[idx].quantity += 1;
+        else if (action === 'decrease') {
+            cart[idx].quantity -= 1;
+            if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+        } else if (action === 'remove') cart.splice(idx, 1);
+
+        localStorage.setItem('jewel_cart', JSON.stringify(cart));
+        updateBadges();
+        renderMiniCart();
+        
+        if (typeof CartService !== 'undefined' && !!localStorage.getItem('jewel_token')) {
+            if (action === 'remove') CartService.removeFromCart(id);
+            else CartService.addToCart(id, action === 'increase' ? 1 : -1);
+        }
+    };
 
     function escHtml(str) {
         return String(str)
