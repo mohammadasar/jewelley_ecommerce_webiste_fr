@@ -248,6 +248,38 @@
         }
     }
 
+    /**
+     * Toggle product in wishlist (add if missing, remove if present)
+     * @param {string|number} productId - Product ID to toggle
+     * @returns {Promise<boolean>} Success status
+     */
+    async function toggle(productId) {
+        try {
+            // Get current wishlist state
+            // fetchWishlist handles both backend (if logged in) and local fallback
+            const wishlist = await fetchWishlist();
+            
+            // Check if product is already in wishlist
+            // We stringify the IDs to ensure consistent comparison
+            const isPresent = wishlist.some(id => String(id) === String(productId));
+
+            if (isPresent) {
+                return await removeFromWishlist(productId);
+            } else {
+                return await addToWishlist(productId);
+            }
+        } catch (error) {
+            console.error('Error toggling wishlist:', error);
+            // Fallback to local toggle if everything else fails
+            const local = getLocalWishlist();
+            if (local.includes(productId)) {
+                return removeFromLocalWishlist(productId);
+            } else {
+                return addToLocalWishlist(productId);
+            }
+        }
+    }
+
     // ==================== LOCAL STORAGE FALLBACK ====================
 
     /**
@@ -363,6 +395,7 @@
         fetchWishlist,
         addToWishlist,
         removeFromWishlist,
+        toggle,
         syncWishlistOnLogin,
         getLocalWishlist,
         debugAuth  // Add debug function

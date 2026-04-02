@@ -620,7 +620,12 @@
     function isWishlisted(id) {
         try {
             const list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
-            return list.some(w => String(w.id) === String(id) || String(w.productId) === String(id));
+            return list.some(w => {
+                if (!w) return false;
+                // Handle both object {id: ...} and raw ID
+                const itemId = (typeof w === 'object') ? (w.id || w.productId) : w;
+                return String(itemId) === String(id);
+            });
         } catch { return false; }
     }
 
@@ -644,12 +649,18 @@
 
     function localToggleWishlist(p, btn) {
         const list = JSON.parse(localStorage.getItem('jewel_wishlist') || '[]');
-        const idx = list.findIndex(w => String(w.id) === String(p.id));
+        // Handle both objects and raw IDs in the list for lookup
+        const idx = list.findIndex(w => {
+            const itemId = (typeof w === 'object') ? (w.id || w.productId) : w;
+            return String(itemId) === String(p.id);
+        });
+
         if (idx >= 0) {
             list.splice(idx, 1);
             showToast('Removed from wishlist');
         } else {
-            list.push({ id: p.id, title: p.productName, image: getImages(p)[0], price: p.price });
+            // Save only ID to match WishlistService and app.js standard
+            list.push(p.id);
             showToast('❤️ Added to wishlist');
         }
         localStorage.setItem('jewel_wishlist', JSON.stringify(list));
