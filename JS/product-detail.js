@@ -13,6 +13,7 @@
     let currentProduct = null;
     let currentImageIndex = 0;
     let selectedVariant = null;
+    let currentQuantity = 1;
 
     document.addEventListener('DOMContentLoaded', init);
 
@@ -122,6 +123,16 @@
                     ` : ''}
                     ${renderAttributes(p)}
                     ${renderVariants(p)}
+                    
+                    <div class="pd-quantity">
+                        <label class="pd-quantity__label">Quantity</label>
+                        <div class="pd-quantity__controls">
+                            <button class="pd-quantity__btn" id="pd-qty-minus" aria-label="Decrease quantity">−</button>
+                            <span class="pd-quantity__value" id="pd-qty-val">1</span>
+                            <button class="pd-quantity__btn" id="pd-qty-plus" aria-label="Increase quantity">+</button>
+                        </div>
+                    </div>
+
                     <div class="pd-info__actions">
                         <button class="pd-btn pd-btn--cart" id="pd-add-cart">🛒 Add to Cart</button>
                         <button class="pd-btn pd-btn--buy" id="pd-buy-now">⚡ Buy Now</button>
@@ -210,6 +221,34 @@
     }
 
     function wireActions(p) {
+        // Reset quantity on render
+        currentQuantity = 1;
+        const qtyVal = document.getElementById('pd-qty-val');
+        const btnMinus = document.getElementById('pd-qty-minus');
+        const btnPlus = document.getElementById('pd-qty-plus');
+
+        const updateQtyUI = () => {
+            if (qtyVal) qtyVal.textContent = currentQuantity;
+            if (btnMinus) btnMinus.disabled = currentQuantity <= 1;
+        };
+
+        btnMinus?.addEventListener('click', () => {
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                updateQtyUI();
+            }
+        });
+
+        btnPlus?.addEventListener('click', () => {
+            const max = selectedVariant ? (Number(selectedVariant.stock) || 99) : 99;
+            if (currentQuantity < max) {
+                currentQuantity++;
+                updateQtyUI();
+            } else {
+                showToast(`Only ${max} units available in stock.`);
+            }
+        });
+
         const variantsEl = document.getElementById('pd-variants');
         if (variantsEl) {
             const first = variantsEl.querySelector('.pd-variant-pill:not(.out-of-stock)');
@@ -240,12 +279,12 @@
         showToast('Adding to cart...');
         if (typeof CartService !== 'undefined' && !!localStorage.getItem('jewel_token')) {
             try {
-                await CartService.addToCart(p.id, 1);
+                await CartService.addToCart(p.id, currentQuantity);
             } catch (e) { _saveToLocalCart(item); }
         } else {
             _saveToLocalCart(item);
         }
-        showToast(`${p.productName} added to cart! 🛒`);
+        showToast(`${currentQuantity} × ${p.productName} added to cart! 🛒`);
         updateBadges();
         if (document.getElementById('cartPanel')?.style.display === 'block') renderMiniCart();
     }
