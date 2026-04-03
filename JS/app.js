@@ -1511,20 +1511,38 @@ async function initHeroCarousel() {
 
     // 3. Render slides if we have data
     if (slidesData && slidesData.length > 0) {
-        slidesEl.innerHTML = slidesData.map(slide => `
-            <article class="slide" data-title="${slide.title}" data-price="${slide.price}">
-                <img src="${slide.image}" alt="${slide.title}" onerror="this.src='assets/images/placeholder.svg'" />
-                ${slide.subtitle ? `<span class="badge">${slide.subtitle}</span>` : ''}
-                <div class="info">
-                    <h2 class="title">${slide.title}</h2>
-                    <p class="desc">${slide.description}</p>
-                    <div class="price">
-                        <span class="amount">${slide.price}</span>
-                        ${slide.oldPrice ? `<span class="old">${slide.oldPrice}</span>` : ''}
+        slidesEl.innerHTML = slidesData.map(slide => {
+            // Offer Calculation
+            let offerBadge = '';
+            if (slide.price && slide.oldPrice) {
+                const p = parseFloat(slide.price.toString().replace(/[^0-9.]/g, ''));
+                const op = parseFloat(slide.oldPrice.toString().replace(/[^0-9.]/g, ''));
+                if (op > p) {
+                    const discount = Math.round(((op - p) / op) * 100);
+                    offerBadge = `<span class="offer-badge">${discount}% OFF</span>`;
+                }
+            }
+
+            return `
+                <article class="slide" data-title="${slide.title}" data-price="${slide.price}">
+                    <img src="${slide.image}" alt="${slide.title}" onerror="this.src='assets/images/placeholder.svg'" />
+                    
+                    <div class="badges-group">
+                        ${slide.subtitle ? `<span class="badge">${slide.subtitle}</span>` : ''}
+                        ${offerBadge}
                     </div>
-                </div>
-            </article>
-        `).join('');
+
+                    <div class="info">
+                        <h2 class="title">${slide.title}</h2>
+                        <p class="desc">${slide.description}</p>
+                        <div class="price">
+                            <span class="amount">₹${slide.price}</span>
+                            ${slide.oldPrice ? `<span class="old">₹${slide.oldPrice}</span>` : ''}
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
     } else {
         // Empty state fallback or keep default articles? (Already removed in previous step)
         slidesEl.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white;">No active banners collections.</div>';

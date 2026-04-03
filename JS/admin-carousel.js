@@ -30,10 +30,10 @@
     document.addEventListener('DOMContentLoaded', async () => {
         // 1. Check access
         if (!checkAdminAccess()) return;
-        
+
         // 2. Load slides
         await loadSlides();
-        
+
         // 3. Setup listeners
         setupEventListeners();
     });
@@ -88,25 +88,39 @@
             return;
         }
 
-        slideGrid.innerHTML = state.slides.map(slide => `
-            <div class="slide-card" data-id="${slide.id}">
-                <div class="slide-card__image-container">
-                    <img src="${slide.image}" alt="${slide.title}" class="slide-card__image" onerror="this.src='assets/images/placeholder.svg'">
-                    ${slide.subtitle ? `<span class="slide-card__badge">${slide.subtitle}</span>` : ''}
-                </div>
-                <div class="slide-card__content" style="padding: 1.5rem;">
-                    <h3 class="slide-card__title">${slide.title}</h3>
-                    <div class="slide-card__price">
-                        ${slide.price}
-                        ${slide.oldPrice ? `<span class="slide-card__old-price">${slide.oldPrice}</span>` : ''}
+        slideGrid.innerHTML = state.slides.map(slide => {
+            // Offer Calculation
+            let offerTag = '';
+            if (slide.price && slide.oldPrice) {
+                const p = parseFloat(slide.price.toString().replace(/[^0-9.]/g, ''));
+                const op = parseFloat(slide.oldPrice.toString().replace(/[^0-9.]/g, ''));
+                if (op > p) {
+                    const discount = Math.round(((op - p) / op) * 100);
+                    offerTag = `<span style="background:#ff4b2b; color:white; padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px;">${discount}% OFF</span>`;
+                }
+            }
+
+            return `
+                <div class="slide-card" data-id="${slide.id}">
+                    <div class="slide-card__image-container">
+                        <img src="${slide.image}" alt="${slide.title}" class="slide-card__image" onerror="this.src='assets/images/placeholder.svg'">
+                        ${slide.subtitle ? `<span class="slide-card__badge">${slide.subtitle}</span>` : ''}
+                    </div>
+                    <div class="slide-card__content" style="padding: 1.5rem;">
+                        <h3 class="slide-card__title">${slide.title}</h3>
+                        <div class="slide-card__price">
+                            ₹${slide.price}
+                            ${slide.oldPrice ? `<span class="slide-card__old-price">₹${slide.oldPrice}</span>` : ''}
+                            ${offerTag}
+                        </div>
+                    </div>
+                    <div class="slide-card__actions" style="padding: 1.5rem; border-top: 1px solid var(--color-border);">
+                        <button class="btn-action btn-edit" onclick="editSlide('${slide.id}')">Edit Banner</button>
+                        <button class="btn-action btn-delete" onclick="deleteSlide('${slide.id}')">Delete Slide</button>
                     </div>
                 </div>
-                <div class="slide-card__actions" style="padding: 1.5rem; border-top: 1px solid var(--color-border);">
-                    <button class="btn-action btn-edit" onclick="editSlide('${slide.id}')">Edit Banner</button>
-                    <button class="btn-action btn-delete" onclick="deleteSlide('${slide.id}')">Delete Slide</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Event Listeners
@@ -130,16 +144,16 @@
         // Form Submit
         slideForm.onsubmit = async (e) => {
             e.preventDefault();
-            
+
             const slideId = document.getElementById('slideId').value;
             const formData = new FormData();
-            
+
             formData.append('title', document.getElementById('slideTitle').value);
             formData.append('subtitle', document.getElementById('slideSubtitle').value);
             formData.append('description', document.getElementById('slideDescription').value);
             formData.append('price', document.getElementById('slidePrice').value);
             formData.append('oldPrice', document.getElementById('slideOldPrice').value);
-            
+
             const file = imageFile.files[0];
             if (file) {
                 formData.append('image', file);
@@ -147,7 +161,7 @@
 
             let success = false;
             showToast('Processing request...');
-            
+
             if (slideId) {
                 success = await CarouselService.updateSlide(slideId, formData);
             } else {
@@ -189,13 +203,13 @@
             document.getElementById('slideOldPrice').value = slide.oldPrice || '';
             document.getElementById('slideSubtitle').value = slide.subtitle || '';
             document.getElementById('slideDescription').value = slide.description || '';
-            
+
             previewBox.innerHTML = `<img src="${slide.image}" style="width:100%; height:100%; object-fit:cover;">`;
-            
+
             formTitle.textContent = 'Edit Banner Configuration';
             submitBtn.textContent = 'Update Existing Banner';
             cancelEditBtn.style.display = 'block';
-            
+
             // Smooth scroll to form
             uploadSection.scrollIntoView({ behavior: 'smooth' });
         }
