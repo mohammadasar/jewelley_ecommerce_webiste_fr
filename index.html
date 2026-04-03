@@ -16,6 +16,34 @@
     <link rel="stylesheet" href="./CSS/profile-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./CSS/mobile-nav.css">
+    <style>
+        .carousel-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(134, 94, 237, 0.2);
+            border-top: 5px solid var(--color-primary, #865eed);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .carousel-loader p {
+            color: var(--color-text-muted, #718096);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+    </style>
 </head>
 
 <body>
@@ -123,51 +151,11 @@
     <section class="hero" aria-label="Luxury jewellery carousel">
         <div class="carousel" id="carousel">
             <div class="slides" id="slides" aria-live="polite">
-                <!-- Slide 1 -->
-                <article class="slide" data-title="Aurora Diamond Ring" data-price="$3,200">
-                    <img src="assets/images/rings.jpg" alt="Woman wearing Aurora Diamond Ring" />
-                    <span class="badge">New Arrival</span>
-                    <div class="info" aria-hidden="false">
-                        <span class="brand">CyrusCrafts</span>
-                        <h2 class="title">Aurora Diamond Ring</h2>
-                        <p class="desc">Hand-crafted 18k gold with ethically sourced brilliant-cut diamonds.
-                            Simple, timeless, perfect for everyday elegance.</p>
-                        <div class="price">
-                            <span class="amount">$3,200</span>
-                            <span class="old">$3,800</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Slide 2 -->
-                <article class="slide" data-title="Golden Halo Necklace" data-price="$1,450">
-                    <img src="assets/images/necklaces.jpg" alt="Woman wearing Golden Halo Necklace" />
-                    <span class="badge">Bestseller</span>
-                    <div class="info">
-                        <span class="brand">Guru Jewellery</span>
-                        <h2 class="title">Golden Halo Necklace</h2>
-                        <p class="desc">Delicate chain with a hammered gold halo pendant. Compliments both
-                            formal wear and casual tailoring.</p>
-                        <div class="price">
-                            <span class="amount">$1,450</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Slide 3 -->
-                <article class="slide" data-title="Sapphire Elegance Bracelet" data-price="$2,890">
-                    <img src="assets/images/bracelet.jpg" alt="Woman wearing Sapphire Elegance Bracelet" />
-                    <span class="badge">Limited</span>
-                    <div class="info">
-                        <span class="brand">Maison Lumière</span>
-                        <h2 class="title">Sapphire Elegance Bracelet</h2>
-                        <p class="desc">Stunning sapphire and diamond bracelet in platinum setting.
-                            A masterpiece of craftsmanship and luxury.</p>
-                        <div class="price">
-                            <span class="amount">$2,890</span>
-                        </div>
-                    </div>
-                </article>
+                <!-- Slides will be dynamically inserted by CarouselService -->
+                <div class="carousel-loader" id="carouselLoader">
+                    <div class="spinner"></div>
+                    <p>Loading luxury collections...</p>
+                </div>
             </div>
 
             <!-- Controls -->
@@ -597,6 +585,7 @@
     <script src="./JS/animations.js"></script>
 
     <script src="./JS/product-service.js"></script>
+    <script src="./JS/carousel-service.js"></script>
     <script src="./JS/wishlist-service.js"></script>
     <script src="./JS/cart-service.js"></script>
     <script src="./JS/user-service.js"></script>

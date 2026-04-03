@@ -53,6 +53,9 @@ async function initializeApp() {
         document.documentElement.setAttribute('data-theme', 'dark');
     }
 
+    // Initialize Carousel
+    await initHeroCarousel();
+
     // Load data from API
     await loadDataFromApi();
 
@@ -1485,25 +1488,58 @@ function handleKeyboard(e) {
     }
 }
 // ==================== CAROUSEL PANEL =========================
-(function () {
+// ==================== CAROUSEL PANEL (DYNAMIC) =========================
+async function initHeroCarousel() {
     const slidesEl = document.getElementById('slides');
-    const slides = Array.from(slidesEl.querySelectorAll('.slide'));
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
     const dotsEl = document.getElementById('dots');
     const carousel = document.getElementById('carousel');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
+    if (!slidesEl || !carousel) return;
+
+    // 1. Fetch slides from service
+    let slidesData = [];
+    const loader = document.getElementById('carouselLoader');
+
+    if (typeof CarouselService !== 'undefined') {
+        slidesData = await CarouselService.getSlides();
+    }
+
+    // 2. Hide Loader
+    if (loader) loader.style.display = 'none';
+
+    // 3. Render slides if we have data
+    if (slidesData && slidesData.length > 0) {
+        slidesEl.innerHTML = slidesData.map(slide => `
+            <article class="slide" data-title="${slide.title}" data-price="${slide.price}">
+                <img src="${slide.image}" alt="${slide.title}" onerror="this.src='assets/images/placeholder.svg'" />
+                ${slide.subtitle ? `<span class="badge">${slide.subtitle}</span>` : ''}
+                <div class="info">
+                    <h2 class="title">${slide.title}</h2>
+                    <p class="desc">${slide.description}</p>
+                    <div class="price">
+                        <span class="amount">${slide.price}</span>
+                        ${slide.oldPrice ? `<span class="old">${slide.oldPrice}</span>` : ''}
+                    </div>
+                </div>
+            </article>
+        `).join('');
+    } else {
+        // Empty state fallback or keep default articles? (Already removed in previous step)
+        slidesEl.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white;">No active banners collections.</div>';
+    }
+
+    const slides = Array.from(slidesEl.querySelectorAll('.slide'));
     let current = 0;
     const total = slides.length;
-    let autoplayInterval = 2500;
+    let autoplayInterval = 4000;
     let timer = null;
     let isDragging = false;
     let startX = 0;
-    let currentTranslate = 0;
-    let prevTranslate = 0;
-    let animationID = 0;
 
-    // Create dots
+    // 3. Create dots
+    dotsEl.innerHTML = '';
     slides.forEach((_, i) => {
         const dot = document.createElement('button');
         dot.className = 'dot';
@@ -1515,11 +1551,8 @@ function handleKeyboard(e) {
     const dots = Array.from(dotsEl.children);
 
     function updateUI() {
-        // Move slides
         slidesEl.style.transform = `translateX(-${current * 100}%)`;
-        // Update dots
         dots.forEach((d, i) => d.classList.toggle('active', i === current));
-        // Update live region or ARIA if needed (here slide articles already have content)
     }
 
     function goTo(index) {
@@ -1538,12 +1571,9 @@ function handleKeyboard(e) {
         updateUI();
     }
 
-    // Autoplay
     function startAutoplay() {
         stopAutoplay();
-        timer = setInterval(() => {
-            next();
-        }, autoplayInterval);
+        timer = setInterval(next, autoplayInterval);
     }
 
     function stopAutoplay() {
@@ -1555,77 +1585,46 @@ function handleKeyboard(e) {
         startAutoplay();
     }
 
-    // Pause on hover/focus
+    // Listeners
     carousel.addEventListener('mouseenter', stopAutoplay);
     carousel.addEventListener('mouseleave', startAutoplay);
-    carousel.addEventListener('focusin', stopAutoplay);
-    carousel.addEventListener('focusout', startAutoplay);
+    if (nextBtn) nextBtn.addEventListener('click', () => { next(); restartAutoplay(); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { prev(); restartAutoplay(); });
 
-    // Buttons
-    nextBtn.addEventListener('click', () => { next(); restartAutoplay(); });
-    prevBtn.addEventListener('click', () => { prev(); restartAutoplay(); });
-
-    // Keyboard navigation
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') { prev(); restartAutoplay(); }
-        if (e.key === 'ArrowRight') { next(); restartAutoplay(); }
-    });
-
-    // Touch / Drag support
-    slidesEl.addEventListener('pointerdown', pointerDown);
-    window.addEventListener('pointerup', pointerUp);
-    window.addEventListener('pointermove', pointerMove);
-
-    function pointerDown(e) {
+    // Touch / Drag
+    slidesEl.addEventListener('pointerdown', (e) => {
         isDragging = true;
         startX = e.clientX;
         slidesEl.style.transition = 'none';
         stopAutoplay();
-    }
-    function pointerMove(e) {
+    });
+
+    window.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         const dx = e.clientX - startX;
         slidesEl.style.transform = `translateX(${-current * 100 + (dx / carousel.offsetWidth) * 100}%)`;
-    }
-    function pointerUp(e) {
+    });
+
+    window.addEventListener('pointerup', (e) => {
         if (!isDragging) return;
         isDragging = false;
         slidesEl.style.transition = '';
         const dx = e.clientX - startX;
-        const threshold = carousel.offsetWidth * 0.18;
-        if (dx > threshold) {
-            prev();
-        } else if (dx < -threshold) {
-            next();
-        } else {
-            updateUI(); // snap back
-        }
+        const threshold = carousel.offsetWidth * 0.15;
+        if (dx > threshold) prev();
+        else if (dx < -threshold) next();
+        else updateUI();
         restartAutoplay();
-    }
+    });
 
     // Initialize
     updateUI();
     startAutoplay();
 
-    // Make slide content easily moddable: clicking a slide logs details (example hook)
-    slides.forEach((s, idx) => {
-        s.addEventListener('click', () => {
-            const title = s.dataset.title || 'Product';
-            const price = s.dataset.price || '';
-            console.log('Selected:', title, price);
-        });
-    });
+    // Expose API
+    window.LuxCarousel = { goTo, next, prev, start: startAutoplay, stop: stopAutoplay };
+}
 
-    // Expose a small API on window for quick customization in console
-    window.LuxCarousel = {
-        goTo,
-        next,
-        prev,
-        start: startAutoplay,
-        stop: stopAutoplay,
-        getCurrent: () => current
-    };
-})();
 // ==================== TOAST NOTIFICATIONS ====================
 function showToast(message) {
     const toast = document.getElementById('toast');

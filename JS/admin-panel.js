@@ -343,13 +343,6 @@
             products: `
                 <div class="section-placeholder">
                     <h3>💎 Product Management (CRUD)</h3>
-                    <p>API Endpoints:</p>
-                    <ul>
-                        <li><code>GET ${API_BASE_URL}/products</code> - List all products</li>
-                        <li><code>POST ${API_BASE_URL}/products</code> - Create product</li>
-                        <li><code>PUT ${API_BASE_URL}/products/:id</code> - Update product</li>
-                        <li><code>DELETE ${API_BASE_URL}/products/:id</code> - Delete product</li>
-                    </ul>
                     <p>Create, update, and delete products.</p>
                     <div class="api-info">
                         <strong>Example Product Object:</strong>
@@ -375,55 +368,11 @@
         // Add some basic styling for placeholders
         const style = `
             <style>
-                .section-placeholder {
-                    padding: 2rem;
-                }
-                .section-placeholder h3 {
-                    font-size: 1.5rem;
-                    margin-bottom: 1rem;
-                    color: var(--color-text);
-                }
-                .section-placeholder p {
-                    margin-bottom: 1rem;
-                    color: var(--color-text-muted);
-                }
-                .section-placeholder code {
-                    background: var(--color-bg);
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 0.25rem;
-                    font-family: monospace;
-                    color: var(--color-primary);
-                }
-                .section-placeholder ul {
-                    margin-left: 2rem;
-                    margin-bottom: 1rem;
-                }
-                .section-placeholder ul li {
-                    margin-bottom: 0.5rem;
-                    color: var(--color-text-muted);
-                }
-                .api-info {
-                    background: var(--color-bg);
-                    padding: 1rem;
-                    border-radius: 0.5rem;
-                    margin-top: 1rem;
-                }
-                .api-info pre {
-                    background: var(--color-surface);
-                    padding: 1rem;
-                    border-radius: 0.25rem;
-                    overflow-x: auto;
-                    font-family: monospace;
-                    font-size: 0.875rem;
-                    color: var(--color-text);
-                    margin-top: 0.5rem;
-                }
-                .loading {
-                    text-align: center;
-                    padding: 3rem;
-                    font-size: 1.25rem;
-                    color: var(--color-text-muted);
-                }
+                .section-placeholder { padding: 2rem; }
+                .section-placeholder h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--color-text); }
+                .section-placeholder p { margin-bottom: 1rem; color: var(--color-text-muted); }
+                .api-info { background: var(--color-bg); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; }
+                .api-info pre { background: var(--color-surface); padding: 1rem; border-radius: 0.25rem; overflow-x: auto; font-family: monospace; font-size: 0.875rem; color: var(--color-text); margin-top: 0.5rem; }
             </style>
         `;
 
@@ -434,5 +383,4 @@
             document.head.appendChild(styleEl);
         }
     }
-
 })();
